@@ -19,7 +19,8 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@base/*": ["src/base/*"],
-      "@constants": ["src/constants"]
+      "@constants": ["src/constants"],
+      "@modules/*": ["src/modules/*"]
     }
   }
 }
