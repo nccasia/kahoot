@@ -28,9 +28,10 @@ export class Game extends AbstractEntity {
   @Column()
   ownerId: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: () => GameStatus })
   @IsNotEmpty()
-  @IsEnum(() => GameStatus)
+  @IsEnum(GameStatus)
+  @Column({ enum: GameStatus, default: GameStatus.Draft })
   status: GameStatus;
 
   // relations
