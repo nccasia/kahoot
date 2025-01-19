@@ -17,10 +17,8 @@ import { AccessTokenPayload } from '@modules/auth/types';
 import { ApiResponseType } from '@base/decorators/response-swagger.decorator';
 import { ResponseCreateGame, ResponseGetGame } from './types/game.response';
 import { ApiQueryOptions } from '@base/decorators/api-query-options.decorator';
-import {
-  QueryOptions,
-  QueryOptionsHelper,
-} from '@base/decorators/query-options.decorator';
+import { QueryOptions } from '@base/decorators/query-options.decorator';
+import { QueryOptionsDto } from '@base/dtos/query-options.dto';
 
 @ApiTags('game')
 @Auth()
@@ -42,19 +40,17 @@ export class GameController {
   @Get()
   getGames(
     @UserRequest() payload: AccessTokenPayload,
-    @QueryOptions() queryOptionsHelper: QueryOptionsHelper,
+    @QueryOptions() queryOptionsDto: QueryOptionsDto,
   ) {
-    return this.gameService.getGames(payload, queryOptionsHelper);
+    return this.gameService.getGames(payload, queryOptionsDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.gameService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGameDto: UpdateGameDto) {
-    return this.gameService.update(+id, updateGameDto);
+  @Patch(':gameId')
+  update(
+    @Param('gameId') gameId: string,
+    @Body() updateGameDto: UpdateGameDto,
+  ) {
+    return this.gameService.update(gameId, updateGameDto);
   }
 
   @Delete(':id')

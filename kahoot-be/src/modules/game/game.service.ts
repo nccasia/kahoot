@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { Game } from './entities/game.entity';
 import { Repository } from 'typeorm';
 import { AccessTokenPayload } from '@modules/auth/types';
 import { QueryOptionsHelper } from '@base/decorators/query-options.decorator';
+import { QueryOptionsDto } from '@base/dtos/query-options.dto';
 
 @Injectable()
 export class GameService {
@@ -24,22 +25,42 @@ export class GameService {
     return game;
   }
 
-  async getGames(payload: AccessTokenPayload) {
+  async getGames(
+    payload: AccessTokenPayload,
+    queryOptionsDto: QueryOptionsDto,
+  ) {
+    const { getPagination, skip, take } = new QueryOptionsHelper(
+      queryOptionsDto,
+    );
     const { userId } = payload;
 
-    const games = await this.gamesRepository.find({
-      where: { ownerId: userId },
+    const [games, count] = await this.gamesRepository
+      .createQueryBuilder('g')
+      .where('g.ownerId = :userId', { userId })
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+
+    const resPagination = getPagination({
+      count,
+      total: games.length,
     });
 
-    return games;
+    return { data: games, pagination: resPagination };
   }
 
   findOne(id: number) {
     return `This action returns a #${id} game`;
   }
 
-  update(id: number, updateGameDto: UpdateGameDto) {
-    return `This action updates a #${id} game`;
+  async update(gameId: string, updateGameDto: UpdateGameDto) {
+    const game = await this.gamesRepository.findOne({
+      where: { id: gameId },
+    });
+    // TODO constant message + errorCode
+    if (!game) throw new BadRequestException();
+    await this.gamesRepository.update({ id: gameId }, updateGameDto);
+    return {};
   }
 
   remove(id: number) {

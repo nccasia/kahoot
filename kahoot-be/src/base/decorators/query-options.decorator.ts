@@ -19,7 +19,10 @@ export class QueryOptionsHelper {
   limit: number = 10;
   page: number = 1;
 
-  constructor(partial: Partial<QueryOptionsDto>, options: Options) {
+  constructor(
+    partial: Partial<QueryOptionsDto>,
+    options: Options = { acceptFilterFields: [] },
+  ) {
     console.log('partial', partial);
     this.sort = partial.sort || {};
     this.take = partial.limit || 10;
@@ -74,24 +77,5 @@ export const QueryOptions = createParamDecorator(
     const query = (req as any).query as unknown as QueryOptionsDto;
     const { search, sort, page = 1, limit = 20, filters } = query;
     return { search, sort, page, limit, filters };
-    // const ValidateQuery = new QueryOptionsDto();
-    // for (let key in query) {
-    //   ValidateQuery[key] = query[key];
-    // }
-
-    // await validate(ValidateQuery).then((errors) => {
-    //   if (errors.length) {
-    //     const message = errors.map(
-    //       (error) => error.constraints[Object.keys(error.constraints)[0]],
-    //     );
-    //     throw new BadRequestException({ message });
-    //   }
-    // });
-
-    // const helper = new QueryOptionsHelper(
-    //   { search, sort, page, limit, filters },
-    //   options,
-    // );
-    // return helper;
   },
 );

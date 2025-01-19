@@ -1,22 +1,21 @@
-import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CreateCacheOptions } from 'cache-manager';
-import { redisStore } from 'cache-manager-redis-store';
+import { ConfigService } from '@nestjs/config';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 @Module({
   imports: [
-    CacheModule.registerAsync<CreateCacheOptions>({
-      useFactory: async (configService: ConfigService) =>
-        ({
-          store: await redisStore({
-            url: configService.getOrThrow('REDIS_URL'),
-          }),
-        }) as CreateCacheOptions,
+    RedisModule.forRootAsync({
       inject: [ConfigService],
-      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'single',
+        url: configService.getOrThrow('REDIS_URL'),
+        options: {
+          keyPrefix: 'KAHOOT',
+        },
+      }),
     }),
   ],
-  exports: [CacheModule],
+  providers: [],
+  exports: [RedisModule],
 })
 export class RedisCacheModule {}

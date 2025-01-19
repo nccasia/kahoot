@@ -4,6 +4,8 @@ import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Game } from '@modules/game/entities/game.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { RoomUser } from '@modules/room/entities/room-user.entity';
+import { QuestionRoomUser } from '@modules/room/entities/question-room-user.entity';
 
 @Index(['email'], { unique: true })
 @Entity(Table.User)
@@ -29,4 +31,14 @@ export class User extends AbstractEntity {
   // relations
   @OneToMany(() => Game, (game) => game.owner)
   games: Game[];
+
+  @ApiProperty({ type: () => [RoomUser] })
+  @OneToMany(() => RoomUser, (roomUser) => roomUser.user)
+  roomUsers: RoomUser[];
+
+  @OneToMany(
+    () => QuestionRoomUser,
+    (questionRoomUser) => questionRoomUser.user,
+  )
+  questionRoomUsers: QuestionRoomUser[];
 }
