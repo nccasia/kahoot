@@ -124,19 +124,20 @@ export class RoomGateway
   }
 
   async handleConnection(@ConnectedSocket() client: UserSocket, ...args) {
-    // client.on('disconnecting', async (reason) => {
-    //   this.logger.log({
-    //     name: client.user.userId,
-    //     reason,
-    //     socketId: client.id,
-    //   });
-    //   const rooms = Array.from(client.rooms).filter((el) => el !== client.id);
-    //   if (rooms.length !== 0) {
-    //     client.to(rooms).emit(SERVER_EVENT.SERVER_EMIT_LEAVE_ROOM, {
-    //       userId: client.user.userId,
-    //     });
-    //   }
-    // });
+    client.on('disconnecting', async (reason) => {
+      this.logger.log({
+        name: client.user.userId,
+        reason,
+        socketId: client.id,
+      });
+      // filter room myself
+      const rooms = Array.from(client.rooms).filter((el) => el !== client.id);
+      if (rooms.length !== 0) {
+        client.to(rooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
+          userId: client.user.userId,
+        });
+      }
+    });
   }
 
   async handleDisconnect(client: UserSocket, ...args) {
