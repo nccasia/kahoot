@@ -1,12 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-export class ResponseLogin {
-  @ApiProperty()
-  accessToken: string;
-}
-
-export class ResponseRegister {
+export class BaseUserDto {
   @ApiProperty()
   @Expose()
   id: string;
@@ -19,4 +14,10 @@ export class ResponseRegister {
   @ApiProperty()
   @Expose()
   createdAt: Date;
+  @ApiProperty()
+  @Expose()
+  updatedAt: Date;
+  @ApiProperty()
+  @Expose()
+  deletedAt: Date;
 }

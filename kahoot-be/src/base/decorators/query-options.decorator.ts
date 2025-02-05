@@ -1,12 +1,6 @@
-import {
-  BadRequestException,
-  ExecutionContext,
-  createParamDecorator,
-} from '@nestjs/common';
+import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { Request } from 'express';
 import { QueryOptionsDto } from '../dtos/query-options.dto';
-import { validate } from 'class-validator';
-
 interface Options {
   acceptFilterFields: string[];
 }
@@ -49,8 +43,8 @@ export class QueryOptionsHelper {
     filters: QueryOptionsDto['filters'],
     acceptFields: string[] = [],
   ): Record<string, string> => {
-    let filterObject = {};
-    for (let field in filters) {
+    const filterObject = {};
+    for (const field in filters) {
       const filter = filters[field];
       const key = Object.keys(filter)?.[0] as keyof typeof filter;
 
@@ -69,6 +63,7 @@ export class QueryOptionsHelper {
 
 export const QueryOptions = createParamDecorator(
   async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     options: Options = { acceptFilterFields: [] },
     ctx: ExecutionContext,
   ) => {

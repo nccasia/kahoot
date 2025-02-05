@@ -4,6 +4,8 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from '@base/passports/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '@modules/user/entities/user.entity';
 
 @Module({
   imports: [
@@ -13,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
         secret: configService.getOrThrow<string>('JWT_SECRET'),
       }),
     }),
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
   providers: [JwtStrategy, AuthService],

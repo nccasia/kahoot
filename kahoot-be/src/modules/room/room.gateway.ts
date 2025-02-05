@@ -51,7 +51,7 @@ export class RoomGateway
     this.logger.debug(`[WEBSOCKET RUN] -------`);
     this.server.use(WSAuthMiddleware());
     // await this.cacheManager.reset();
-    this.redis.set('test', 'hello 123');
+    // this.redis.set('test', 'hello 123');
   }
 
   @SubscribeMessage('message')

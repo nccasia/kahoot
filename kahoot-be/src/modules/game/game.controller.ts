@@ -10,7 +10,7 @@ import {
 import { GameService } from './game.service';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Auth } from '@base/decorators/auth.decorator';
 import { UserRequest } from '@base/decorators/user-request.decorator';
 import { AccessTokenPayload } from '@modules/auth/types';
@@ -20,9 +20,9 @@ import { ApiQueryOptions } from '@base/decorators/api-query-options.decorator';
 import { QueryOptions } from '@base/decorators/query-options.decorator';
 import { QueryOptionsDto } from '@base/dtos/query-options.dto';
 
-@ApiTags('game')
+@ApiTags('games')
 @Auth()
-@Controller('game')
+@Controller('games')
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 

@@ -3,7 +3,6 @@ import { JwtAuthGuard } from '../guards/jwt.guard';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
-  ApiSecurity,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 

@@ -17,9 +17,10 @@ export class User extends AbstractEntity {
   userName: string;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsString()
-  @Column()
+  @Column({
+    nullable: true,
+  })
   image: string;
 
   @ApiProperty()
@@ -28,6 +29,9 @@ export class User extends AbstractEntity {
   @Column()
   email: string;
 
+  @IsNotEmpty()
+  @Column()
+  hashedPassword: string;
   // relations
   @OneToMany(() => Game, (game) => game.owner)
   games: Game[];
