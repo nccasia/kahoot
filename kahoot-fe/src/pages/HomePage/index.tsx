@@ -1,3 +1,4 @@
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 
 const HomePage = () => {
@@ -5,6 +6,7 @@ const HomePage = () => {
     <div>
       <span>Home Page</span>
       <Card />
+      <Button>TÌM GAME</Button>
     </div>
   );
 };
