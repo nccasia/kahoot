@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
-import ENV from "../../constants/Environment";
+import ENV from "@/constants/Environment";
 
 const SocketContext = createContext<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
 

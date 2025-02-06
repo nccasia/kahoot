@@ -1,5 +1,5 @@
-import { AppActionType } from "../../types/appTypes";
-import { APP_TYPE } from "./app.action";
+import { AppActionType } from "@/types/appTypes";
+import { APP_TYPE } from "./appAction";
 
 export interface AppState {
   loading: boolean;

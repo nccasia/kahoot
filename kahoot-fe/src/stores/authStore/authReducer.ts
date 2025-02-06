@@ -1,5 +1,5 @@
-import { AppActionType } from "../../types/appTypes";
-import { AUTH_TYPE } from "./auth.action";
+import { AppActionType } from "@/types/appTypes";
+import { AUTH_TYPE } from "./authAction";
 
 export interface AuthState {
   loading: boolean;

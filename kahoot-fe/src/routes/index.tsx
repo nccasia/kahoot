@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./routePath";
-import MainLayout from "../layouts/MainLayout";
-import HomePage from "../pages/HomePage";
-import RoomPage from "../pages/RoomPage";
+import MainLayout from "@/layouts/MainLayout";
+import HomePage from "@/pages/HomePage";
+import RoomPage from "@/pages/RoomPage";
 
 const AppRoutes = () => {
   return (

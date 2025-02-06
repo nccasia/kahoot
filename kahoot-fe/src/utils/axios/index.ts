@@ -1,5 +1,5 @@
 import axios from "axios";
-import ENV from "../../constants/Environment";
+import ENV from "@/constants/Environment";
 import { getCookie } from "../cookies";
 const baseURL = ENV.BACKEND_URL;
 
