@@ -1,3 +1,5 @@
+import { MezonUserDto, SocketUser } from '@modules/user/dto/socket-user.dto';
+import { plainToInstance } from 'class-transformer';
 import { Socket } from 'socket.io';
 
 export type SocketMiddleware = (
@@ -7,10 +9,19 @@ export type SocketMiddleware = (
 export const WSAuthMiddleware = (): SocketMiddleware => {
   return async (client: Socket, next) => {
     // ? TODO get from client
-    const user = {
-      userId: '40c06d24-d661-459c-aa4b-f983d3ba940d',
+    const header = client.handshake.headers;
+    const requestUser = JSON.parse(header['x-mezon-user'] as string);
+    const mezonUser: MezonUserDto = plainToInstance(MezonUserDto, requestUser, {
+      excludeExtraneousValues: true,
+    });
+    if (!mezonUser) {
+      return next(new Error('Unauthorized'));
+    }
+    const socketUser: SocketUser = {
+      ...mezonUser,
+      userId: null,
     };
-    (client as any).user = user;
+    (client as any).user = socketUser;
     next();
   };
 };

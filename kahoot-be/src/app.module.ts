@@ -1,6 +1,5 @@
 import { ConfigAppModule } from '@base/modules/configs/config-app.module';
 import { DatabaseModule } from '@base/modules/database/database.module';
-import { AccountModule } from '@modules/account/account.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { GameModule } from '@modules/game/game.module';
 import { QuestionModule } from '@modules/question/question.module';
@@ -21,7 +20,6 @@ import { PassportModule } from '@nestjs/passport';
     QuestionModule,
     RoomModule,
     SharedModule,
-    AccountModule,
   ],
   controllers: [],
   providers: [],

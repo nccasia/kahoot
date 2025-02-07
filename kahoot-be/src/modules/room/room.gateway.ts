@@ -1,6 +1,12 @@
+import { UserWs } from '@base/decorators/user-ws.decorator';
+import { WsJwtGuard } from '@base/guards/ws-auth.guard';
 import { WSAuthMiddleware } from '@base/middlewares/ws-auth.middleware';
 import { CACHES, NAME_SPACE_JOIN_GAME } from '@constants';
+import { SocketUser } from '@modules/user/dto/socket-user.dto';
+import { User } from '@modules/user/entities/user.entity';
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Logger, UseGuards } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConnectedSocket,
   MessageBody,
@@ -12,23 +18,19 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
+import Redis from 'ioredis';
 import { Namespace, Socket } from 'socket.io';
+import { Repository } from 'typeorm';
+import { JoinRoomDto } from './dto/join-room.dto';
+import { RoomUser } from './entities/room-user.entity';
+import { Room } from './entities/room.entity';
 import {
+  ClientConnectionEvent,
   RoomClientEvent,
   RoomServerEvent,
   StatusModifyCache,
   UserSocket,
 } from './types/room.type';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
-import { WsJwtGuard } from '@base/guards/ws-auth.guard';
-import { JoinRoomDto } from './dto/join-room.dto';
-import { UserWs } from '@base/decorators/user-ws.decorator';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Room } from './entities/room.entity';
-import { Repository } from 'typeorm';
-import { RoomUser } from './entities/room-user.entity';
-import { User } from '@modules/user/entities/user.entity';
 
 @WebSocketGateway({
   namespace: NAME_SPACE_JOIN_GAME,
@@ -41,6 +43,8 @@ export class RoomGateway
 
   constructor(
     @InjectRedis() private redis: Redis,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
     @InjectRepository(Room)
     private roomsRepository: Repository<Room>,
     @InjectRepository(RoomUser)
@@ -50,14 +54,16 @@ export class RoomGateway
   async afterInit() {
     this.logger.debug(`[WEBSOCKET RUN] -------`);
     this.server.use(WSAuthMiddleware());
-    // await this.cacheManager.reset();
-    // this.redis.set('test', 'hello 123');
+    // this.server.on('connection', (client: UserSocket) => {
+    //   console.log('client ->>>>: ', client.user);
+    //   client.user.userId = 'abc';
+    // });
   }
 
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    console.log('hello 123');
-    return 'Hello world!';
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage(ClientConnectionEvent.UserConnected)
+  async userConnected(@ConnectedSocket() client: Socket) {
+    console.log('CLIENT: ', client);
   }
 
   @UseGuards(WsJwtGuard)
@@ -83,7 +89,7 @@ export class RoomGateway
       .select(['r.id'])
       .getOne();
 
-    if (!room) throw new WsException('room not found');
+    if (!room) throw new WsException('Room not found');
 
     const members = room.roomUsers.map((ru) => ru.user);
     const joined = members.some((member) => member.id === userId);
@@ -123,7 +129,29 @@ export class RoomGateway
     }
   }
 
-  async handleConnection(@ConnectedSocket() client: UserSocket, ...args) {
+  async handleConnection(@ConnectedSocket() client: UserSocket) {
+    // console.log('client: ', client);
+    const currentUser = client?.user as SocketUser;
+    let storedUser = await this.usersRepository.findOne({
+      where: [
+        { mezonUserId: currentUser.mezonUserId },
+        { email: currentUser.email },
+        { userName: currentUser.userName },
+      ],
+    });
+    if (!storedUser) {
+      storedUser = this.usersRepository.create({
+        ...currentUser,
+      });
+      await this.usersRepository.save(storedUser);
+    }
+
+    client.user.userId = storedUser.id;
+    await this.modifyCacheSocketUser({
+      socketId: client.id,
+      userId: storedUser.id,
+    });
+
     client.on('disconnecting', async (reason) => {
       this.logger.log({
         name: client.user.userId,

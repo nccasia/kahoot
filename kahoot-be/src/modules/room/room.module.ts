@@ -1,13 +1,14 @@
+import { User } from '@modules/user/entities/user.entity';
 import { Module } from '@nestjs/common';
-import { RoomService } from './room.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RoomUser } from './entities/room-user.entity';
+import { Room } from './entities/room.entity';
 import { RoomController } from './room.controller';
 import { RoomGateway } from './room.gateway';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Room } from './entities/room.entity';
-import { RoomUser } from './entities/room-user.entity';
+import { RoomService } from './room.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Room, RoomUser])],
+  imports: [TypeOrmModule.forFeature([User, Room, RoomUser])],
   controllers: [RoomController],
   providers: [RoomService, RoomGateway],
 })

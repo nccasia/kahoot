@@ -1,9 +1,9 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { AbstractEntity } from '@base/entities/base.entity';
 import { Table } from '@constants';
-import { User } from '@modules/user/entities/user.entity';
-import { Room } from './room.entity';
 import { Question } from '@modules/question/entities/question.entity';
+import { User } from '@modules/user/entities/user.entity';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Room } from './room.entity';
 
 @Index(['room', 'user', 'question'], { unique: true })
 @Entity(Table.QuestionRoomUser)
