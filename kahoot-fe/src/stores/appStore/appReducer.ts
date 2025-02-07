@@ -3,10 +3,12 @@ import { APP_TYPE } from "./appAction";
 
 export interface AppState {
   loading: boolean;
+  isShowSplash: boolean;
 }
 
 export const initAppState: AppState = {
   loading: false,
+  isShowSplash: true,
 };
 
 const AppReducer = (state = initAppState, action: AppActionType<APP_TYPE>): AppState => {
@@ -20,6 +22,11 @@ const AppReducer = (state = initAppState, action: AppActionType<APP_TYPE>): AppS
       return {
         ...state,
         loading: false,
+      };
+    case APP_TYPE.CHANGE_IS_SHOW_SPLASH:
+      return {
+        ...state,
+        isShowSplash: action.payload,
       };
     default:
       return state;

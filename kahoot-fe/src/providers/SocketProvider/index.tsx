@@ -30,7 +30,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         setSocketInitialized(false);
       };
     }
-  }, [socketInitialized]);
+  }, []);
 
   return <SocketContext.Provider value={socket.current}>{children}</SocketContext.Provider>;
 };
