@@ -1,4 +1,4 @@
-import { AppActionType } from "@/types/appTypes";
+import { AppActionType } from "@/interfaces/appTypes";
 
 export enum AUTH_TYPE {
   LOGIN = "LOGIN",

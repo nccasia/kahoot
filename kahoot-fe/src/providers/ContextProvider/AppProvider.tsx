@@ -1,6 +1,6 @@
 import { APP_TYPE } from "@/stores/appStore/appAction";
 import AppReducer, { AppState, initAppState } from "@/stores/appStore/appReducer";
-import { AppActionType } from "@/types/appTypes";
+import { AppActionType } from "@/interfaces/appTypes";
 import React, { Dispatch, createContext, useReducer } from "react";
 
 type AppDispatch = Dispatch<AppActionType<APP_TYPE>>;

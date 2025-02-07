@@ -1,4 +1,4 @@
-import { AppActionType } from "@/types/appTypes";
+import { AppActionType } from "@/interfaces/appTypes";
 import { APP_TYPE } from "./appAction";
 
 export interface AppState {

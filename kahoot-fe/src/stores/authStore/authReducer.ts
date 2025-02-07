@@ -1,4 +1,4 @@
-import { AppActionType } from "@/types/appTypes";
+import { AppActionType } from "@/interfaces/appTypes";
 import { AUTH_TYPE } from "./authAction";
 
 export interface AuthState {

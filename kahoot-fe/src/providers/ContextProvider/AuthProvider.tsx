@@ -1,6 +1,6 @@
 import React, { Dispatch, createContext, useReducer } from "react";
 import { AUTH_TYPE } from "@/stores/authStore/authAction";
-import { AppActionType } from "@/types/appTypes";
+import { AppActionType } from "@/interfaces/appTypes";
 import AuthReducer, { AuthState, initAuthState } from "@/stores/authStore/authReducer";
 
 type AuthDispatch = Dispatch<AppActionType<AUTH_TYPE>>;
