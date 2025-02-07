@@ -2,7 +2,6 @@ import { UserWs } from '@base/decorators/user-ws.decorator';
 import { WsJwtGuard } from '@base/guards/ws-auth.guard';
 import { WSAuthMiddleware } from '@base/middlewares/ws-auth.middleware';
 import { CACHES, NAME_SPACE_JOIN_GAME } from '@constants';
-import { SocketUser } from '@modules/user/dto/socket-user.dto';
 import { User } from '@modules/user/entities/user.entity';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Logger, UseGuards } from '@nestjs/common';
@@ -53,7 +52,7 @@ export class RoomGateway
 
   async afterInit() {
     this.logger.debug(`[WEBSOCKET RUN] -------`);
-    this.server.use(WSAuthMiddleware());
+    this.server.use(WSAuthMiddleware(this.usersRepository));
     // this.server.on('connection', (client: UserSocket) => {
     //   console.log('client ->>>>: ', client.user);
     //   client.user.userId = 'abc';
@@ -130,26 +129,14 @@ export class RoomGateway
   }
 
   async handleConnection(@ConnectedSocket() client: UserSocket) {
-    // console.log('client: ', client);
-    const currentUser = client?.user as SocketUser;
-    let storedUser = await this.usersRepository.findOne({
-      where: [
-        { mezonUserId: currentUser.mezonUserId },
-        { email: currentUser.email },
-        { userName: currentUser.userName },
-      ],
-    });
-    if (!storedUser) {
-      storedUser = this.usersRepository.create({
-        ...currentUser,
+    if (!client.user) {
+      throw new WsException({
+        message: 'Please provide valid user data to connect',
       });
-      await this.usersRepository.save(storedUser);
     }
-
-    client.user.userId = storedUser.id;
     await this.modifyCacheSocketUser({
       socketId: client.id,
-      userId: storedUser.id,
+      userId: client.user.userId,
     });
 
     client.on('disconnecting', async (reason) => {

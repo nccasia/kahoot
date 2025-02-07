@@ -1,32 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import { IsEnum } from 'class-validator';
+import { GameStatus } from '../types/game.type';
 
-export class ResponseToken {
-  @ApiProperty()
-  @Expose()
-  accessToken: string;
-  @ApiProperty()
-  @Expose()
-  userId: string;
-  @ApiProperty()
-  @Expose()
-  email: string;
-  @ApiProperty()
-  @Expose()
-  userName: string;
-}
-
-export class ResponseRegister {
+export class BaseGameDto {
   @ApiProperty()
   @Expose()
   id: string;
+
   @ApiProperty()
   @Expose()
-  email: string;
+  name: string;
+
   @ApiProperty()
   @Expose()
-  userName: string;
+  description: string;
+
+  @ApiProperty()
+  @Expose()
+  @IsEnum(GameStatus)
+  status: GameStatus;
+
+  @ApiProperty()
+  @Expose()
+  isOwner: boolean;
+
   @ApiProperty()
   @Expose()
   createdAt: Date;
+
+  @ApiProperty()
+  @Expose()
+  updatedAt: Date;
 }

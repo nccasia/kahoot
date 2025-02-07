@@ -1,4 +1,4 @@
 export enum GameStatus {
-  Draft = 'draft',
+  Draft = 'Draft',
   Publised = 'Publised',
 }

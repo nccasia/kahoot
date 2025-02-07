@@ -4,4 +4,9 @@ export const ERROR_CODES = {
     INVALID_PASSWORD: 'A02',
     UN_AUTHORIZED: 'A03',
   },
+  GAME: {
+    GAME_NOT_FOUND: 'G01',
+    INVALID_GAME_STATUS: 'G02',
+    INVALID_GAME_ID: 'G03',
+  },
 };
