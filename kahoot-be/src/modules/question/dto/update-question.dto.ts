@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateQuestionDto } from './create-question.dto';
+import { PickType } from '@nestjs/mapped-types';
+import { Question } from '../entities/question.entity';
 
-export class UpdateQuestionDto extends PartialType(CreateQuestionDto) {}
+export class UpdateQuestionDto extends PickType(Question, [
+  'answerOptions',
+  'mode',
+  'time',
+  'title',
+]) {}

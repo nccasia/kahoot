@@ -9,4 +9,8 @@ export const ERROR_CODES = {
     INVALID_GAME_STATUS: 'G02',
     INVALID_GAME_ID: 'G03',
   },
+  QUESTION: {
+    QUESTION_NOT_FOUND: 'Q01',
+    INVALID_QUESTION_ID: 'Q02',
+  },
 };

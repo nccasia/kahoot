@@ -17,7 +17,6 @@ export class QueryOptionsHelper {
     partial: Partial<QueryOptionsDto>,
     options: Options = { acceptFilterFields: [] },
   ) {
-    console.log('partial', partial);
     this.sort = partial.sort || {};
     this.take = partial.limit || 10;
     this.skip = partial.page > 0 ? (partial.page - 1) * this.take : 0;
