@@ -22,7 +22,7 @@ import {
 
 @Entity(Table.Question)
 export class Question extends AbstractEntity {
-  @ApiProperty({ enum: () => QuestionMode })
+  @ApiProperty({ enum: QuestionMode, enumName: 'QuestionMode' })
   @IsEnum(QuestionMode)
   @IsNotEmpty()
   @Column({ enum: QuestionMode })

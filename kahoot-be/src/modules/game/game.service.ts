@@ -114,7 +114,7 @@ export class GameService {
         message: `Game with id ${gameId} not found or you are not the owner`,
         errorCode: ERROR_CODES.GAME.GAME_NOT_FOUND,
       });
-    await this.gamesRepository.delete(game);
+    await this.gamesRepository.remove(game);
     return { message: `Game with id ${gameId} has been deleted` };
   }
 }
