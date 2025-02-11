@@ -1,3 +1,4 @@
+import { Game } from '@modules/game/entities/game.entity';
 import { User } from '@modules/user/entities/user.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +9,7 @@ import { RoomGateway } from './room.gateway';
 import { RoomService } from './room.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Room, RoomUser])],
+  imports: [TypeOrmModule.forFeature([User, Room, RoomUser, Game])],
   controllers: [RoomController],
   providers: [RoomService, RoomGateway],
 })

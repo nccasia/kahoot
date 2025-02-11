@@ -1,46 +1,82 @@
+import { ApiQueryOptions } from '@base/decorators/api-query-options.decorator';
+import { Auth } from '@base/decorators/auth.decorator';
+import { QueryOptions } from '@base/decorators/query-options.decorator';
+import { ApiResponseType } from '@base/decorators/response-swagger.decorator';
+import { UserRequest } from '@base/decorators/user-request.decorator';
+import { QueryOptionsDto } from '@base/dtos/query-options.dto';
+import { AccessTokenPayload } from '@modules/auth/types';
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Post,
+  Put,
 } from '@nestjs/common';
-import { RoomService } from './room.service';
+import { ApiTags } from '@nestjs/swagger';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { Auth } from '@base/decorators/auth.decorator';
+import { RoomService } from './room.service';
+import { ResponseCreateRoom, ResponseGetRoom } from './types/room.response';
 
-@ApiTags('room')
+@ApiTags('Rooms')
 @Auth()
-@Controller('room')
+@Controller('rooms')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
+  @ApiResponseType(ResponseCreateRoom)
   @Post()
-  create(@Body() createRoomDto: CreateRoomDto) {
-    return this.roomService.create(createRoomDto);
+  createRoom(
+    @Body() createRoomDto: CreateRoomDto,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.createRoomAsync(createRoomDto, payload);
   }
 
-  @Get()
-  findAll() {
-    return this.roomService.findAll();
+  @ApiQueryOptions()
+  @ApiResponseType(ResponseGetRoom, { isArray: true })
+  @Get('game-rooms/:gameId')
+  getGameRooms(
+    @Param('gameId') gameId: string,
+    @UserRequest()
+    payload: AccessTokenPayload,
+    @QueryOptions() queryOptionsDto: QueryOptionsDto,
+  ) {
+    return this.roomService.getGameRoomsAsync(gameId, payload, queryOptionsDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roomService.findOne(+id);
+  @ApiResponseType(ResponseGetRoom)
+  @Get(':roomId')
+  getRoom(
+    @Param('roomId') roomId: string,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.getRoomAsync(roomId, payload);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
-    return this.roomService.update(+id, updateRoomDto);
+  @ApiResponseType(ResponseGetRoom)
+  @Put(':roomId')
+  updateRoom(
+    @Param('roomId') roomId: string,
+    @Body() updateRoomDto: UpdateRoomDto,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.updateRoomAsync(roomId, updateRoomDto, payload);
   }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.roomService.remove(+id);
+  @Put('start-game/:roomId')
+  startGame(
+    @Param('roomId') roomId: string,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.startGameAsync(roomId, payload);
+  }
+  @Delete(':roomId')
+  removeRoom(
+    @Param('roomId') roomId: string,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.removeRoomAsync(roomId, payload);
   }
 }

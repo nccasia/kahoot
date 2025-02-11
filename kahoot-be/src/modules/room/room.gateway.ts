@@ -27,6 +27,7 @@ import {
   ClientConnectionEvent,
   RoomClientEvent,
   RoomServerEvent,
+  RoomStatus,
   StatusModifyCache,
   UserSocket,
 } from './types/room.type';
@@ -53,16 +54,37 @@ export class RoomGateway
   async afterInit() {
     this.logger.debug(`[WEBSOCKET RUN] -------`);
     this.server.use(WSAuthMiddleware(this.usersRepository));
-    // this.server.on('connection', (client: UserSocket) => {
-    //   console.log('client ->>>>: ', client.user);
-    //   client.user.userId = 'abc';
-    // });
   }
 
   @UseGuards(WsJwtGuard)
-  @SubscribeMessage(ClientConnectionEvent.UserConnected)
-  async userConnected(@ConnectedSocket() client: Socket) {
-    console.log('CLIENT: ', client);
+  @SubscribeMessage(RoomClientEvent.OwnerStartGame)
+  async onOnwerStartGame(
+    @ConnectedSocket() client: UserSocket,
+    @MessageBody() roomId: string,
+  ) {
+    const room = await this.roomsRepository.findOne({
+      where: { id: roomId },
+    });
+    if (!room || room.ownerId !== client.user.userId) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: `Room with id ${roomId} not found or you are not the owner to start the game`,
+      });
+      return;
+    }
+    if (room.status !== RoomStatus.Waiting) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: `Room with id ${roomId} cannot be start because it in progess or finished`,
+      });
+      return;
+    }
+    await this.roomsRepository.update(
+      { id: roomId },
+      { status: RoomStatus.InProgress },
+    );
+    // TODO: handle get question to start game
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameStarted, {
+      message: 'Game started',
+    });
   }
 
   @UseGuards(WsJwtGuard)
@@ -76,7 +98,7 @@ export class RoomGateway
     const { roomId } = joinRoomDto;
     const { userId } = user;
 
-    const room: Pick<Room, 'id'> & {
+    const room: Pick<Room, 'id' | 'status' | 'ownerId'> & {
       roomUsers: (Pick<RoomUser, 'id'> & {
         user: User;
       })[];
@@ -85,10 +107,20 @@ export class RoomGateway
       .leftJoin('r.roomUsers', 'ru')
       .innerJoinAndSelect('ru.user', 'u')
       .where('r.id = :roomId', { roomId })
-      .select(['r.id'])
+      .select(['r.id', 'r.status', 'r.ownerId'])
       .getOne();
 
-    if (!room) throw new WsException('Room not found');
+    if (!room) {
+      throw new WsException({
+        message: `Room with id ${roomId} not found`,
+      });
+    }
+
+    if (room?.status !== RoomStatus.Waiting) {
+      throw new WsException({
+        message: `Room with id ${roomId} cannot be join because it in progess or finished`,
+      });
+    }
 
     const members = room.roomUsers.map((ru) => ru.user);
     const joined = members.some((member) => member.id === userId);
@@ -98,11 +130,13 @@ export class RoomGateway
     }
 
     await client.join(roomId);
-    await client.to(roomId).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
-
-    return {
+    client.emit(RoomServerEvent.UserJoinedRoom, {
+      roomId,
+      isOwner: room.ownerId === userId,
       members,
-    };
+    });
+
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
   }
 
   mapKeySocket(userId) {
@@ -148,7 +182,7 @@ export class RoomGateway
       // filter room myself
       const rooms = Array.from(client.rooms).filter((el) => el !== client.id);
       if (rooms.length !== 0) {
-        client.to(rooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
+        this.server.to(rooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
           userId: client.user.userId,
         });
       }
