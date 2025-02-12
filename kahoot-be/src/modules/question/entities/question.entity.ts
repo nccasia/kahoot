@@ -5,7 +5,7 @@ import { QuestionRoomUser } from '@modules/room/entities/question-room-user.enti
 import { RoomQuestion } from '@modules/room/entities/room-question.entity';
 import { User } from '@modules/user/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -25,17 +25,20 @@ export class Question extends AbstractEntity {
   @ApiProperty({ enum: QuestionMode, enumName: 'QuestionMode' })
   @IsEnum(QuestionMode)
   @IsNotEmpty()
+  @Expose()
   @Column({ enum: QuestionMode })
   mode: QuestionMode;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsPositive()
+  @Expose()
   @Column()
   time: number;
 
   @ApiProperty()
   @IsNotEmpty()
+  @Expose()
   @Column()
   title: string;
 

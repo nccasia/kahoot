@@ -12,9 +12,9 @@ import { RoomUser } from './room-user.entity';
 
 @Entity(Table.Room)
 export class Room extends AbstractEntity {
-  @ApiProperty({ enum: () => RoomStatus })
+  @ApiProperty({ enum: RoomStatus, enumName: 'RoomStatus' })
   @IsNotEmpty()
-  @IsEnum(() => RoomStatus)
+  @IsEnum(RoomStatus)
   @Column({ enum: RoomStatus })
   status: RoomStatus;
 
