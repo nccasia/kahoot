@@ -6,4 +6,5 @@ export class CreateQuestionDto extends PickType(Question, [
   'answerOptions',
   'mode',
   'time',
+  'title',
 ]) {}

@@ -1,12 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ArrayMinSize,
-  IsArray,
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  Min,
-} from 'class-validator';
+import { ArrayMinSize, IsArray, IsInt, IsNotEmpty, Min } from 'class-validator';
 
 export class SingleChoiceAnswerOptionsDto {
   @ApiProperty({ isArray: true, type: String })

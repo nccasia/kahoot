@@ -1,6 +1,11 @@
+import { UserWs } from '@base/decorators/user-ws.decorator';
+import { WsJwtGuard } from '@base/guards/ws-auth.guard';
 import { WSAuthMiddleware } from '@base/middlewares/ws-auth.middleware';
 import { CACHES, NAME_SPACE_JOIN_GAME } from '@constants';
+import { User } from '@modules/user/entities/user.entity';
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Logger, UseGuards } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConnectedSocket,
   MessageBody,
@@ -12,23 +17,20 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
+import Redis from 'ioredis';
 import { Namespace, Socket } from 'socket.io';
+import { Repository } from 'typeorm';
+import { JoinRoomDto } from './dto/join-room.dto';
+import { RoomUser } from './entities/room-user.entity';
+import { Room } from './entities/room.entity';
 import {
+  ClientConnectionEvent,
   RoomClientEvent,
   RoomServerEvent,
+  RoomStatus,
   StatusModifyCache,
   UserSocket,
 } from './types/room.type';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
-import { WsJwtGuard } from '@base/guards/ws-auth.guard';
-import { JoinRoomDto } from './dto/join-room.dto';
-import { UserWs } from '@base/decorators/user-ws.decorator';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Room } from './entities/room.entity';
-import { Repository } from 'typeorm';
-import { RoomUser } from './entities/room-user.entity';
-import { User } from '@modules/user/entities/user.entity';
 
 @WebSocketGateway({
   namespace: NAME_SPACE_JOIN_GAME,
@@ -41,6 +43,8 @@ export class RoomGateway
 
   constructor(
     @InjectRedis() private redis: Redis,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
     @InjectRepository(Room)
     private roomsRepository: Repository<Room>,
     @InjectRepository(RoomUser)
@@ -49,15 +53,38 @@ export class RoomGateway
 
   async afterInit() {
     this.logger.debug(`[WEBSOCKET RUN] -------`);
-    this.server.use(WSAuthMiddleware());
-    // await this.cacheManager.reset();
-    // this.redis.set('test', 'hello 123');
+    this.server.use(WSAuthMiddleware(this.usersRepository));
   }
 
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    console.log('hello 123');
-    return 'Hello world!';
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage(RoomClientEvent.OwnerStartGame)
+  async onOnwerStartGame(
+    @ConnectedSocket() client: UserSocket,
+    @MessageBody() roomId: string,
+  ) {
+    const room = await this.roomsRepository.findOne({
+      where: { id: roomId },
+    });
+    if (!room || room.ownerId !== client.user.userId) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: `Room with id ${roomId} not found or you are not the owner to start the game`,
+      });
+      return;
+    }
+    if (room.status !== RoomStatus.Waiting) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: `Room with id ${roomId} cannot be start because it in progess or finished`,
+      });
+      return;
+    }
+    await this.roomsRepository.update(
+      { id: roomId },
+      { status: RoomStatus.InProgress },
+    );
+    // TODO: handle get question to start game
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameStarted, {
+      message: 'Game started',
+    });
   }
 
   @UseGuards(WsJwtGuard)
@@ -71,7 +98,7 @@ export class RoomGateway
     const { roomId } = joinRoomDto;
     const { userId } = user;
 
-    const room: Pick<Room, 'id'> & {
+    const room: Pick<Room, 'id' | 'status' | 'ownerId'> & {
       roomUsers: (Pick<RoomUser, 'id'> & {
         user: User;
       })[];
@@ -80,10 +107,20 @@ export class RoomGateway
       .leftJoin('r.roomUsers', 'ru')
       .innerJoinAndSelect('ru.user', 'u')
       .where('r.id = :roomId', { roomId })
-      .select(['r.id'])
+      .select(['r.id', 'r.status', 'r.ownerId'])
       .getOne();
 
-    if (!room) throw new WsException('room not found');
+    if (!room) {
+      throw new WsException({
+        message: `Room with id ${roomId} not found`,
+      });
+    }
+
+    if (room?.status !== RoomStatus.Waiting) {
+      throw new WsException({
+        message: `Room with id ${roomId} cannot be join because it in progess or finished`,
+      });
+    }
 
     const members = room.roomUsers.map((ru) => ru.user);
     const joined = members.some((member) => member.id === userId);
@@ -93,11 +130,13 @@ export class RoomGateway
     }
 
     await client.join(roomId);
-    await client.to(roomId).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
-
-    return {
+    client.emit(RoomServerEvent.UserJoinedRoom, {
+      roomId,
+      isOwner: room.ownerId === userId,
       members,
-    };
+    });
+
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
   }
 
   mapKeySocket(userId) {
@@ -123,7 +162,17 @@ export class RoomGateway
     }
   }
 
-  async handleConnection(@ConnectedSocket() client: UserSocket, ...args) {
+  async handleConnection(@ConnectedSocket() client: UserSocket) {
+    if (!client.user) {
+      throw new WsException({
+        message: 'Please provide valid user data to connect',
+      });
+    }
+    await this.modifyCacheSocketUser({
+      socketId: client.id,
+      userId: client.user.userId,
+    });
+
     client.on('disconnecting', async (reason) => {
       this.logger.log({
         name: client.user.userId,
@@ -133,7 +182,7 @@ export class RoomGateway
       // filter room myself
       const rooms = Array.from(client.rooms).filter((el) => el !== client.id);
       if (rooms.length !== 0) {
-        client.to(rooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
+        this.server.to(rooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
           userId: client.user.userId,
         });
       }

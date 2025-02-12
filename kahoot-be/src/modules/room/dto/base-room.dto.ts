@@ -1,23 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import { IsEnum } from 'class-validator';
+import { RoomStatus } from '../types';
 
-export class BaseUserDto {
+export class BaseRoomDto {
   @ApiProperty()
   @Expose()
   id: string;
+
   @ApiProperty()
   @Expose()
-  email: string;
+  name?: string;
+
   @ApiProperty()
   @Expose()
-  userName: string;
+  gameId: string;
+
+  @ApiProperty()
+  @Expose()
+  @IsEnum(RoomStatus)
+  status: RoomStatus;
+
+  @ApiProperty()
+  @Expose()
+  isOwner: boolean;
+
   @ApiProperty()
   @Expose()
   createdAt: Date;
+
   @ApiProperty()
   @Expose()
   updatedAt: Date;
-  @ApiProperty()
-  @Expose()
-  deletedAt: Date;
 }

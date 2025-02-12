@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateGameDto } from './create-game.dto';
+import { PickType } from '@nestjs/swagger';
+import { Game } from '../entities/game.entity';
 
-export class UpdateGameDto extends PartialType(CreateGameDto) {}
+export class UpdateGameDto extends PickType(Game, [
+  'name',
+  'description',
+  'status',
+]) {}
