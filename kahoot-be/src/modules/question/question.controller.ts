@@ -14,7 +14,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { QuestionService } from './question.service';
@@ -29,13 +29,19 @@ import {
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
-  @ApiResponseType(ResponseCreateQuestion)
-  @Post()
+  @ApiResponseType(ResponseCreateQuestion, { isArray: true })
+  @ApiBody({ type: [CreateQuestionDto] })
+  @Post('add-questions/:gameId')
   createQuestion(
-    @Body() createQuestionDto: CreateQuestionDto,
+    @Param('gameId') gameId: string,
+    @Body() createQuestionDtoes: Array<CreateQuestionDto>,
     @UserRequest() payload: AccessTokenPayload,
   ) {
-    return this.questionService.createQuestionAsync(createQuestionDto, payload);
+    return this.questionService.createQuestionAsync(
+      createQuestionDtoes,
+      gameId,
+      payload,
+    );
   }
 
   @ApiQueryOptions()

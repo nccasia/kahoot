@@ -19,24 +19,28 @@ export class QuestionService {
     private gameRepository: Repository<Game>,
   ) {}
   async createQuestionAsync(
-    createQuestionDto: CreateQuestionDto,
+    createQuestionDtoes: CreateQuestionDto[],
+    gameId: string,
     payload: AccessTokenPayload,
   ) {
     const game = await this.gameRepository.findOne({
-      where: { id: createQuestionDto.gameId, ownerId: payload.userId },
+      where: { id: gameId, ownerId: payload.userId },
     });
     if (!game) {
       throw new BadRequestException({
-        message: `Game with id ${createQuestionDto.gameId} not found or you are not the owner`,
+        message: `Game with id ${gameId} not found or you are not the owner`,
         errorCode: ERROR_CODES.GAME.GAME_NOT_FOUND,
       });
     }
-    const question = this.questionRepository.create({
-      ...createQuestionDto,
-      ownerId: payload.userId,
+    const questions = createQuestionDtoes.map((createQuestionDto) => {
+      return this.questionRepository.create({
+        ...createQuestionDto,
+        gameId,
+        ownerId: payload.userId,
+      });
     });
-    await this.questionRepository.save(question);
-    return question;
+    const createdQuestions = await this.questionRepository.save(questions);
+    return createdQuestions;
   }
 
   async getGameQuestionsAsync(
