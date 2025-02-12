@@ -14,3 +14,11 @@ export class SingleChoiceAnswerOptionsDto {
   @Min(0)
   correctIndex: number;
 }
+
+export class SingleChoiceGameAnswerOptions {
+  @ApiProperty({ isArray: true, type: String })
+  @IsArray()
+  @IsNotEmpty()
+  @ArrayMinSize(1)
+  options: string[];
+}

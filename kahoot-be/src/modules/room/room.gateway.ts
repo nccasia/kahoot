@@ -1,7 +1,15 @@
 import { UserWs } from '@base/decorators/user-ws.decorator';
 import { WsJwtGuard } from '@base/guards/ws-auth.guard';
 import { WSAuthMiddleware } from '@base/middlewares/ws-auth.middleware';
-import { CACHES, NAME_SPACE_JOIN_GAME } from '@constants';
+import {
+  CACHES,
+  NAME_SPACE_JOIN_GAME,
+  WAIT_TIME_PER_QUESTION,
+} from '@constants';
+import { Game } from '@modules/game/entities/game.entity';
+import { GameQuestionDto } from '@modules/question/dto/game-question.dto';
+import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
+import { Question } from '@modules/question/entities/question.entity';
 import { User } from '@modules/user/entities/user.entity';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Logger, UseGuards } from '@nestjs/common';
@@ -17,10 +25,14 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
+import { plainToInstance } from 'class-transformer';
 import Redis from 'ioredis';
 import { Namespace, Socket } from 'socket.io';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
+import { ClientSubmitDto } from './dto/client-submit.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
+import { QuestionRoomUser } from './entities/question-room-user.entity';
+import { RoomQuestion } from './entities/room-question.entity';
 import { RoomUser } from './entities/room-user.entity';
 import { Room } from './entities/room.entity';
 import {
@@ -47,15 +59,23 @@ export class RoomGateway
     private usersRepository: Repository<User>,
     @InjectRepository(Room)
     private roomsRepository: Repository<Room>,
+    @InjectRepository(Game)
+    private gamesRepository: Repository<Game>,
+    @InjectRepository(Question)
+    private questionsRepository: Repository<Question>,
     @InjectRepository(RoomUser)
     private roomUsersRepository: Repository<RoomUser>,
+    @InjectRepository(QuestionRoomUser)
+    private questionRoomUsersRepository: Repository<QuestionRoomUser>,
+    @InjectRepository(RoomQuestion)
+    private roomQuestionsRepository: Repository<RoomQuestion>,
   ) {}
 
   async afterInit() {
     this.logger.debug(`[WEBSOCKET RUN] -------`);
     this.server.use(WSAuthMiddleware(this.usersRepository));
   }
-
+  // Owner events listeners
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(RoomClientEvent.OwnerStartGame)
   async onOnwerStartGame(
@@ -81,12 +101,23 @@ export class RoomGateway
       { id: roomId },
       { status: RoomStatus.InProgress },
     );
+
     // TODO: handle get question to start game
-    this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameStarted, {
-      message: 'Game started',
+    const firstQuestion = await this.pickQuestionForRoom(roomId);
+    const totalQuestions = await this.questionsRepository.count({
+      where: { gameId: room.gameId },
     });
+
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameStarted, {
+      totalQuestions,
+    });
+
+    setTimeout(async () => {
+      await this.emitQuestionToRoom(roomId, firstQuestion);
+    }, WAIT_TIME_PER_QUESTION * 1000);
   }
 
+  // Client or users events listeners
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(RoomClientEvent.ClientEmitJoinRoom)
   async joinRoom(
@@ -137,6 +168,64 @@ export class RoomGateway
     });
 
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
+  }
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage(RoomClientEvent.ClientEmitSubmitQuestion)
+  async onUserSubmitQuestion(
+    @ConnectedSocket() client: UserSocket,
+    @MessageBody() submitDto: ClientSubmitDto,
+  ) {
+    const jsonQuestion = await this.redis.get(
+      CACHES.CURRENT_QUESTION.getKey(submitDto.roomId),
+    );
+    if (!jsonQuestion) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: 'No question to submit',
+      });
+      return;
+    }
+    const currentGameQuestion = plainToInstance(
+      RawGameQuestionDto,
+      JSON.parse(jsonQuestion),
+    );
+
+    if (new Date(currentGameQuestion.endTime) < new Date()) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: 'Question time is over',
+      });
+      return;
+    }
+
+    const isCorrect =
+      currentGameQuestion.correctIndex === submitDto.answerIndex;
+
+    const lastSubmitResult = await this.questionRoomUsersRepository.findOne({
+      where: {
+        roomId: submitDto.roomId,
+        userId: client.user.userId,
+        questionId: currentGameQuestion.id,
+      },
+    });
+    if (lastSubmitResult) {
+      await this.questionRoomUsersRepository.update(
+        { id: lastSubmitResult.id },
+        {
+          isCorrect,
+          answerIndex: submitDto.answerIndex,
+          submittedAt: new Date().toISOString(),
+        },
+      );
+      return;
+    }
+    await this.questionRoomUsersRepository.insert({
+      roomId: submitDto.roomId,
+      userId: client.user.userId,
+      questionId: currentGameQuestion.id,
+      isCorrect,
+      answerIndex: submitDto.answerIndex,
+      submittedAt: new Date().toISOString(),
+    });
   }
 
   mapKeySocket(userId) {
@@ -201,5 +290,71 @@ export class RoomGateway
       userId: client.user.userId,
       type: StatusModifyCache.Delete,
     });
+  }
+
+  // Game handlers
+  async emitQuestionToRoom(roomId: string, question: Question) {
+    const roomQuestion = this.roomQuestionsRepository.create({
+      roomId,
+      questionId: question.id,
+      endTime: new Date(
+        new Date().getTime() + question.time * 1000,
+      ).toISOString(),
+    });
+    await this.roomQuestionsRepository.save(roomQuestion);
+    const rawGameQuestion = plainToInstance(RawGameQuestionDto, {
+      ...question,
+      correctIndex: question.answerOptions.correctIndex,
+      startTime: roomQuestion.startTime,
+      endTime: roomQuestion.endTime,
+    });
+    const gameQuestion = plainToInstance(GameQuestionDto, rawGameQuestion, {
+      excludeExtraneousValues: true,
+    });
+    // Save question to cache
+    const { getKey, exprieTime } = CACHES.CURRENT_QUESTION;
+    const questionKey = getKey(roomId);
+    await this.redis.set(
+      questionKey,
+      JSON.stringify(rawGameQuestion),
+      'EX',
+      exprieTime(question.time),
+    );
+    /**
+     * Emit question withthout correct answer to room
+     */
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitQuestion, {
+      question: gameQuestion,
+    });
+
+    setTimeout(async () => {
+      // TODO: handle users submit correct answer and emit correct answer
+      // TODO: handle calculate score and rank
+    }, question.time * 1000);
+  }
+
+  async pickQuestionForRoom(roomId: string) {
+    // Select random question from game except question that already picked
+    const room = await this.roomsRepository.findOne({
+      where: { id: roomId },
+      select: ['gameId'],
+    });
+    const pickedQuestionIds = await this.roomQuestionsRepository.find({
+      where: { roomId },
+      select: ['questionId'],
+    });
+    const remianingQuestions = await this.questionsRepository.find({
+      where: {
+        gameId: room.gameId,
+        id: Not(In(pickedQuestionIds?.map((q) => q.questionId))),
+      },
+    });
+
+    if (!remianingQuestions || remianingQuestions?.length === 0) {
+      return null;
+    }
+    return remianingQuestions[
+      Math.floor(Math.random() * remianingQuestions.length)
+    ];
   }
 }

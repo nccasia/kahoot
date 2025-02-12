@@ -14,6 +14,15 @@ export class QuestionRoomUser extends AbstractEntity {
   @Column({ nullable: false, name: 'question_id' })
   questionId: string;
 
+  @Column({ nullable: false })
+  answerIndex: number;
+
+  @Column({ nullable: false })
+  isCorrect: boolean;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  submittedAt: Date;
+
   @Column({ nullable: false, name: 'user_id' })
   userId: string;
 
