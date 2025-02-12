@@ -11,6 +11,10 @@ const HomePage = () => {
     // Go to search game page
     navigate(ROUTES.SEARCH_GAME);
   };
+  const handleGoToCreateGame = () => {
+    // Go to create game page
+    navigate(ROUTES.CREATE_GAME);
+  };
   const { appState, appDispatch } = useContext(AppContext);
   useEffect(() => {
     if (appState.isShowSplash) {
@@ -36,7 +40,9 @@ const HomePage = () => {
           <Button onClick={handleGoToSearchGame} className='font-diablo text-xl sm:text-2xl md:text-3xl bg-[#6BB3E0]'>
             Tìm Game
           </Button>
-          <Button className='font-diablo text-xl sm:text-2xl md:text-3xl bg-[#6F7CDD]'>Tạo Game</Button>
+          <Button onClick={handleGoToCreateGame} className='font-diablo text-xl sm:text-2xl md:text-3xl bg-[#6F7CDD]'>
+            Tạo Game
+          </Button>
           <Button className='font-diablo text-xl sm:text-2xl md:text-3xl bg-[#B2ADFF]'>Cài Đặt</Button>
         </div>
       </div>
