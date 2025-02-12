@@ -4,8 +4,14 @@ export interface AppActionType<T> {
   payload: any;
 }
 
+export interface IPaginationData {
+  totalPage: number;
+  total: number;
+  pageSize: number;
+  currentPage: number;
+}
 export interface IAppResponseBase<T> {
   statusCode: number;
-  message: string;
-  data?: T;
+  pagination: IPaginationData;
+  data: T;
 }

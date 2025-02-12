@@ -7,3 +7,16 @@ export interface IRegisterData {
   password: string;
   fullName: string;
 }
+export interface IGetTokenDTO {
+  mezonUserId: string;
+  email: string;
+  userName: string;
+  avatar: string;
+}
+
+export interface IGetTokenResponse {
+  accessToken: string;
+  userId: string;
+  email: string;
+  userName: string;
+}

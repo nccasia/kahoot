@@ -1,8 +1,7 @@
-import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import { DefaultEventsMap } from "@socket.io/component-emitter";
-import ENV from "@/constants/Environment";
 import { MezonAppEvent, MezonWebViewEvent } from "@/types/webview";
+import { DefaultEventsMap } from "@socket.io/component-emitter";
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import { Socket } from "socket.io-client";
 
 const SocketContext = createContext<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
 
@@ -38,22 +37,20 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (!socketInitialized && mezonUser?.id) {
-      socket.current = io(ENV.BACKEND_URL, {
-        withCredentials: true,
-        query: {},
-      });
-
-      socket.current.on("connect", () => {
-        console.log("Connected to socket");
-      });
-      setSocketInitialized(true);
-
-      return () => {
-        socket.current?.disconnect();
-        setSocketInitialized(false);
-      };
-    }
+    // if (!socketInitialized && mezonUser?.id) {
+    //   socket.current = io(ENV.BACKEND_URL, {
+    //     withCredentials: true,
+    //     query: {},
+    //   });
+    //   socket.current.on("connect", () => {
+    //     console.log("Connected to socket");
+    //   });
+    //   setSocketInitialized(true);
+    //   return () => {
+    //     socket.current?.disconnect();
+    //     setSocketInitialized(false);
+    //   };
+    // }
   }, [mezonUser?.id]);
 
   return <SocketContext.Provider value={socket.current}>{children}</SocketContext.Provider>;
