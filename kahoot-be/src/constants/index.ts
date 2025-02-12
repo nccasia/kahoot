@@ -9,14 +9,17 @@ export enum Table {
 }
 
 export const GLOBAL_PREFIX = 'v1';
-
 export const NAME_SPACE_JOIN_GAME = 'QUIZ';
-
+export const WAIT_TIME_PER_QUESTION = 10; // seconds
 export const CACHES = {
   SOCKET: {
     key: (userId: string) => `socket:${userId}`,
     // ? TODO
     // ttl:
+  },
+  CURRENT_QUESTION: {
+    getKey: (roomId: string) => `ROOM_QUESTION:${roomId}`,
+    exprieTime: (time: number) => time + WAIT_TIME_PER_QUESTION,
   },
 };
 
