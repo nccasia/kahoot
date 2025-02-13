@@ -22,6 +22,9 @@ export enum ClientConnectionEvent {
   ClientError = 'client_error',
 }
 export enum RoomServerEvent {
+  ServerEmitGameFinished = 'server_emit_game_finished',
+  ServerEmitWaitNextQuestion = 'server_emit_wait_next_question',
+  ServerEmitUserRanking = 'server_emit_user_ranking',
   UserJoinedRoom = 'user_joined_room',
   ServerEmitQuestion = 'server_emit_question',
   ServerEmitCorrectAnswer = 'server_emit_correct_answer',
