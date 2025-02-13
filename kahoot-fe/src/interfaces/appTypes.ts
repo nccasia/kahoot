@@ -13,5 +13,7 @@ export interface IPaginationData {
 export interface IAppResponseBase<T> {
   statusCode: number;
   pagination: IPaginationData;
+  errorCode: number | null;
+  message: string | null;
   data: T;
 }

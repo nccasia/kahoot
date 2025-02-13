@@ -20,3 +20,10 @@ export interface IGetTokenResponse {
   email: string;
   userName: string;
 }
+
+export interface ICurrentUser {
+  userId: string;
+  email: string;
+  userName: string;
+  avatar: string;
+}

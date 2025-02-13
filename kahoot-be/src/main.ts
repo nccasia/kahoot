@@ -1,11 +1,12 @@
 import { AllExceptionsFilter } from '@base/filters/all-exceptions.filter';
 import { ResponseInterceptor } from '@base/interceptors/response.interceptor';
-import { corsConfig, GLOBAL_PREFIX } from '@constants';
+import { GLOBAL_PREFIX } from '@constants';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { corsConfig } from './configs/cors.config';
 
 async function bootstrap() {
   const configService = new ConfigService();

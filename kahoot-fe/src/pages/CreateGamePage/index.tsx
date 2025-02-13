@@ -6,6 +6,7 @@ import GameActions from "@/stores/gameStore/gameAction";
 import generateId from "@/utils/functions/generateId";
 import { useContext } from "react";
 import { toast } from "react-toastify";
+import ModalSaveGame from "./components/ModalSaveGame";
 import QuestionItem from "./components/QuestionItem";
 
 const CreateGamePage = () => {
@@ -67,6 +68,7 @@ const CreateGamePage = () => {
       toast.error("Hãy kiểm tra lại thông tin câu hỏi!");
       return;
     }
+    gameDispatch(GameActions.changeOpenModalSaveGame(true));
   };
   return (
     <div className='max-w-[1200px] w-[100%] h-full p-2'>
@@ -98,6 +100,7 @@ const CreateGamePage = () => {
           </div>
         )}
       </div>
+      <ModalSaveGame />
     </div>
   );
 };

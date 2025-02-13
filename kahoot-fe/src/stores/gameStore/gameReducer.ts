@@ -6,12 +6,14 @@ export interface GameState {
   listQuestions: IQuestion[];
   selectedQuestion?: IQuestion;
   loading: boolean;
+  openModalSaveGame: boolean;
 }
 
 export const initGameState: GameState = {
   listQuestions: [],
   selectedQuestion: undefined,
   loading: false,
+  openModalSaveGame: false,
 };
 
 const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): GameState => {
@@ -53,6 +55,13 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
       return {
         ...state,
         listQuestions: newListQuestion,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_OPEN_MODAL_SAVE_GAME: {
+      return {
+        ...state,
+        openModalSaveGame: action.payload,
       };
     }
     default:

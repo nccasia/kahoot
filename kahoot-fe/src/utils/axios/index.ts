@@ -1,6 +1,6 @@
-import axios from "axios";
 import ENV from "@/constants/Environment";
-import { getCookie } from "../cookies";
+import axios from "axios";
+import { getFromLocalStorage } from "../localStorage";
 const baseURL = ENV.BACKEND_URL;
 
 const axiosConfig = axios.create({
@@ -12,7 +12,7 @@ const axiosConfig = axios.create({
 });
 
 axiosConfig.interceptors.request.use((config) => {
-  const accessToken = getCookie("accessToken");
+  const accessToken = getFromLocalStorage("accessToken");
   if (accessToken !== undefined) {
     config.headers.Authorization = "Bearer " + String(accessToken);
   }
