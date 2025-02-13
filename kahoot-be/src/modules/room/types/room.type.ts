@@ -23,6 +23,8 @@ export enum ClientConnectionEvent {
 }
 export enum RoomServerEvent {
   UserJoinedRoom = 'user_joined_room',
+  ServerEmitQuestion = 'server_emit_question',
+  ServerEmitCorrectAnswer = 'server_emit_correct_answer',
   ServerEmitUserJoinRoom = 'server_emit_user_join_room',
   ServerEmitLeaveRoom = 'server_emit_leave_room',
   ServerEmitGameStarted = 'server_game_started',

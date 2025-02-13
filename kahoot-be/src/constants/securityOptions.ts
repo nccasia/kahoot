@@ -4,5 +4,11 @@ export const SecurityOptions = {
 };
 
 export const corsConfig = {
-  origin: '*',
+  origin: [
+    'http://localhost:5173',
+    'http://10.10.21.37:5173',
+    'https://doban.nccsoft.vn',
+    'https://kahoot.nccsoft.vn',
+  ],
+  credentials: true,
 };
