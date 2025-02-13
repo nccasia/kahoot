@@ -10,7 +10,6 @@ import { generateRoomCode } from 'src/utils';
 import { Repository } from 'typeorm';
 import { BaseRoomDto } from './dto/base-room.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { UpdateRoomDto } from './dto/update-room.dto';
 import { Room } from './entities/room.entity';
 import { RoomStatus } from './types';
 
@@ -110,42 +109,6 @@ export class RoomService {
     return plainToInstance(
       BaseRoomDto,
       { ...room, isOwner: room.ownerId == payload.userId },
-      {
-        excludeExtraneousValues: true,
-      },
-    );
-  }
-
-  async updateRoomAsync(
-    roomId: string,
-    updateRoomDto: UpdateRoomDto,
-    payload: AccessTokenPayload,
-  ) {
-    const room = await this.roomRepository.findOne({
-      where: { id: roomId, ownerId: payload.userId },
-    });
-    if (!room) {
-      throw new BadRequestException({
-        message: `Room with id ${roomId} not found or you are not the owner`,
-        errorCode: ERROR_CODES.ROOM.ROOM_NOT_FOUND,
-      });
-    }
-
-    if (room.status !== RoomStatus.Created) {
-      throw new BadRequestException({
-        message: `Room with id ${roomId} cannot be updated because it is playing or finished`,
-        errorCode: ERROR_CODES.ROOM.ROOM_CANNOT_BE_UPDATED,
-      });
-    }
-
-    const updatedRoom = await this.roomRepository.save({
-      ...room,
-      ...updateRoomDto,
-    });
-
-    return plainToInstance(
-      BaseRoomDto,
-      { ...updatedRoom, isOwner: room.ownerId == payload.userId },
       {
         excludeExtraneousValues: true,
       },

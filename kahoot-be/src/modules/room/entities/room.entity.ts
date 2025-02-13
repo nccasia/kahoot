@@ -19,12 +19,6 @@ export class Room extends AbstractEntity {
   status: RoomStatus;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @Column()
-  @IsString()
-  name: string;
-
-  @ApiProperty()
   @IsString()
   @Column({ unique: true })
   code: string;
