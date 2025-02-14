@@ -23,7 +23,9 @@ export interface IGetTokenResponse {
 
 export interface ICurrentUser {
   userId: string;
+  mezonUserId: string;
   email: string;
   userName: string;
   avatar: string;
+  accessToken: string;
 }

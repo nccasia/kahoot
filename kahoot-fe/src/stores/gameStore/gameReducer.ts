@@ -8,6 +8,7 @@ export interface GameState {
   listGames: IGame[];
   filterGames: IGame[];
   selectedQuestion?: IQuestion;
+  selectedGame?: IGame | null;
   loading: boolean;
   openModalSaveGame: boolean;
 }
@@ -19,6 +20,7 @@ export const initGameState: GameState = {
   selectedQuestion: undefined,
   loading: false,
   openModalSaveGame: false,
+  selectedGame: null,
 };
 
 const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): GameState => {
@@ -81,6 +83,13 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
       return {
         ...state,
         filterGames: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_SELECTED_GAME: {
+      return {
+        ...state,
+        selectedGame: action.payload,
       };
     }
 

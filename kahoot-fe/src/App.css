@@ -49,6 +49,7 @@ h1#page-logo {
   animation: line-animation 4s ease infinite alternate;
   animation-timing-function: linear;
 }
+
 @keyframes waviy {
   0%,
   40%,

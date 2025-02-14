@@ -10,6 +10,7 @@ export enum GAME_TYPE {
   CHANGE_OPEN_MODAL_SAVE_GAME = "CHANGE_OPEN_MODAL_SAVE_GAME",
   CHANGE_LIST_GAME = "CHANGE_LIST_GAME",
   CHANGE_FILTER_GAMES = "CHANGE_FILTER_GAMES",
+  CHANGE_SELECTED_GAME = "CHANGE_SELECTED_GAME",
 }
 
 const addQuestion = (question: IQuestion): AppActionType<GAME_TYPE> => {
@@ -61,6 +62,13 @@ const changeFilterGames = (filterGames: IGame[]): AppActionType<GAME_TYPE> => {
   };
 };
 
+const changeSelectedGame = (game: IGame | null): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_SELECTED_GAME,
+    payload: game,
+  };
+};
+
 const GameActions = {
   addQuestion,
   changeListQuestion,
@@ -69,5 +77,6 @@ const GameActions = {
   changeOpenModalSaveGame,
   changeListGame,
   changeFilterGames,
+  changeSelectedGame,
 };
 export default GameActions;

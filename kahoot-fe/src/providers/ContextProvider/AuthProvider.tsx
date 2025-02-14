@@ -1,7 +1,7 @@
 import { AppActionType } from "@/interfaces/appTypes";
-import { IGetTokenDTO } from "@/interfaces/authTypes";
+import { ICurrentUser, IGetTokenDTO } from "@/interfaces/authTypes";
 import authServices from "@/services/authServices";
-import { AUTH_TYPE } from "@/stores/authStore/authAction";
+import AuthActions, { AUTH_TYPE } from "@/stores/authStore/authAction";
 import AuthReducer, { AuthState, initAuthState } from "@/stores/authStore/authReducer";
 import { setToLocalStorage } from "@/utils/localStorage";
 import React, { Dispatch, createContext, useEffect, useReducer } from "react";
@@ -50,6 +50,15 @@ const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element 
         const data = await authServices.getToken(getTokenData);
         if (data.statusCode === 200 || data.statusCode === 201) {
           setToLocalStorage("accessToken", data.data.accessToken);
+          const currentUser: ICurrentUser = {
+            userId: data.data.userId,
+            mezonUserId: getTokenData.mezonUserId,
+            userName: data.data.userName,
+            avatar: getTokenData.avatar,
+            accessToken: data.data.accessToken,
+            email: getTokenData.email,
+          };
+          authDispatch(AuthActions.changeCurrentUser(currentUser));
         }
       } catch (error) {
         console.log(error);
