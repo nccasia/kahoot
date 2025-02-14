@@ -144,29 +144,54 @@ export class RoomGateway
       });
     }
 
-    if (room?.status !== RoomStatus.Waiting) {
-      throw new WsException({
-        message: `Room with id ${roomId} cannot be join because it in progess or finished`,
-      });
-    }
-
     const members = room.roomUsers.map((ru) => ru.user);
     const joined = members.some((member) => member.id === userId);
+    const isOwner = room.ownerId === userId;
 
     if (!joined) {
-      await this.roomUsersRepository.insert({ roomId, userId });
+      if (room?.status !== RoomStatus.Waiting) {
+        throw new WsException({
+          message: `Room with id ${roomId} cannot be join because it in progess or finished`,
+        });
+      }
+      await this.roomUsersRepository.insert({
+        roomId,
+        userId,
+        isOwner: isOwner,
+      });
     }
 
     await client.join(roomId);
     client.emit(RoomServerEvent.UserJoinedRoom, {
       roomId,
-      isOwner: room.ownerId === userId,
+      isOwner: isOwner,
       members,
     });
 
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
   }
 
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage(RoomClientEvent.ClientEmitGetCurrentQuestion)
+  async onGetCurrentQuestion(
+    @ConnectedSocket() client: UserSocket,
+    @MessageBody() roomId: string,
+  ) {
+    const currentGameQuestion =
+      await this.roomCacheService.getCurrentQuestion(roomId);
+    if (!currentGameQuestion) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: 'No question, please wait for next question',
+      });
+      return;
+    }
+    const gameQuestion = plainToInstance(GameQuestionDto, currentGameQuestion, {
+      excludeExtraneousValues: true,
+    });
+    client.emit(RoomServerEvent.ServerEmitQuestion, {
+      currentQuestion: gameQuestion,
+    });
+  }
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(RoomClientEvent.ClientEmitSubmitQuestion)
   async onUserSubmitQuestion(
@@ -205,7 +230,7 @@ export class RoomGateway
         message: 'You already submitted this question',
       });
     }
-    const newSubmitResult = await this.questionRoomUsersRepository.create({
+    const newSubmitResult = this.questionRoomUsersRepository.create({
       roomId: submitDto.roomId,
       userId: client.user.userId,
       questionId: currentGameQuestion.id,
@@ -220,14 +245,16 @@ export class RoomGateway
     this.questionRoomUsersRepository.save(newSubmitResult);
 
     // TODO: If all users submitted answer, emit correct answer
-    const countQuestionUsers = await this.roomUsersRepository.count({
-      where: { roomId: submitDto.roomId },
+    const countRoomUsers = await this.roomUsersRepository.count({
+      where: { roomId: submitDto.roomId, isOwner: false },
     });
-    const countSubmitedUser = await this.roomCacheService.countSubmitedUser(submitDto.roomId, currentGameQuestion.id);
-    if (countQuestionUsers === countSubmitedUser) {
+    const countSubmitedUser = await this.roomCacheService.countSubmitedUser(
+      submitDto.roomId,
+      currentGameQuestion.id,
+    );
+    if (countRoomUsers === countSubmitedUser) {
       await this.handleQuestionFinish(submitDto.roomId, currentGameQuestion);
     }
-
   }
 
   async handleConnection(@ConnectedSocket() client: UserSocket) {
@@ -329,36 +356,47 @@ export class RoomGateway
     if (!remianingQuestions || remianingQuestions?.length === 0) {
       return null;
     }
-    
+
     return remianingQuestions[
       Math.floor(Math.random() * remianingQuestions.length)
     ];
   }
 
   async handleGameFinish(roomId: string) {
-    const userRanking = await this.roomCacheService.getRoomRanking(roomId);
-    this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameFinished, {
-      userRanking,
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitWaitGameFinished, {
+      message: 'Wait for game finished',
+      waitTime: WAIT_TIME_PER_QUESTION,
     });
-    this.roomsRepository.update({ id: roomId }, { status: RoomStatus.Finished });
+    const userRanking = await this.roomCacheService.getRoomRanking(roomId);
+    setTimeout(() => {
+      this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameFinished, {
+        userRanking,
+      });
+      this.roomsRepository.update(
+        { id: roomId },
+        { status: RoomStatus.Finished },
+      );
+    }, WAIT_TIME_PER_QUESTION * 1000);
   }
 
-  async handleQuestionFinish(roomId: string, rawGameQuestion: RawGameQuestionDto) {
+  async handleQuestionFinish(
+    roomId: string,
+    rawGameQuestion: RawGameQuestionDto,
+  ) {
     // Emit correct answer to room
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
       questionId: rawGameQuestion.id,
       correctIndex: rawGameQuestion.correctIndex,
     });
 
-    const totalQuestions = await this.roomCacheService.getTotalRoomQuestion(
-      roomId,
-    );
-    const finishedQuestions = await this.roomCacheService.getCountQuestionAnswered(
-      roomId,
-    );
-    
+    const totalQuestions =
+      await this.roomCacheService.getTotalRoomQuestion(roomId);
+    const finishedQuestions =
+      await this.roomCacheService.getCountQuestionAnswered(roomId);
+
     if (totalQuestions === finishedQuestions) {
       // TODO: Emit game finished if all questions finished
+      await this.handleGameFinish(roomId);
     }
     // ?: Emit next question if not finished
     const userRanking = await this.roomCacheService.getRoomRanking(roomId);
@@ -376,6 +414,5 @@ export class RoomGateway
         await this.emitQuestionToRoom(roomId, nextQuestion);
       }, WAIT_TIME_PER_QUESTION * 1000);
     }
-
   }
 }
