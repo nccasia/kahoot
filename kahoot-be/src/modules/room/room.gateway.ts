@@ -128,7 +128,7 @@ export class RoomGateway
     // ? TODO
     @UserWs() user,
   ) {
-    const { roomId } = joinRoomDto;
+    const { roomCode } = joinRoomDto;
     const { userId } = user;
 
     const room: Pick<Room, 'id' | 'status' | 'ownerId'> & {
@@ -139,13 +139,13 @@ export class RoomGateway
       .createQueryBuilder('r')
       .leftJoin('r.roomUsers', 'ru')
       .innerJoinAndSelect('ru.user', 'u')
-      .where('r.id = :roomId', { roomId })
+      .where('r.code = :roonCode', { roomCode: String(roomCode) })
       .select(['r.id', 'r.status', 'r.ownerId'])
       .getOne();
 
     if (!room) {
       throw new WsException({
-        message: `Room with id ${roomId} not found`,
+        message: `Room with code ${roomCode} not found`,
       });
     }
 
@@ -154,26 +154,32 @@ export class RoomGateway
     const isOwner = room.ownerId === userId;
 
     if (!joined) {
+      if (room.status === RoomStatus.Created) {
+        throw new WsException({
+          message: `Room with code ${roomCode} not started yet`,
+        });
+      }
+
       if (room?.status !== RoomStatus.Waiting) {
         throw new WsException({
-          message: `Room with id ${roomId} cannot be join because it in progess or finished`,
+          message: `Room with code ${roomCode} cannot be join because it in progess or finished`,
         });
       }
       await this.roomUsersRepository.insert({
-        roomId,
+        roomId: room.id,
         userId,
         isOwner: isOwner,
       });
     }
 
-    await client.join(roomId);
+    await client.join(room.id);
     client.emit(RoomServerEvent.UserJoinedRoom, {
-      roomId,
+      roomId: room.id,
       isOwner: isOwner,
       members,
     });
 
-    this.server.to(roomId).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
+    this.server.to(room.id).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
   }
 
   @UseGuards(WsJwtGuard)
