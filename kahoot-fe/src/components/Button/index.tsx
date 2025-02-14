@@ -15,6 +15,7 @@ const Button = ({ children, className, onClick, isLoading = false }: ButtonProps
         hover:shadow-[-1px_1px_0_0_#fff,-1px_1px_0_0px_#fff] hover:translate-x-[-1px] hover:translate-y-[1px] 
         active:shadow-[-0px_0px_0_0_#fff,-0px_0px_0_0px_#fff] active:translate-x-[-2px] active:translate-y-[2px]
         flex items-center justify-center gap-2
+        filter brightness-100 hover:brightness-110
         ${isLoading ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
         ${className}
         `}

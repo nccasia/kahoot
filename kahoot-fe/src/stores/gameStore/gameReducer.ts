@@ -1,9 +1,12 @@
 import { AppActionType } from "@/interfaces/appTypes";
+import { IGame } from "@/interfaces/gameTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
 import { GAME_TYPE } from "./gameAction";
 
 export interface GameState {
   listQuestions: IQuestion[];
+  listGames: IGame[];
+  filterGames: IGame[];
   selectedQuestion?: IQuestion;
   loading: boolean;
   openModalSaveGame: boolean;
@@ -11,6 +14,8 @@ export interface GameState {
 
 export const initGameState: GameState = {
   listQuestions: [],
+  listGames: [],
+  filterGames: [],
   selectedQuestion: undefined,
   loading: false,
   openModalSaveGame: false,
@@ -64,6 +69,21 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
         openModalSaveGame: action.payload,
       };
     }
+
+    case GAME_TYPE.CHANGE_LIST_GAME: {
+      return {
+        ...state,
+        listGames: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_FILTER_GAMES: {
+      return {
+        ...state,
+        filterGames: action.payload,
+      };
+    }
+
     default:
       return state;
   }

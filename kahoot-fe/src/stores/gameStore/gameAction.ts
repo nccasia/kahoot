@@ -1,4 +1,5 @@
 import { AppActionType } from "@/interfaces/appTypes";
+import { IGame } from "@/interfaces/gameTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
 
 export enum GAME_TYPE {
@@ -7,6 +8,8 @@ export enum GAME_TYPE {
   CHANGE_SELECTED_QUESTION = "CHANGE_SELECTED_QUESTION",
   CHANGE_QUESTION_VALUE = "CHANGE_QUESTION_VALUE",
   CHANGE_OPEN_MODAL_SAVE_GAME = "CHANGE_OPEN_MODAL_SAVE_GAME",
+  CHANGE_LIST_GAME = "CHANGE_LIST_GAME",
+  CHANGE_FILTER_GAMES = "CHANGE_FILTER_GAMES",
 }
 
 const addQuestion = (question: IQuestion): AppActionType<GAME_TYPE> => {
@@ -44,11 +47,27 @@ const changeOpenModalSaveGame = (isOpen: boolean): AppActionType<GAME_TYPE> => {
   };
 };
 
+const changeListGame = (listGames: IGame[]): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_LIST_GAME,
+    payload: listGames,
+  };
+};
+
+const changeFilterGames = (filterGames: IGame[]): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_FILTER_GAMES,
+    payload: filterGames,
+  };
+};
+
 const GameActions = {
   addQuestion,
   changeListQuestion,
   changeSelectedQuestion,
   changeQuestionValue,
   changeOpenModalSaveGame,
+  changeListGame,
+  changeFilterGames,
 };
 export default GameActions;

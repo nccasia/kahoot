@@ -12,3 +12,10 @@ export interface IQuestion {
   answerOptions: IAnswerOption;
   isError?: boolean;
 }
+
+export interface IAddQuestionToGameDTO {
+  mode: string;
+  time: number;
+  title: string;
+  answerOptions: IAnswerOption;
+}

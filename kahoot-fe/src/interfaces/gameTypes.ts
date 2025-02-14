@@ -10,6 +10,6 @@ export interface IGame {
 
 export interface ICreateGameDTO {
   name: string;
-  description: string;
+  description?: string;
   status: string;
 }

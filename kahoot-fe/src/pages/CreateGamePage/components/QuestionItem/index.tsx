@@ -119,7 +119,7 @@ const QuestionItem = ({ question, index }: IQuestionItemProps) => {
         open={question.id === gameState.selectedQuestion?.id}
         content={<QuestionContent handleUpdateQuestion={handleUpdateQuestion} question={question} />}
       >
-        <div className='font-diablo text-start line-clamp-2 min-h-[50px]'>
+        <div className='font-diablo text-start text-white line-clamp-2 min-h-[50px]'>
           <span className='mr-2'>Câu {index}:</span>
           <span>{question.title}</span>
         </div>

@@ -31,7 +31,7 @@ const Collapse = ({ children, content, open, changeCollapse, hasError = false }:
       >
         {hasError && (
           <div className='absolute top-1 left-1 '>
-            <img className='w-[20px]' src='/public/icons/exclamation.png' />
+            <img className='w-[20px]' src='/icons/exclamation.png' />
           </div>
         )}
         <div className='flex-1'>{children}</div>
