@@ -1,7 +1,11 @@
 import { UserWs } from '@base/decorators/user-ws.decorator';
 import { WsJwtGuard } from '@base/guards/ws-auth.guard';
 import { WSAuthMiddleware } from '@base/middlewares/ws-auth.middleware';
-import { NAME_SPACE_JOIN_GAME, WAIT_TIME_PER_QUESTION } from '@constants';
+import {
+  corsConfig,
+  NAME_SPACE_JOIN_GAME,
+  WAIT_TIME_PER_QUESTION,
+} from '@constants';
 import { Game } from '@modules/game/entities/game.entity';
 import { GameQuestionDto } from '@modules/question/dto/game-question.dto';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
@@ -41,6 +45,7 @@ import {
 
 @WebSocketGateway({
   namespace: NAME_SPACE_JOIN_GAME,
+  cors: corsConfig,
 })
 export class RoomGateway
   implements OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection
