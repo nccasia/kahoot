@@ -1,12 +1,13 @@
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import roomServices from "@/services/roomServices";
 import RoomActions from "@/stores/roomStore/roomAction";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import PlayerItem from "./components/PlayerItem";
 
 const WaitingRoom = () => {
   const { roomId } = useParams<{ roomId: string }>();
+  const [copied, setCopied] = useState(false);
   const { roomState, roomDispatch } = useContext(RoomContext);
   useEffect(() => {
     if (!roomId) return;
@@ -26,6 +27,15 @@ const WaitingRoom = () => {
     };
     getRoomById();
   }, [roomDispatch, roomId]);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(roomState.currentRoom?.code ?? "");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
   return (
     <div className='w-full h-screen'>
       <div className='font-diablo h-[140px] flex items-center justify-center flex-col w-full'>
@@ -35,7 +45,10 @@ const WaitingRoom = () => {
             {/* <span className='flex items-center justify-center bg-gray-400 h-[50px] w-full -rotate-2 rounded-lg'>
               Loading Game Pin...
             </span> */}
-            <span className='text-6xl hover:bg-gray-300 rounded-md cursor-pointer p-2 active:bg-gray-200 transition-all'>
+            <span
+              onClick={handleCopy}
+              className='text-6xl hover:bg-gray-300 rounded-md cursor-pointer p-2 active:bg-gray-200 transition-all'
+            >
               {roomState.currentRoom?.code}
             </span>
           </div>

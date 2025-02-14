@@ -24,11 +24,13 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         reconnectionAttempts: 5,
         reconnectionDelay: 3000,
         extraHeaders: {
-          userId: authState.currentUser.userId,
-          mezonUserId: authState.currentUser.mezonUserId,
-          email: authState.currentUser.email,
-          userName: authState.currentUser.userName,
-          avatar: authState.currentUser.avatar,
+          "X-Kahoot-User": JSON.stringify({
+            userId: authState.currentUser.userId,
+            mezonUserId: authState.currentUser.mezonUserId,
+            email: authState.currentUser.email,
+            userName: authState.currentUser.userName,
+            avatar: authState.currentUser.avatar,
+          }),
         },
       });
       socket.current.on("connect", () => {
