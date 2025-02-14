@@ -24,5 +24,6 @@ export class MezonUserDto {
 }
 
 export class SocketUser extends MezonUserDto {
+  @Expose()
   userId: string;
 }

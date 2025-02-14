@@ -6,6 +6,7 @@ import { WsException } from '@nestjs/websockets';
 import { plainToInstance } from 'class-transformer';
 import { Socket } from 'socket.io';
 import { Repository } from 'typeorm';
+import { validate } from 'uuid';
 
 export type SocketMiddleware = (
   socket: Socket,
@@ -21,7 +22,8 @@ export const WSAuthMiddleware = (
     const socketUser = plainToInstance(SocketUser, requestUser, {
       excludeExtraneousValues: true,
     });
-    if (!socketUser || !socketUser.userId) {
+    // console.log('socketUser', socketUser);
+    if (!socketUser || !socketUser.userId || !validate(socketUser.userId)) {
       next(
         new WsException({
           message: 'Please provide valid user data to connect',
@@ -31,7 +33,7 @@ export const WSAuthMiddleware = (
       return;
     }
     const user = await userRepository.findOne({
-      where: { id: socketUser.userId },
+      where: { id: String(socketUser.userId) },
       select: ['id'],
     });
     if (!user) {
