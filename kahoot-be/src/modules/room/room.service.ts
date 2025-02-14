@@ -39,7 +39,7 @@ export class RoomService {
     const room = this.roomRepository.create({
       ...createRoomDto,
       ownerId: payload.userId,
-      status: RoomStatus.Created,
+      status: RoomStatus.Waiting,
       code: roomCode,
     });
     await this.roomRepository.save(room);
@@ -115,28 +115,28 @@ export class RoomService {
     );
   }
 
-  async startGameAsync(roomId: string, payload: AccessTokenPayload) {
-    const room = await this.roomRepository.findOne({
-      where: { id: roomId, ownerId: payload.userId },
-    });
-    if (!room) {
-      throw new BadRequestException({
-        message: `Room with id ${roomId} not found or you are not the owner`,
-        errorCode: ERROR_CODES.ROOM.ROOM_NOT_FOUND,
-      });
-    }
-    if (room.status !== RoomStatus.Created) {
-      throw new BadRequestException({
-        message: `Room with id ${roomId} cannot be started because it is playing or finished`,
-        errorCode: ERROR_CODES.ROOM.ROOM_CANNOT_BE_UPDATED,
-      });
-    }
-    await this.roomRepository.update(
-      { id: roomId },
-      { status: RoomStatus.Waiting },
-    );
-    return { message: `Room with id ${roomId} has been started` };
-  }
+  // async startGameAsync(roomId: string, payload: AccessTokenPayload) {
+  //   const room = await this.roomRepository.findOne({
+  //     where: { id: roomId, ownerId: payload.userId },
+  //   });
+  //   if (!room) {
+  //     throw new BadRequestException({
+  //       message: `Room with id ${roomId} not found or you are not the owner`,
+  //       errorCode: ERROR_CODES.ROOM.ROOM_NOT_FOUND,
+  //     });
+  //   }
+  //   if (room.status !== RoomStatus.Created) {
+  //     throw new BadRequestException({
+  //       message: `Room with id ${roomId} cannot be started because it is playing or finished`,
+  //       errorCode: ERROR_CODES.ROOM.ROOM_CANNOT_BE_UPDATED,
+  //     });
+  //   }
+  //   await this.roomRepository.update(
+  //     { id: roomId },
+  //     { status: RoomStatus.Waiting },
+  //   );
+  //   return { message: `Room with id ${roomId} has been started` };
+  // }
   async removeRoomAsync(roomId: string, payload: AccessTokenPayload) {
     const room = await this.roomRepository.findOne({
       where: { id: roomId, ownerId: payload.userId },
@@ -147,9 +147,9 @@ export class RoomService {
         errorCode: ERROR_CODES.ROOM.ROOM_NOT_FOUND,
       });
     }
-    if (room.status !== RoomStatus.Created) {
+    if (room.status !== RoomStatus.Finished) {
       throw new BadRequestException({
-        message: `Room with id ${roomId} cannot be removed because it is playing or finished`,
+        message: `Room with id ${roomId} cannot be removed because it is playing`,
         errorCode: ERROR_CODES.ROOM.ROOM_CANNOT_BE_DELETED,
       });
     }

@@ -2,7 +2,6 @@ import { SocketUser } from '@modules/user/dto/socket-user.dto';
 import { Socket } from 'socket.io';
 
 export enum RoomStatus {
-  Created = 'created',
   Waiting = 'waiting',
   InProgress = 'in_progress',
   Finished = 'finished',

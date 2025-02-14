@@ -5,15 +5,7 @@ import { ApiResponseType } from '@base/decorators/response-swagger.decorator';
 import { UserRequest } from '@base/decorators/user-request.decorator';
 import { QueryOptionsDto } from '@base/dtos/query-options.dto';
 import { AccessTokenPayload } from '@modules/auth/types';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { RoomService } from './room.service';
@@ -54,13 +46,13 @@ export class RoomController {
   ) {
     return this.roomService.getRoomAsync(roomId, payload);
   }
-  @Put('start-game/:roomId')
-  startGame(
-    @Param('roomId') roomId: string,
-    @UserRequest() payload: AccessTokenPayload,
-  ) {
-    return this.roomService.startGameAsync(roomId, payload);
-  }
+  // @Put('start-game/:roomId')
+  // startGame(
+  //   @Param('roomId') roomId: string,
+  //   @UserRequest() payload: AccessTokenPayload,
+  // ) {
+  //   return this.roomService.startGameAsync(roomId, payload);
+  // }
   @Delete(':roomId')
   removeRoom(
     @Param('roomId') roomId: string,

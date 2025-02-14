@@ -154,12 +154,6 @@ export class RoomGateway
     const isOwner = room.ownerId === userId;
 
     if (!joined) {
-      if (room.status === RoomStatus.Created) {
-        throw new WsException({
-          message: `Room with code ${roomCode} not started yet`,
-        });
-      }
-
       if (room?.status !== RoomStatus.Waiting) {
         throw new WsException({
           message: `Room with code ${roomCode} cannot be join because it in progess or finished`,
