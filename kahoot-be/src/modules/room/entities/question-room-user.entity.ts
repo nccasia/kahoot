@@ -20,6 +20,9 @@ export class QuestionRoomUser extends AbstractEntity {
   @Column({ nullable: false })
   isCorrect: boolean;
 
+  @Column({ nullable: true })
+  point: number;
+
   @Column({ nullable: true, type: 'timestamptz' })
   submittedAt: Date;
 

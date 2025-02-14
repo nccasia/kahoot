@@ -10,7 +10,7 @@ export class BaseRoomDto {
 
   @ApiProperty()
   @Expose()
-  name?: string;
+  code: string;
 
   @ApiProperty()
   @Expose()

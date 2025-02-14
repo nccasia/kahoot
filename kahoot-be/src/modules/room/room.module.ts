@@ -7,6 +7,7 @@ import { QuestionRoomUser } from './entities/question-room-user.entity';
 import { RoomQuestion } from './entities/room-question.entity';
 import { RoomUser } from './entities/room-user.entity';
 import { Room } from './entities/room.entity';
+import { RoomCacheService } from './room-cache.service';
 import { RoomController } from './room.controller';
 import { RoomGateway } from './room.gateway';
 import { RoomService } from './room.service';
@@ -24,6 +25,6 @@ import { RoomService } from './room.service';
     ]),
   ],
   controllers: [RoomController],
-  providers: [RoomService, RoomGateway],
+  providers: [RoomService, RoomGateway, RoomCacheService],
 })
 export class RoomModule {}

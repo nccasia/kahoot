@@ -1,17 +1,12 @@
 import { UserWs } from '@base/decorators/user-ws.decorator';
 import { WsJwtGuard } from '@base/guards/ws-auth.guard';
 import { WSAuthMiddleware } from '@base/middlewares/ws-auth.middleware';
-import {
-  CACHES,
-  NAME_SPACE_JOIN_GAME,
-  WAIT_TIME_PER_QUESTION,
-} from '@constants';
+import { NAME_SPACE_JOIN_GAME, WAIT_TIME_PER_QUESTION } from '@constants';
 import { Game } from '@modules/game/entities/game.entity';
 import { GameQuestionDto } from '@modules/question/dto/game-question.dto';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
 import { Question } from '@modules/question/entities/question.entity';
 import { User } from '@modules/user/entities/user.entity';
-import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Logger, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -26,7 +21,6 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import { plainToInstance } from 'class-transformer';
-import Redis from 'ioredis';
 import { Namespace, Socket } from 'socket.io';
 import { In, Not, Repository } from 'typeorm';
 import { ClientSubmitDto } from './dto/client-submit.dto';
@@ -35,6 +29,7 @@ import { QuestionRoomUser } from './entities/question-room-user.entity';
 import { RoomQuestion } from './entities/room-question.entity';
 import { RoomUser } from './entities/room-user.entity';
 import { Room } from './entities/room.entity';
+import { RoomCacheService } from './room-cache.service';
 import {
   ClientConnectionEvent,
   RoomClientEvent,
@@ -54,7 +49,6 @@ export class RoomGateway
   @WebSocketServer() server: Namespace;
 
   constructor(
-    @InjectRedis() private redis: Redis,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     @InjectRepository(Room)
@@ -69,6 +63,7 @@ export class RoomGateway
     private questionRoomUsersRepository: Repository<QuestionRoomUser>,
     @InjectRepository(RoomQuestion)
     private roomQuestionsRepository: Repository<RoomQuestion>,
+    private roomCacheService: RoomCacheService,
   ) {}
 
   async afterInit() {
@@ -111,6 +106,8 @@ export class RoomGateway
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameStarted, {
       totalQuestions,
     });
+
+    this.roomCacheService.setTotalRoomQuestion(roomId, totalQuestions);
 
     setTimeout(async () => {
       await this.emitQuestionToRoom(roomId, firstQuestion);
@@ -176,19 +173,15 @@ export class RoomGateway
     @ConnectedSocket() client: UserSocket,
     @MessageBody() submitDto: ClientSubmitDto,
   ) {
-    const jsonQuestion = await this.redis.get(
-      CACHES.CURRENT_QUESTION.getKey(submitDto.roomId),
+    const currentGameQuestion = await this.roomCacheService.getCurrentQuestion(
+      submitDto.roomId,
     );
-    if (!jsonQuestion) {
+    if (!currentGameQuestion) {
       client.emit(ClientConnectionEvent.ClientError, {
         message: 'No question to submit',
       });
       return;
     }
-    const currentGameQuestion = plainToInstance(
-      RawGameQuestionDto,
-      JSON.parse(jsonQuestion),
-    );
 
     if (new Date(currentGameQuestion.endTime) < new Date()) {
       client.emit(ClientConnectionEvent.ClientError, {
@@ -208,17 +201,11 @@ export class RoomGateway
       },
     });
     if (lastSubmitResult) {
-      await this.questionRoomUsersRepository.update(
-        { id: lastSubmitResult.id },
-        {
-          isCorrect,
-          answerIndex: submitDto.answerIndex,
-          submittedAt: new Date().toISOString(),
-        },
-      );
-      return;
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: 'You already submitted this question',
+      });
     }
-    await this.questionRoomUsersRepository.insert({
+    const newSubmitResult = await this.questionRoomUsersRepository.create({
       roomId: submitDto.roomId,
       userId: client.user.userId,
       questionId: currentGameQuestion.id,
@@ -226,29 +213,21 @@ export class RoomGateway
       answerIndex: submitDto.answerIndex,
       submittedAt: new Date().toISOString(),
     });
-  }
+    await this.roomCacheService.setUserAnswer(submitDto.roomId, {
+      ...newSubmitResult,
+      userName: client.user.userName,
+    });
+    this.questionRoomUsersRepository.save(newSubmitResult);
 
-  mapKeySocket(userId) {
-    return `socket:${userId}`;
-  }
-
-  async modifyCacheSocketUser({
-    socketId,
-    userId,
-    type = StatusModifyCache.Add,
-  }: {
-    socketId: string;
-    userId: string;
-    type?: StatusModifyCache;
-  }) {
-    const { key: mapKey } = CACHES.SOCKET;
-    const key = mapKey(userId);
-
-    if (type === StatusModifyCache.Add) {
-      return this.redis.sadd(key, socketId);
-    } else if (type === StatusModifyCache.Delete) {
-      return this.redis.srem(key, socketId);
+    // TODO: If all users submitted answer, emit correct answer
+    const countQuestionUsers = await this.roomUsersRepository.count({
+      where: { roomId: submitDto.roomId },
+    });
+    const countSubmitedUser = await this.roomCacheService.countSubmitedUser(submitDto.roomId, currentGameQuestion.id);
+    if (countQuestionUsers === countSubmitedUser) {
+      await this.handleQuestionFinish(submitDto.roomId, currentGameQuestion);
     }
+
   }
 
   async handleConnection(@ConnectedSocket() client: UserSocket) {
@@ -257,7 +236,7 @@ export class RoomGateway
         message: 'Please provide valid user data to connect',
       });
     }
-    await this.modifyCacheSocketUser({
+    await this.roomCacheService.modifyCacheSocketUser({
       socketId: client.id,
       userId: client.user.userId,
     });
@@ -285,7 +264,7 @@ export class RoomGateway
       args,
     });
 
-    await this.modifyCacheSocketUser({
+    await this.roomCacheService.modifyCacheSocketUser({
       socketId: client.id,
       userId: client.user.userId,
       type: StatusModifyCache.Delete,
@@ -312,13 +291,10 @@ export class RoomGateway
       excludeExtraneousValues: true,
     });
     // Save question to cache
-    const { getKey, exprieTime } = CACHES.CURRENT_QUESTION;
-    const questionKey = getKey(roomId);
-    await this.redis.set(
-      questionKey,
-      JSON.stringify(rawGameQuestion),
-      'EX',
-      exprieTime(question.time),
+    await this.roomCacheService.setCurrentQuestion(
+      roomId,
+      rawGameQuestion,
+      question.time,
     );
     /**
      * Emit question withthout correct answer to room
@@ -329,7 +305,7 @@ export class RoomGateway
 
     setTimeout(async () => {
       // TODO: handle users submit correct answer and emit correct answer
-      // TODO: handle calculate score and rank
+      await this.handleQuestionFinish(roomId, rawGameQuestion);
     }, question.time * 1000);
   }
 
@@ -353,8 +329,53 @@ export class RoomGateway
     if (!remianingQuestions || remianingQuestions?.length === 0) {
       return null;
     }
+    
     return remianingQuestions[
       Math.floor(Math.random() * remianingQuestions.length)
     ];
+  }
+
+  async handleGameFinish(roomId: string) {
+    const userRanking = await this.roomCacheService.getRoomRanking(roomId);
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameFinished, {
+      userRanking,
+    });
+    this.roomsRepository.update({ id: roomId }, { status: RoomStatus.Finished });
+  }
+
+  async handleQuestionFinish(roomId: string, rawGameQuestion: RawGameQuestionDto) {
+    // Emit correct answer to room
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
+      questionId: rawGameQuestion.id,
+      correctIndex: rawGameQuestion.correctIndex,
+    });
+
+    const totalQuestions = await this.roomCacheService.getTotalRoomQuestion(
+      roomId,
+    );
+    const finishedQuestions = await this.roomCacheService.getCountQuestionAnswered(
+      roomId,
+    );
+    
+    if (totalQuestions === finishedQuestions) {
+      // TODO: Emit game finished if all questions finished
+    }
+    // ?: Emit next question if not finished
+    const userRanking = await this.roomCacheService.getRoomRanking(roomId);
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitUserRanking, {
+      userRanking,
+    });
+
+    const nextQuestion = await this.pickQuestionForRoom(roomId);
+    if (nextQuestion) {
+      this.server.to(roomId).emit(RoomServerEvent.ServerEmitWaitNextQuestion, {
+        message: 'Wait for next question',
+        waitTime: WAIT_TIME_PER_QUESTION,
+      });
+      setTimeout(async () => {
+        await this.emitQuestionToRoom(roomId, nextQuestion);
+      }, WAIT_TIME_PER_QUESTION * 1000);
+    }
+
   }
 }

@@ -16,7 +16,6 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomService } from './room.service';
 import { ResponseCreateRoom, ResponseGetRoom } from './types/room.response';
 
@@ -54,16 +53,6 @@ export class RoomController {
     @UserRequest() payload: AccessTokenPayload,
   ) {
     return this.roomService.getRoomAsync(roomId, payload);
-  }
-
-  @ApiResponseType(ResponseGetRoom)
-  @Put(':roomId')
-  updateRoom(
-    @Param('roomId') roomId: string,
-    @Body() updateRoomDto: UpdateRoomDto,
-    @UserRequest() payload: AccessTokenPayload,
-  ) {
-    return this.roomService.updateRoomAsync(roomId, updateRoomDto, payload);
   }
   @Put('start-game/:roomId')
   startGame(
