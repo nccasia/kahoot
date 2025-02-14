@@ -13,6 +13,7 @@ export type UserSocket = Socket & { user: SocketUser };
 
 export enum RoomClientEvent {
   ClientEmitJoinRoom = 'client_emit_join_room',
+  ClientEmitGetCurrentQuestion = 'client_emit_get_current_question',
   OwnerStartGame = 'owner_start_game',
   ClientEmitSubmitQuestion = 'client_emit_submit_question',
 }
@@ -22,6 +23,7 @@ export enum ClientConnectionEvent {
   ClientError = 'client_error',
 }
 export enum RoomServerEvent {
+  ServerEmitWaitGameFinished = 'server_emit_wait_game_finished',
   ServerEmitGameFinished = 'server_emit_game_finished',
   ServerEmitWaitNextQuestion = 'server_emit_wait_next_question',
   ServerEmitUserRanking = 'server_emit_user_ranking',

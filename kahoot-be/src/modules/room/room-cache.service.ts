@@ -8,7 +8,6 @@ import { UserRankDto } from './dto/user-rank.dto';
 import { StatusModifyCache } from './types';
 
 export class RoomCacheService extends BaseCacheService {
-
   async setTotalRoomQuestion(roomId: string, totalQuestion: number) {
     const { getKey, exprieTime } = CACHES.ROOM_GAME;
     const cacheKey = getKey(roomId);
@@ -56,7 +55,7 @@ export class RoomCacheService extends BaseCacheService {
         }, 0);
         const totalCorrect = answers.filter((item) => item.isCorrect).length;
         const totalWrong = answers.length - totalCorrect;
-        const correctRate = (totalCorrect / answers.length)
+        const correctRate = totalCorrect / answers.length;
         const userName = answers[0].userName;
         return {
           userId,
@@ -78,7 +77,7 @@ export class RoomCacheService extends BaseCacheService {
     if (!data) {
       return 0;
     }
-    return data.filter((item) => item.questionId === questionId)
+    return data.filter((item) => item.questionId === questionId);
   }
 
   async getCurrentQuestion(roomId: string) {
