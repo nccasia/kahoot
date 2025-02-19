@@ -119,10 +119,28 @@ export class RoomGateway
     }, WAIT_TIME_PER_QUESTION * 1000);
   }
 
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage(RoomClientEvent.OwnerFinishGame)
+  async onOwnerFinishGame(
+    @ConnectedSocket() client: UserSocket,
+    @MessageBody() roomId: string,
+  ) {
+    const room = await this.roomsRepository.findOne({
+      where: { id: roomId },
+    });
+    if (!room || room.ownerId !== client.user.userId) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: `Room with id ${roomId} not found or you are not the owner to finish the game`,
+      });
+      return;
+    }
+    await this.handleGameFinish(roomId);
+  }
+
   // Client or users events listeners
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(RoomClientEvent.ClientEmitJoinRoom)
-  async joinRoom(
+  async onJoinRoom(
     @MessageBody() joinRoomDto: JoinRoomDto,
     @ConnectedSocket() client: Socket,
     // ? TODO
@@ -174,6 +192,28 @@ export class RoomGateway
     });
 
     this.server.to(room.id).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
+  }
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage(RoomClientEvent.ClientEmitLeaveRoom)
+  async onLeaveRoom(
+    @ConnectedSocket() client: UserSocket,
+    @MessageBody() roomId: string,
+  ) {
+    const roomStatus = await this.roomsRepository.findOne({
+      where: { id: roomId },
+      select: ['status'],
+    });
+    if (roomStatus?.status === RoomStatus.Waiting) {
+      await this.roomUsersRepository.delete({
+        roomId,
+        userId: client.user.userId,
+      });
+    }
+    await client.leave(roomId);
+    this.server.to(roomId).emit(RoomServerEvent.ServerEmitLeaveRoom, {
+      userId: client.user.userId,
+    });
   }
 
   @UseGuards(WsJwtGuard)
