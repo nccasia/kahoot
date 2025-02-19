@@ -9,11 +9,11 @@ const HomePage = () => {
   const navigate = useNavigate();
   const handleGoToSearchGame = () => {
     // Go to search game page
-    navigate(ROUTES.SEARCH_GAME);
+    navigate(ROUTES.SEARCH_ROOM);
   };
   const handleGoToCreateGame = () => {
     // Go to create game page
-    navigate(ROUTES.CREATE_GAME);
+    navigate(ROUTES.LIST_GAME);
   };
   const { appState, appDispatch } = useContext(AppContext);
   useEffect(() => {

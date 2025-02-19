@@ -29,3 +29,14 @@ export interface ICurrentUser {
   avatar: string;
   accessToken: string;
 }
+
+export interface IUser {
+  id: string;
+  mezonUserId: string;
+  email: string;
+  userName: string;
+  avatar: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+}

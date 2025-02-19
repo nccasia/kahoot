@@ -113,7 +113,7 @@ const CreateGamePage = () => {
         return;
       }
       toast.success("Lưu game thành công!");
-      navigate(ROUTES.SEARCH_GAME);
+      navigate(ROUTES.LIST_GAME);
       setGameData(initialGameData);
       gameDispatch(GameActions.changeListQuestion([]));
     } catch (error) {

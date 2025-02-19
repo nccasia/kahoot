@@ -11,6 +11,9 @@ const SocketEvents = {
     ServerEmitUserJoinRoomd: "server_emit_user_join_room",
     ServerEmitLeaveRoomd: "server_emit_leave_room",
     ServerEmitGameStartedd: "server_game_started",
+
+    UserConnected: "user_connected",
+    ClientError: "client_error",
   },
   EMIT: {
     // emit events

@@ -1,6 +1,7 @@
 import Button from "@/components/Button";
+import SocketEvents from "@/constants/SocketEvents";
 import { IGame } from "@/interfaces/gameTypes";
-import { ROUTES } from "@/routes/routePath";
+import { useSocket } from "@/providers/SocketProvider";
 import roomServices from "@/services/roomServices";
 import { useNavigate } from "react-router-dom";
 
@@ -10,12 +11,17 @@ interface GameInfoBoxProps {
 }
 const GameInfoBox = ({ gameInfo, totalQuestion }: GameInfoBoxProps) => {
   const navigate = useNavigate();
+  const socket = useSocket();
   const handleBackToListGame = () => {
     if (window.history.length > 2) {
       navigate(-1);
     } else {
       navigate("/");
     }
+  };
+  const joinRoom = (roomCode: string) => {
+    if (!socket) return;
+    socket.emit(SocketEvents.EMIT.ClientEmitJoinRoom, { roomCode });
   };
   const createNewGame = async () => {
     // create new game
@@ -28,8 +34,9 @@ const GameInfoBox = ({ gameInfo, totalQuestion }: GameInfoBoxProps) => {
         console.log("error", response);
         return;
       }
-      const roomId = response.data.id;
-      navigate(ROUTES.WAITING_ROOM.replace(":roomId", roomId));
+      const roomCode = response.data.code;
+      // navigate(ROUTES.WAITING_ROOM.replace(":roomId", roomId));
+      joinRoom(roomCode);
     } catch (error) {
       console.log("error", error);
     }

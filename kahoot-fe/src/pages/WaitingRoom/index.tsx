@@ -1,13 +1,12 @@
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import roomServices from "@/services/roomServices";
 import RoomActions from "@/stores/roomStore/roomAction";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import PlayerItem from "./components/PlayerItem";
 
 const WaitingRoom = () => {
   const { roomId } = useParams<{ roomId: string }>();
-  const [copied, setCopied] = useState(false);
   const { roomState, roomDispatch } = useContext(RoomContext);
   useEffect(() => {
     if (!roomId) return;
@@ -19,6 +18,7 @@ const WaitingRoom = () => {
           console.log("error", response);
           return;
         }
+        console.log("response", response);
         // Do something with the room data
         roomDispatch(RoomActions.changeCurrentRoom(response.data));
       } catch (error) {
@@ -30,8 +30,6 @@ const WaitingRoom = () => {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(roomState.currentRoom?.code ?? "");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
     } catch (err) {
       console.error("Failed to copy: ", err);
     }
@@ -57,9 +55,11 @@ const WaitingRoom = () => {
       <div className='flex justify-center items-center w-full h-[calc(100%-140px)] p-2 '>
         <div className='w-full max-w-[1200px] bg-[#ba85ff8f] rounded-xl h-full p-4 flex justify-around items-center flex-wrap gap-4 overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
           {/* <span className='font-diablo text-xl'>Chờ người chơi tham gia!</span> */}
-          {Array.from({ length: 20 }).map((_, index) => (
-            <PlayerItem key={index} />
-          ))}
+          {roomState.listMemberOfRoom && roomState.listMemberOfRoom?.length > 0 ? (
+            roomState.listMemberOfRoom?.map((player, index) => <PlayerItem player={player} key={index} />)
+          ) : (
+            <div></div>
+          )}
         </div>
       </div>
     </div>

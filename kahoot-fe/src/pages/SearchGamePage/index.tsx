@@ -12,7 +12,7 @@ const SearchGamePage = () => {
     if (searchText.length < 6) return;
     // Call API to search game by pin
     if (!socket) return;
-    socket.emit(SocketEvents.EMIT.ClientEmitJoinRoom, { roomId: searchText });
+    socket.emit(SocketEvents.EMIT.ClientEmitJoinRoom, { roomCode: searchText });
   };
   const handleBackToListGame = () => {
     if (window.history.length > 2) {
@@ -21,6 +21,7 @@ const SearchGamePage = () => {
       navigate("/");
     }
   };
+
   return (
     <div className='w-full flex flex-col items-center justify-center h-screen gap-10 select-none'>
       <div className='flex flex-col items-center gap-4 h-[450px]'>

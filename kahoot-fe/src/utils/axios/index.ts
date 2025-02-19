@@ -4,9 +4,10 @@ import { getFromLocalStorage } from "../localStorage";
 const baseURL = ENV.BACKEND_URL;
 
 const axiosConfig = axios.create({
-  baseURL,
+  baseURL: `${baseURL}/v1`,
   headers: {
     "Content-Type": "application/json",
+    "Bypass-Tunnel-Reminder": "true",
   },
   withCredentials: true,
 });

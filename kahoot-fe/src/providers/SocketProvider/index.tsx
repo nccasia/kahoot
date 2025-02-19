@@ -1,3 +1,5 @@
+import ENV from "@/constants/Environment";
+import SocketEvents from "@/constants/SocketEvents";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
@@ -17,13 +19,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log("authState", authState);
     if (!socketInitialized && authState.currentUser?.userId) {
-      socket.current = io("http://localhost:3000/QUIZ", {
+      socket.current = io(`${ENV.BACKEND_URL}/QUIZ`, {
         withCredentials: true,
         query: { userId: authState.currentUser.userId },
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 3000,
         extraHeaders: {
+          "Bypass-Tunnel-Reminder": "true",
           "X-Kahoot-User": JSON.stringify({
             userId: authState.currentUser.userId,
             mezonUserId: authState.currentUser.mezonUserId,
@@ -35,6 +38,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       });
       socket.current.on("connect", () => {
         console.log("Connected to socket");
+      });
+      socket.current.on(SocketEvents.ON.ClientError, (error) => {
+        console.log("Socket error", error);
       });
       setSocketInitialized(true);
       return () => {
