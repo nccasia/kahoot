@@ -17,11 +17,7 @@ export class AuthService {
   ) {}
   async getAccessTokenAsync(mezonUser: MezonUserDto) {
     let storedUser = await this.usersRepository.findOne({
-      where: [
-        { mezonUserId: mezonUser.mezonUserId },
-        { email: mezonUser.email },
-        { userName: mezonUser.userName },
-      ],
+      where: [{ mezonUserId: mezonUser.mezonUserId }],
     });
     if (!storedUser) {
       storedUser = this.usersRepository.create({

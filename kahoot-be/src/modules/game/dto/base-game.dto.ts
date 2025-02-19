@@ -1,3 +1,4 @@
+import { BaseRoomDto } from '@modules/room/dto/base-room.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEnum } from 'class-validator';
@@ -32,4 +33,10 @@ export class BaseGameDto {
   @ApiProperty()
   @Expose()
   updatedAt: Date;
+}
+
+export class CurrentGameDto extends BaseGameDto {
+  @ApiProperty()
+  @Expose()
+  lastRoom: BaseRoomDto;
 }

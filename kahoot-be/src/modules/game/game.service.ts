@@ -2,11 +2,13 @@ import { QueryOptionsHelper } from '@base/decorators/query-options.decorator';
 import { QueryOptionsDto } from '@base/dtos/query-options.dto';
 import { ERROR_CODES } from '@constants';
 import { AccessTokenPayload } from '@modules/auth/types';
+import { BaseRoomDto } from '@modules/room/dto/base-room.dto';
+import { Room } from '@modules/room/entities/room.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Repository } from 'typeorm';
-import { BaseGameDto } from './dto/base-game.dto';
+import { BaseGameDto, CurrentGameDto } from './dto/base-game.dto';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
@@ -16,6 +18,8 @@ export class GameService {
   constructor(
     @InjectRepository(Game)
     private gamesRepository: Repository<Game>,
+    @InjectRepository(Room)
+    private roomsRepository: Repository<Room>,
   ) {}
 
   async createGameAsync(
@@ -41,13 +45,11 @@ export class GameService {
       queryOptionsDto,
     );
     const { userId } = payload;
-
-    const [rawGames, count] = await this.gamesRepository
-      .createQueryBuilder('g')
-      .where('g.ownerId = :userId', { userId })
-      .skip(skip)
-      .take(take)
-      .getManyAndCount();
+    const [rawGames, count] = await this.gamesRepository.findAndCount({
+      where: { ownerId: userId },
+      skip,
+      take,
+    });
 
     const resPagination = getPagination({
       count,
@@ -77,9 +79,17 @@ export class GameService {
         message: `Game with id ${gameId} not found`,
         errorCode: ERROR_CODES.GAME.GAME_NOT_FOUND,
       });
-    return plainToInstance(BaseGameDto, game, {
-      excludeExtraneousValues: true,
+    const lastRoom = await this.roomsRepository.findOne({
+      where: { gameId: game.id },
+      order: { createdAt: 'DESC' },
     });
+    return plainToInstance(
+      CurrentGameDto,
+      { ...game, lastRoom: plainToInstance(BaseRoomDto, lastRoom) },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
   async updateGameAsync(
