@@ -135,18 +135,16 @@ export class RoomGateway
       roomUsers: (Pick<RoomUser, 'id'> & {
         user: User;
       })[];
-    } = await this.roomsRepository
-      .createQueryBuilder('r')
-      .leftJoin('r.roomUsers', 'ru')
-      .innerJoinAndSelect('ru.user', 'u')
-      .where('r.code = :roonCode', { roomCode: String(roomCode) })
-      .select(['r.id', 'r.status', 'r.ownerId'])
-      .getOne();
-
+    } = await this.roomsRepository.findOne({
+      where: { code: String(roomCode) },
+      relations: ['roomUsers', 'roomUsers.user'],
+      select: ['id', 'status', 'ownerId'],
+    });
     if (!room) {
-      throw new WsException({
+      client.emit(ClientConnectionEvent.ClientError, {
         message: `Room with code ${roomCode} not found`,
       });
+      return;
     }
 
     const members = room.roomUsers.map((ru) => ru.user);
@@ -155,9 +153,11 @@ export class RoomGateway
 
     if (!joined) {
       if (room?.status !== RoomStatus.Waiting) {
-        throw new WsException({
+        client.emit(ClientConnectionEvent.ClientError, {
           message: `Room with code ${roomCode} cannot be join because it in progess or finished`,
         });
+
+        return;
       }
       await this.roomUsersRepository.insert({
         roomId: room.id,
