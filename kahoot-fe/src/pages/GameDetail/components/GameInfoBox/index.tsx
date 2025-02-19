@@ -41,6 +41,9 @@ const GameInfoBox = ({ gameInfo, totalQuestion }: GameInfoBoxProps) => {
       console.log("error", error);
     }
   };
+  const handleGoToLastRoom = () => {
+    joinRoom(gameInfo?.lastRoom?.code ?? "");
+  };
   return (
     <div className='left-box max-w-[350px] p-2 w-full border-r-2 border-[#1C0C8E] bg-[#6b00e78a]'>
       <div className='flex justify-center font-diablo text-xl items-center min-h-[60px] border-b-2 border-[#1C0C8E] py-2'>
@@ -74,7 +77,13 @@ const GameInfoBox = ({ gameInfo, totalQuestion }: GameInfoBoxProps) => {
         </div>
         <div className='flex justify-between items-center mt-3'>
           <span className='mr-2'>Phòng hiện tại:</span>
-          <span>100192</span>
+          {gameInfo?.lastRoom ? (
+            <span className='cursor-pointer animate-pulse hover:text-[#dcd02b]' onClick={handleGoToLastRoom}>
+              {gameInfo?.lastRoom.code}
+            </span>
+          ) : (
+            <span>Chưa bắt đầu</span>
+          )}
         </div>
       </div>
     </div>
