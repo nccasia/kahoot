@@ -5,7 +5,7 @@ export enum Table {
   Room = 'rooms',
   RoomUser = 'room_users',
   RoomQuestion = 'room_questions',
-  QuestionRoomUser = 'question_room_users'
+  QuestionRoomUser = 'question_room_users',
 }
 
 export const GLOBAL_PREFIX = 'v1';
@@ -27,6 +27,11 @@ export const CACHES = {
 
   ROOM_GAME: {
     getKey: (roomId: string) => `ROOM_GAME:${roomId}`,
+    exprieTime: MAX_REDIS_CACHE_TIME,
+  },
+
+  ROOM_USER: {
+    getKey: (roomId: string) => `ROOM_USER:${roomId}`,
     exprieTime: MAX_REDIS_CACHE_TIME,
   },
 

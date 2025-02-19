@@ -1,6 +1,7 @@
 import { BaseCacheService } from '@base/modules/cache/redis.cache.service';
 import { CACHES } from '@constants';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
+import { SocketUser } from '@modules/user/dto/socket-user.dto';
 import { plainToInstance } from 'class-transformer';
 import _ from 'lodash';
 import { UserAnswerDto } from './dto/user-answer.dto';
@@ -8,6 +9,32 @@ import { UserRankDto } from './dto/user-rank.dto';
 import { StatusModifyCache } from './types';
 
 export class RoomCacheService extends BaseCacheService {
+  async setRoomUser(roomId: string, user: SocketUser) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    await this.addToSet<SocketUser>(cacheKey, user);
+  }
+
+  async isJoinedRoom(roomId: string, userId: string) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    return data ? data.some((item) => item.userId === userId) : false;
+  }
+
+  async getRoomUsers(roomId: string) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    return data ? data.map((item) => plainToInstance(SocketUser, item)) : [];
+  }
+
+  async removeRoomUser(roomId: string, user: SocketUser) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    await this.removeFromSet(cacheKey, JSON.stringify(user));
+  }
+
   async setTotalRoomQuestion(roomId: string, totalQuestion: number) {
     const { getKey, exprieTime } = CACHES.ROOM_GAME;
     const cacheKey = getKey(roomId);

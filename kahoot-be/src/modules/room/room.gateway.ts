@@ -150,12 +150,10 @@ export class RoomGateway
     const { userId } = user;
 
     const room: Pick<Room, 'id' | 'status' | 'ownerId'> & {
-      roomUsers: (Pick<RoomUser, 'id'> & {
-        user: User;
-      })[];
+      roomUsers: Pick<RoomUser, 'id' | 'userId'>[];
     } = await this.roomsRepository.findOne({
       where: { code: String(roomCode) },
-      relations: ['roomUsers', 'roomUsers.user'],
+      relations: ['roomUsers'],
       select: ['id', 'status', 'ownerId'],
     });
     if (!room) {
@@ -165,8 +163,8 @@ export class RoomGateway
       return;
     }
 
-    const members = room.roomUsers.map((ru) => ru.user);
-    const joined = members.some((member) => member.id === userId);
+    const memberIds = room.roomUsers.map((ru) => ru.userId);
+    const joined = memberIds.some((member) => member === userId);
     const isOwner = room.ownerId === userId;
 
     if (!joined) {
@@ -184,11 +182,17 @@ export class RoomGateway
       });
     }
 
+    const isJoined = await this.roomCacheService.isJoinedRoom(room.id, userId);
+    if (!isJoined) {
+      await this.roomCacheService.setRoomUser(room.id, user);
+    }
+    const socketMembers = await this.roomCacheService.getRoomUsers(room.id);
+
     await client.join(room.id);
     client.emit(RoomServerEvent.UserJoinedRoom, {
       roomId: room.id,
       isOwner: isOwner,
-      members,
+      members: socketMembers,
     });
 
     this.server.to(room.id).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
@@ -210,6 +214,8 @@ export class RoomGateway
         userId: client.user.userId,
       });
     }
+
+    await this.roomCacheService.removeRoomUser(roomId, client.user);
     await client.leave(roomId);
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitLeaveRoom, {
       userId: client.user.userId,
@@ -312,7 +318,6 @@ export class RoomGateway
       socketId: client.id,
       userId: client.user.userId,
     });
-
     client.on('disconnecting', async (reason) => {
       this.logger.log({
         name: client.user.userId,
@@ -324,6 +329,9 @@ export class RoomGateway
       if (rooms.length !== 0) {
         this.server.to(rooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
           userId: client.user.userId,
+        });
+        rooms.forEach(async (roomId) => {
+          await this.roomCacheService.removeRoomUser(roomId, client.user);
         });
       }
     });

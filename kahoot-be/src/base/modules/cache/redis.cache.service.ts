@@ -1,4 +1,5 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import { isJSON } from 'class-validator';
 import Redis from 'ioredis';
 
 export class BaseCacheService {
@@ -23,19 +24,17 @@ export class BaseCacheService {
     return await this.redis.del(cacheKey);
   }
 
-  async addToSet<T>(setKey: string, value: T, exprieTime?: number) {
+  async addToSet<T>(setKey: string, value: T) {
     const cacheValue =
       typeof value === 'string' ? value : JSON.stringify(value);
-    if (exprieTime) {
-      await this.redis.sadd(setKey, cacheValue, 'EX', exprieTime);
-      return;
-    }
     await this.redis.sadd(setKey, cacheValue);
   }
 
   async getSetMembers(setKey: string) {
     const data = await this.redis.smembers(setKey);
-    return data ? data.map((item) => JSON.parse(item)) : null;
+    return data
+      ? data.map((item) => (isJSON(item) ? JSON.parse(item) : item))
+      : null;
   }
 
   async removeFromSet(setKey: string, value: string) {
