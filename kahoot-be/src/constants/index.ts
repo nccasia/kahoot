@@ -30,6 +30,11 @@ export const CACHES = {
     exprieTime: MAX_REDIS_CACHE_TIME,
   },
 
+  ROOM_QUESTION: {
+    getKey: (roomId: string) => `ROOM_FINISHED_QUESTION:${roomId}`,
+    exprieTime: MAX_REDIS_CACHE_TIME,
+  },
+
   ROOM_USER: {
     getKey: (roomId: string) => `ROOM_USER:${roomId}`,
     exprieTime: MAX_REDIS_CACHE_TIME,

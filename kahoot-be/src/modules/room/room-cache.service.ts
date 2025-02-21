@@ -3,7 +3,7 @@ import { CACHES } from '@constants';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
 import { SocketUser } from '@modules/user/dto/socket-user.dto';
 import { plainToInstance } from 'class-transformer';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { UserAnswerDto } from './dto/user-answer.dto';
 import { UserRankDto } from './dto/user-rank.dto';
 import { StatusModifyCache } from './types';
@@ -29,7 +29,15 @@ export class RoomCacheService extends BaseCacheService {
     return data ? data.map((item) => plainToInstance(SocketUser, item)) : [];
   }
 
+  async countRoomUsers(roomId: string) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    const numberOfUsers = await this.redis.scard(cacheKey);
+    return numberOfUsers ?? 0;
+  }
+
   async removeRoomUser(roomId: string, user: SocketUser) {
+    console.log('Remove user from room', user);
     const { getKey } = CACHES.ROOM_USER;
     const cacheKey = getKey(roomId);
     await this.removeFromSet(cacheKey, JSON.stringify(user));
@@ -46,6 +54,19 @@ export class RoomCacheService extends BaseCacheService {
     const cacheKey = getKey(roomId);
     const totalQuestion = await this.getCache(cacheKey);
     return totalQuestion ? Number(totalQuestion) : null;
+  }
+
+  async setFinishedQuestion(roomId: string, questionId: string) {
+    const { getKey } = CACHES.ROOM_QUESTION;
+    const cacheKey = getKey(roomId);
+    await this.addToSet<string>(cacheKey, questionId);
+  }
+
+  async countFinishedQuestion(roomId: string) {
+    const { getKey } = CACHES.ROOM_QUESTION;
+    const cacheKey = getKey(roomId);
+    const numberOfQuestions = await this.redis.scard(cacheKey);
+    return numberOfQuestions ?? 0;
   }
 
   async setCurrentQuestion(
@@ -121,6 +142,20 @@ export class RoomCacheService extends BaseCacheService {
     const allAnswers = data.map((item) => plainToInstance(UserAnswerDto, item));
     const countByUniqueQuestion = _.uniqBy(allAnswers, 'questionId').length;
     return countByUniqueQuestion;
+  }
+
+  async clearRoomCache(roomId: string) {
+    const { getKey: getKeyUser } = CACHES.ROOM_USER;
+    const { getKey: getKeyQuestion } = CACHES.ROOM_QUESTION;
+    const { getKey: getKeyAnswer } = CACHES.ROOM_ANSWER;
+    const { getKey: getKeyGame } = CACHES.ROOM_GAME;
+    const { getKey: getKeyCurrentQuestion } = CACHES.CURRENT_QUESTION;
+
+    await this.redis.del(getKeyUser(roomId));
+    await this.redis.del(getKeyQuestion(roomId));
+    await this.redis.del(getKeyAnswer(roomId));
+    await this.redis.del(getKeyGame(roomId));
+    await this.redis.del(getKeyCurrentQuestion(roomId));
   }
 
   async modifyCacheSocketUser({
