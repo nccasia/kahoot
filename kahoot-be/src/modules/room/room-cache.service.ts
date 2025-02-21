@@ -1,5 +1,5 @@
 import { BaseCacheService } from '@base/modules/cache/redis.cache.service';
-import { CACHES } from '@constants';
+import { CACHES, RANKED_TOP } from '@constants';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
 import { SocketUser } from '@modules/user/dto/socket-user.dto';
 import { plainToInstance } from 'class-transformer';
@@ -85,7 +85,48 @@ export class RoomCacheService extends BaseCacheService {
     await this.addToSet<UserAnswerDto>(cacheKey, userAmswer);
   }
 
-  async getRoomRanking(roomId: string) {
+  async getQuestionUserAnswered(roomId: string, questionId: string) {
+    const { getKey } = CACHES.ROOM_ANSWER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    if (!data) {
+      return [];
+    }
+    const userAnswers = data
+      .filter((item) => item.questionId === questionId)
+      .map((item) => plainToInstance(UserAnswerDto, item));
+    return userAnswers;
+  }
+
+  async getUserPoint(roomId: string, questionId: string, userId: string) {
+    const { getKey } = CACHES.ROOM_ANSWER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    if (!data) {
+      return 0;
+    }
+    const userAnswers = data.filter((item) =>
+      item.userId === userId ? plainToInstance(UserAnswerDto, item) : null,
+    );
+
+    const currentQuestionAnswer = userAnswers.find(
+      (item) => item.questionId === questionId,
+    );
+    const totalPoint = userAnswers.reduce((acc, item) => {
+      return acc + item.point;
+    }, 0);
+    return {
+      totalPoint: totalPoint,
+      isCorrect: currentQuestionAnswer?.isCorrect ?? false,
+      currentQuestionPoint: currentQuestionAnswer?.point ?? 0,
+    };
+  }
+
+  async getRoomRanking(
+    roomId: string,
+    onlyTopOrder: boolean = true,
+    topEntries?: number,
+  ) {
     const { getKey } = CACHES.ROOM_ANSWER;
     const cacheKey = getKey(roomId);
     const data = await this.getSetMembers(cacheKey);
@@ -115,7 +156,38 @@ export class RoomCacheService extends BaseCacheService {
         };
       },
     );
-    return _.orderBy(userPoints, ['totalPoint'], ['desc']);
+    return onlyTopOrder
+      ? _.take(
+          _.orderBy(userPoints, 'totalPoint', 'desc'),
+          topEntries ?? RANKED_TOP,
+        )
+      : _.orderBy(userPoints, 'totalPoint', 'desc');
+  }
+
+  async getQuestionAnalysis(roomId: string, questionId: string) {
+    const { getKey } = CACHES.ROOM_ANSWER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    if (!data) {
+      return [];
+    }
+
+    const allAnswersByQuestion = data
+      .filter((item) => item.questionId === questionId)
+      .map((item) => plainToInstance(UserAnswerDto, item));
+    const groupByIndex = _.groupBy(
+      allAnswersByQuestion,
+      (item) => item.answerIndex,
+    );
+
+    const groupAswers = Object.entries(groupByIndex).map(([index, answers]) => {
+      const totalSeleted = answers?.length ?? 0;
+      return {
+        answerIndex: index,
+        totalSeleted: totalSeleted,
+      };
+    });
+    return groupAswers;
   }
 
   async countSubmitedUser(roomId: string, questionId: string) {
@@ -174,5 +246,12 @@ export class RoomCacheService extends BaseCacheService {
       return this.addToSet(key, socketId);
     }
     return this.removeFromSet(key, socketId);
+  }
+
+  async getSocketUser(userId: string) {
+    const { key: mapKey } = CACHES.SOCKET;
+    const key = mapKey(userId);
+    const data = await this.getSetMembers(key);
+    return data;
   }
 }

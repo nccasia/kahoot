@@ -13,7 +13,8 @@ export const NAME_SPACE_JOIN_GAME = 'QUIZ';
 export const WAIT_TIME_PER_QUESTION = 10; // seconds
 export const MAX_QUESTION_POINT = 1000;
 export const MAX_REDIS_CACHE_TIME = 60 * 60 * 24 * 7;
-export const TIME_POINT_FACTOR = 0.1;
+export const TIME_POINT_FACTOR = 0.01;
+export const RANKED_TOP = 3;
 export const CACHES = {
   SOCKET: {
     key: (userId: string) => `socket:${userId}`,

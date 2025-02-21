@@ -24,7 +24,9 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import { plainToInstance } from 'class-transformer';
+import * as _ from 'lodash';
 import { Namespace, Socket } from 'socket.io';
+import { calculatePoint } from 'src/utils';
 import { In, Not, Repository } from 'typeorm';
 import { validate } from 'uuid';
 import { ClientSubmitDto } from './dto/client-submit.dto';
@@ -267,6 +269,7 @@ export class RoomGateway
     const currentGameQuestion = await this.roomCacheService.getCurrentQuestion(
       submitDto.roomId,
     );
+    const submitTime = new Date();
     if (!currentGameQuestion) {
       client.emit(ClientConnectionEvent.ClientError, {
         message: 'No question to submit',
@@ -296,14 +299,23 @@ export class RoomGateway
         message: 'You already submitted this question',
       });
     }
+
+    const questionPoint = calculatePoint(
+      submitTime,
+      new Date(currentGameQuestion.endTime),
+      isCorrect,
+    );
+
     const newSubmitResult = this.questionRoomUsersRepository.create({
       roomId: submitDto.roomId,
       userId: client.user.userId,
       questionId: currentGameQuestion.id,
       isCorrect,
+      point: questionPoint,
       answerIndex: submitDto.answerIndex,
-      submittedAt: new Date().toISOString(),
+      submittedAt: submitTime.toISOString(),
     });
+
     await this.roomCacheService.setUserAnswer(submitDto.roomId, {
       ...newSubmitResult,
       userName: client.user.userName,
@@ -344,6 +356,7 @@ export class RoomGateway
       socketId: client.id,
       userId: client.user.userId,
     });
+
     client.on('disconnecting', async (reason) => {
       this.logger.log({
         name: client.user.userId,
@@ -420,8 +433,11 @@ export class RoomGateway
     /**
      * Emit question withthout correct answer to room
      */
+    const finishedQuestions =
+      await this.roomCacheService.countFinishedQuestion(roomId);
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitQuestion, {
       question: gameQuestion,
+      questionNumber: finishedQuestions + 1,
     });
 
     setTimeout(async () => {
@@ -461,7 +477,10 @@ export class RoomGateway
       message: 'Wait for game finished',
       waitTime: WAIT_TIME_PER_QUESTION,
     });
-    const userRanking = await this.roomCacheService.getRoomRanking(roomId);
+    const userRanking = await this.roomCacheService.getRoomRanking(
+      roomId,
+      false,
+    );
     setTimeout(() => {
       this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameFinished, {
         userRanking,
@@ -479,10 +498,42 @@ export class RoomGateway
     roomId: string,
     rawGameQuestion: RawGameQuestionDto,
   ) {
+    const questionAnalysis = await this.roomCacheService.getQuestionAnalysis(
+      roomId,
+      rawGameQuestion.id,
+    );
+
+    // Emit question finished to each user
+    const submitedUsers = await this.roomCacheService.getQuestionUserAnswered(
+      roomId,
+      rawGameQuestion.id,
+    );
+
+    submitedUsers.forEach(async (user) => {
+      const userSocketIds = await this.roomCacheService.getSocketUser(
+        user.userId,
+      );
+      const userSocket = _.findLast(userSocketIds, (socket) => {
+        return this.server.sockets.get(socket) !== undefined;
+      });
+      if (userSocket) {
+        const questionResult = await this.roomCacheService.getUserPoint(
+          roomId,
+          rawGameQuestion.id,
+          user.userId,
+        );
+        userSocket.emit(
+          RoomServerEvent.ServerEmitQuestionFinished,
+          questionResult,
+        );
+      }
+    });
+
     // Emit correct answer to room
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
       questionId: rawGameQuestion.id,
       correctIndex: rawGameQuestion.correctIndex,
+      questionAnalysis: questionAnalysis,
     });
 
     await this.roomCacheService.setFinishedQuestion(roomId, rawGameQuestion.id);
