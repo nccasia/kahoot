@@ -6,7 +6,6 @@ import {
   NAME_SPACE_JOIN_GAME,
   WAIT_TIME_PER_QUESTION,
 } from '@constants';
-import { Game } from '@modules/game/entities/game.entity';
 import { GameQuestionDto } from '@modules/question/dto/game-question.dto';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
 import { Question } from '@modules/question/entities/question.entity';
@@ -25,8 +24,11 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import { plainToInstance } from 'class-transformer';
+import * as _ from 'lodash';
 import { Namespace, Socket } from 'socket.io';
+import { calculatePoint } from 'src/utils';
 import { In, Not, Repository } from 'typeorm';
+import { validate } from 'uuid';
 import { ClientSubmitDto } from './dto/client-submit.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { QuestionRoomUser } from './entities/question-room-user.entity';
@@ -58,8 +60,6 @@ export class RoomGateway
     private usersRepository: Repository<User>,
     @InjectRepository(Room)
     private roomsRepository: Repository<Room>,
-    @InjectRepository(Game)
-    private gamesRepository: Repository<Game>,
     @InjectRepository(Question)
     private questionsRepository: Repository<Question>,
     @InjectRepository(RoomUser)
@@ -82,8 +82,14 @@ export class RoomGateway
     @ConnectedSocket() client: UserSocket,
     @MessageBody() roomId: string,
   ) {
+    if (!roomId || !validate(roomId)) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: 'Invalid room id',
+      });
+      return;
+    }
     const room = await this.roomsRepository.findOne({
-      where: { id: roomId },
+      where: { id: String(roomId) },
     });
     if (!room || room.ownerId !== client.user.userId) {
       client.emit(ClientConnectionEvent.ClientError, {
@@ -109,7 +115,8 @@ export class RoomGateway
     });
 
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameStarted, {
-      totalQuestions,
+      totalQuestions: totalQuestions,
+      roomId: roomId,
     });
 
     this.roomCacheService.setTotalRoomQuestion(roomId, totalQuestions);
@@ -150,12 +157,10 @@ export class RoomGateway
     const { userId } = user;
 
     const room: Pick<Room, 'id' | 'status' | 'ownerId'> & {
-      roomUsers: (Pick<RoomUser, 'id'> & {
-        user: User;
-      })[];
+      roomUsers: Pick<RoomUser, 'id' | 'userId'>[];
     } = await this.roomsRepository.findOne({
       where: { code: String(roomCode) },
-      relations: ['roomUsers', 'roomUsers.user'],
+      relations: ['roomUsers'],
       select: ['id', 'status', 'ownerId'],
     });
     if (!room) {
@@ -165,8 +170,8 @@ export class RoomGateway
       return;
     }
 
-    const members = room.roomUsers.map((ru) => ru.user);
-    const joined = members.some((member) => member.id === userId);
+    const memberIds = room.roomUsers.map((ru) => ru.userId);
+    const joined = memberIds.some((member) => member === userId);
     const isOwner = room.ownerId === userId;
 
     if (!joined) {
@@ -184,14 +189,23 @@ export class RoomGateway
       });
     }
 
+    const isJoined = await this.roomCacheService.isJoinedRoom(room.id, userId);
+    if (!isJoined && !isOwner) {
+      await this.roomCacheService.setRoomUser(room.id, user);
+    }
+    const socketMembers = await this.roomCacheService.getRoomUsers(room.id);
+
     await client.join(room.id);
     client.emit(RoomServerEvent.UserJoinedRoom, {
       roomId: room.id,
       isOwner: isOwner,
-      members,
+      members: socketMembers,
     });
 
-    this.server.to(room.id).emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
+    !isOwner &&
+      this.server
+        .to(room.id)
+        .emit(RoomServerEvent.ServerEmitUserJoinRoom, user);
   }
 
   @UseGuards(WsJwtGuard)
@@ -200,9 +214,16 @@ export class RoomGateway
     @ConnectedSocket() client: UserSocket,
     @MessageBody() roomId: string,
   ) {
+    if (!roomId || !validate(roomId)) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: 'Invalid room id',
+      });
+      return;
+    }
     const roomStatus = await this.roomsRepository.findOne({
-      where: { id: roomId },
-      select: ['status'],
+      where: {
+        id: roomId,
+      },
     });
     if (roomStatus?.status === RoomStatus.Waiting) {
       await this.roomUsersRepository.delete({
@@ -210,6 +231,8 @@ export class RoomGateway
         userId: client.user.userId,
       });
     }
+
+    await this.roomCacheService.removeRoomUser(roomId, client.user);
     await client.leave(roomId);
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitLeaveRoom, {
       userId: client.user.userId,
@@ -246,6 +269,7 @@ export class RoomGateway
     const currentGameQuestion = await this.roomCacheService.getCurrentQuestion(
       submitDto.roomId,
     );
+    const submitTime = new Date();
     if (!currentGameQuestion) {
       client.emit(ClientConnectionEvent.ClientError, {
         message: 'No question to submit',
@@ -275,28 +299,48 @@ export class RoomGateway
         message: 'You already submitted this question',
       });
     }
+
+    const questionPoint = calculatePoint(
+      submitTime,
+      new Date(currentGameQuestion.endTime),
+      isCorrect,
+    );
+
     const newSubmitResult = this.questionRoomUsersRepository.create({
       roomId: submitDto.roomId,
       userId: client.user.userId,
       questionId: currentGameQuestion.id,
       isCorrect,
+      point: questionPoint,
       answerIndex: submitDto.answerIndex,
-      submittedAt: new Date().toISOString(),
+      submittedAt: submitTime.toISOString(),
     });
+
     await this.roomCacheService.setUserAnswer(submitDto.roomId, {
       ...newSubmitResult,
       userName: client.user.userName,
     });
     this.questionRoomUsersRepository.save(newSubmitResult);
 
-    // TODO: If all users submitted answer, emit correct answer
-    const countRoomUsers = await this.roomUsersRepository.count({
-      where: { roomId: submitDto.roomId, isOwner: false },
+    client.emit(RoomServerEvent.ServerEmitUserSubmited, {
+      submitedQuestionId: currentGameQuestion.id,
+      submitedTime: newSubmitResult.submittedAt,
+      message: 'You have submitted answer',
     });
+
+    // TODO: If all users submitted answer, emit correct answer
+    const countRoomUsers = await this.roomCacheService.countRoomUsers(
+      submitDto.roomId,
+    );
     const countSubmitedUser = await this.roomCacheService.countSubmitedUser(
       submitDto.roomId,
       currentGameQuestion.id,
     );
+    this.server
+      .to(submitDto.roomId)
+      .emit(RoomServerEvent.ServerEmitUserSubmited, {
+        submitedUser: countSubmitedUser,
+      });
     if (countRoomUsers === countSubmitedUser) {
       await this.handleQuestionFinish(submitDto.roomId, currentGameQuestion);
     }
@@ -316,6 +360,7 @@ export class RoomGateway
     client.on('disconnecting', async (reason) => {
       this.logger.log({
         name: client.user.userId,
+        message: 'Disconnecting...',
         reason,
         socketId: client.id,
       });
@@ -324,6 +369,9 @@ export class RoomGateway
       if (rooms.length !== 0) {
         this.server.to(rooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
           userId: client.user.userId,
+        });
+        rooms.forEach(async (roomId) => {
+          await this.roomCacheService.removeRoomUser(roomId, client.user);
         });
       }
     });
@@ -335,6 +383,16 @@ export class RoomGateway
       client: client.id,
       args,
     });
+
+    const rooms = Array.from(client.rooms).filter((el) => el !== client.id);
+    if (rooms.length !== 0) {
+      this.server.to(rooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
+        userId: client.user.userId,
+      });
+      rooms.forEach(async (roomId) => {
+        await this.roomCacheService.removeRoomUser(roomId, client.user);
+      });
+    }
 
     await this.roomCacheService.modifyCacheSocketUser({
       socketId: client.id,
@@ -359,9 +417,13 @@ export class RoomGateway
       startTime: roomQuestion.startTime,
       endTime: roomQuestion.endTime,
     });
-    const gameQuestion = plainToInstance(GameQuestionDto, rawGameQuestion, {
-      excludeExtraneousValues: true,
-    });
+    const gameQuestion = plainToInstance(
+      GameQuestionDto,
+      { ...rawGameQuestion },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
     // Save question to cache
     await this.roomCacheService.setCurrentQuestion(
       roomId,
@@ -371,8 +433,11 @@ export class RoomGateway
     /**
      * Emit question withthout correct answer to room
      */
+    const finishedQuestions =
+      await this.roomCacheService.countFinishedQuestion(roomId);
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitQuestion, {
       question: gameQuestion,
+      questionNumber: finishedQuestions + 1,
     });
 
     setTimeout(async () => {
@@ -412,7 +477,10 @@ export class RoomGateway
       message: 'Wait for game finished',
       waitTime: WAIT_TIME_PER_QUESTION,
     });
-    const userRanking = await this.roomCacheService.getRoomRanking(roomId);
+    const userRanking = await this.roomCacheService.getRoomRanking(
+      roomId,
+      false,
+    );
     setTimeout(() => {
       this.server.to(roomId).emit(RoomServerEvent.ServerEmitGameFinished, {
         userRanking,
@@ -421,6 +489,8 @@ export class RoomGateway
         { id: roomId },
         { status: RoomStatus.Finished },
       );
+
+      this.roomCacheService.clearRoomCache(roomId);
     }, WAIT_TIME_PER_QUESTION * 1000);
   }
 
@@ -428,20 +498,55 @@ export class RoomGateway
     roomId: string,
     rawGameQuestion: RawGameQuestionDto,
   ) {
+    const questionAnalysis = await this.roomCacheService.getQuestionAnalysis(
+      roomId,
+      rawGameQuestion.id,
+    );
+
+    // Emit question finished to each user
+    const submitedUsers = await this.roomCacheService.getQuestionUserAnswered(
+      roomId,
+      rawGameQuestion.id,
+    );
+
+    submitedUsers.forEach(async (user) => {
+      const userSocketIds = await this.roomCacheService.getSocketUser(
+        user.userId,
+      );
+      const userSocket = _.findLast(userSocketIds, (socket) => {
+        return this.server.sockets.get(socket) !== undefined;
+      });
+      if (userSocket) {
+        const questionResult = await this.roomCacheService.getUserPoint(
+          roomId,
+          rawGameQuestion.id,
+          user.userId,
+        );
+        userSocket.emit(
+          RoomServerEvent.ServerEmitQuestionFinished,
+          questionResult,
+        );
+      }
+    });
+
     // Emit correct answer to room
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
       questionId: rawGameQuestion.id,
       correctIndex: rawGameQuestion.correctIndex,
+      questionAnalysis: questionAnalysis,
     });
 
+    await this.roomCacheService.setFinishedQuestion(roomId, rawGameQuestion.id);
     const totalQuestions =
       await this.roomCacheService.getTotalRoomQuestion(roomId);
     const finishedQuestions =
-      await this.roomCacheService.getCountQuestionAnswered(roomId);
-
+      await this.roomCacheService.countFinishedQuestion(roomId);
+    // console.log('totalQuestions..........: ', totalQuestions);
+    // console.log('finishedQuestions........:', finishedQuestions);
     if (totalQuestions === finishedQuestions) {
       // TODO: Emit game finished if all questions finished
       await this.handleGameFinish(roomId);
+      return;
     }
     // ?: Emit next question if not finished
     const userRanking = await this.roomCacheService.getRoomRanking(roomId);

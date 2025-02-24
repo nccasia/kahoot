@@ -18,7 +18,6 @@ export enum RoomClientEvent {
   OwnerFinishGame = 'owner_finish_game',
   ClientEmitSubmitQuestion = 'client_emit_submit_question',
 }
-
 export enum ClientConnectionEvent {
   UserConnected = 'user_connected',
   ClientError = 'client_error',
@@ -26,10 +25,13 @@ export enum ClientConnectionEvent {
 export enum RoomServerEvent {
   ServerEmitWaitGameFinished = 'server_emit_wait_game_finished',
   ServerEmitGameFinished = 'server_emit_game_finished',
+  ServerEmitQuestionFinished = 'server_emit_question_finished',
   ServerEmitWaitNextQuestion = 'server_emit_wait_next_question',
   ServerEmitUserRanking = 'server_emit_user_ranking',
   UserJoinedRoom = 'user_joined_room',
   ServerEmitQuestion = 'server_emit_question',
+  ServerEmitUserSubmited = 'server_emit_user_submited',
+  ServerEmitNewUserSubmited = 'server_emit_new_user_submited',
   ServerEmitCorrectAnswer = 'server_emit_correct_answer',
   ServerEmitUserJoinRoom = 'server_emit_user_join_room',
   ServerEmitLeaveRoom = 'server_emit_leave_room',

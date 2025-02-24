@@ -1,13 +1,48 @@
 import { BaseCacheService } from '@base/modules/cache/redis.cache.service';
-import { CACHES } from '@constants';
+import { CACHES, RANKED_TOP } from '@constants';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
+import { SocketUser } from '@modules/user/dto/socket-user.dto';
 import { plainToInstance } from 'class-transformer';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { UserAnswerDto } from './dto/user-answer.dto';
 import { UserRankDto } from './dto/user-rank.dto';
 import { StatusModifyCache } from './types';
 
 export class RoomCacheService extends BaseCacheService {
+  async setRoomUser(roomId: string, user: SocketUser) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    await this.addToSet<SocketUser>(cacheKey, user);
+  }
+
+  async isJoinedRoom(roomId: string, userId: string) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    return data ? data.some((item) => item.userId === userId) : false;
+  }
+
+  async getRoomUsers(roomId: string) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    return data ? data.map((item) => plainToInstance(SocketUser, item)) : [];
+  }
+
+  async countRoomUsers(roomId: string) {
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    const numberOfUsers = await this.redis.scard(cacheKey);
+    return numberOfUsers ?? 0;
+  }
+
+  async removeRoomUser(roomId: string, user: SocketUser) {
+    console.log('Remove user from room', user);
+    const { getKey } = CACHES.ROOM_USER;
+    const cacheKey = getKey(roomId);
+    await this.removeFromSet(cacheKey, JSON.stringify(user));
+  }
+
   async setTotalRoomQuestion(roomId: string, totalQuestion: number) {
     const { getKey, exprieTime } = CACHES.ROOM_GAME;
     const cacheKey = getKey(roomId);
@@ -19,6 +54,19 @@ export class RoomCacheService extends BaseCacheService {
     const cacheKey = getKey(roomId);
     const totalQuestion = await this.getCache(cacheKey);
     return totalQuestion ? Number(totalQuestion) : null;
+  }
+
+  async setFinishedQuestion(roomId: string, questionId: string) {
+    const { getKey } = CACHES.ROOM_QUESTION;
+    const cacheKey = getKey(roomId);
+    await this.addToSet<string>(cacheKey, questionId);
+  }
+
+  async countFinishedQuestion(roomId: string) {
+    const { getKey } = CACHES.ROOM_QUESTION;
+    const cacheKey = getKey(roomId);
+    const numberOfQuestions = await this.redis.scard(cacheKey);
+    return numberOfQuestions ?? 0;
   }
 
   async setCurrentQuestion(
@@ -37,7 +85,48 @@ export class RoomCacheService extends BaseCacheService {
     await this.addToSet<UserAnswerDto>(cacheKey, userAmswer);
   }
 
-  async getRoomRanking(roomId: string) {
+  async getQuestionUserAnswered(roomId: string, questionId: string) {
+    const { getKey } = CACHES.ROOM_ANSWER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    if (!data) {
+      return [];
+    }
+    const userAnswers = data
+      .filter((item) => item.questionId === questionId)
+      .map((item) => plainToInstance(UserAnswerDto, item));
+    return userAnswers;
+  }
+
+  async getUserPoint(roomId: string, questionId: string, userId: string) {
+    const { getKey } = CACHES.ROOM_ANSWER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    if (!data) {
+      return 0;
+    }
+    const userAnswers = data.filter((item) =>
+      item.userId === userId ? plainToInstance(UserAnswerDto, item) : null,
+    );
+
+    const currentQuestionAnswer = userAnswers.find(
+      (item) => item.questionId === questionId,
+    );
+    const totalPoint = userAnswers.reduce((acc, item) => {
+      return acc + item.point;
+    }, 0);
+    return {
+      totalPoint: totalPoint,
+      isCorrect: currentQuestionAnswer?.isCorrect ?? false,
+      currentQuestionPoint: currentQuestionAnswer?.point ?? 0,
+    };
+  }
+
+  async getRoomRanking(
+    roomId: string,
+    onlyTopOrder: boolean = true,
+    topEntries?: number,
+  ) {
     const { getKey } = CACHES.ROOM_ANSWER;
     const cacheKey = getKey(roomId);
     const data = await this.getSetMembers(cacheKey);
@@ -67,7 +156,38 @@ export class RoomCacheService extends BaseCacheService {
         };
       },
     );
-    return _.orderBy(userPoints, ['totalPoint'], ['desc']);
+    return onlyTopOrder
+      ? _.take(
+          _.orderBy(userPoints, 'totalPoint', 'desc'),
+          topEntries ?? RANKED_TOP,
+        )
+      : _.orderBy(userPoints, 'totalPoint', 'desc');
+  }
+
+  async getQuestionAnalysis(roomId: string, questionId: string) {
+    const { getKey } = CACHES.ROOM_ANSWER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    if (!data) {
+      return [];
+    }
+
+    const allAnswersByQuestion = data
+      .filter((item) => item.questionId === questionId)
+      .map((item) => plainToInstance(UserAnswerDto, item));
+    const groupByIndex = _.groupBy(
+      allAnswersByQuestion,
+      (item) => item.answerIndex,
+    );
+
+    const groupAswers = Object.entries(groupByIndex).map(([index, answers]) => {
+      const totalSeleted = answers?.length ?? 0;
+      return {
+        answerIndex: index,
+        totalSeleted: totalSeleted,
+      };
+    });
+    return groupAswers;
   }
 
   async countSubmitedUser(roomId: string, questionId: string) {
@@ -96,6 +216,20 @@ export class RoomCacheService extends BaseCacheService {
     return countByUniqueQuestion;
   }
 
+  async clearRoomCache(roomId: string) {
+    const { getKey: getKeyUser } = CACHES.ROOM_USER;
+    const { getKey: getKeyQuestion } = CACHES.ROOM_QUESTION;
+    const { getKey: getKeyAnswer } = CACHES.ROOM_ANSWER;
+    const { getKey: getKeyGame } = CACHES.ROOM_GAME;
+    const { getKey: getKeyCurrentQuestion } = CACHES.CURRENT_QUESTION;
+
+    await this.redis.del(getKeyUser(roomId));
+    await this.redis.del(getKeyQuestion(roomId));
+    await this.redis.del(getKeyAnswer(roomId));
+    await this.redis.del(getKeyGame(roomId));
+    await this.redis.del(getKeyCurrentQuestion(roomId));
+  }
+
   async modifyCacheSocketUser({
     socketId,
     userId,
@@ -112,5 +246,12 @@ export class RoomCacheService extends BaseCacheService {
       return this.addToSet(key, socketId);
     }
     return this.removeFromSet(key, socketId);
+  }
+
+  async getSocketUser(userId: string) {
+    const { key: mapKey } = CACHES.SOCKET;
+    const key = mapKey(userId);
+    const data = await this.getSetMembers(key);
+    return data;
   }
 }

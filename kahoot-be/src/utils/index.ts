@@ -14,6 +14,11 @@ export const calculatePoint = (
   if (!isCorrect) return 0;
   const timeTaken = questionEndtime.getTime() - submitTime.getTime();
   if (timeTaken <= 0) return 0;
+  // console.log('Time taken: ', timeTaken);
+  // console.log(
+  //   'Time point: ',
+  //   MAX_QUESTION_POINT - timeTaken * TIME_POINT_FACTOR,
+  // );
   const questionPoint = Math.max(
     0,
     MAX_QUESTION_POINT - timeTaken * TIME_POINT_FACTOR,
