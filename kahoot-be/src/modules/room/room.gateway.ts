@@ -513,10 +513,11 @@ export class RoomGateway
       const userSocketIds = await this.roomCacheService.getSocketUser(
         user.userId,
       );
-      const userSocket = _.findLast(userSocketIds, (socket) => {
+      const onlineSocketId = _.findLast(userSocketIds, (socket) => {
         return this.server.sockets.get(socket) !== undefined;
       });
-      if (userSocket) {
+      if (onlineSocketId) {
+        const userSocket = this.server.sockets.get(onlineSocketId);
         const questionResult = await this.roomCacheService.getUserPoint(
           roomId,
           rawGameQuestion.id,
