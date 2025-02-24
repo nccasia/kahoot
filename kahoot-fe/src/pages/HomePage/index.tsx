@@ -27,8 +27,8 @@ const HomePage = () => {
   return (
     <div>
       <div
-        className={`flex flex-col items-center justify-center h-screen gap-10 opacity-0 fadeIn`}
-        style={{ animationDelay: appState.isShowSplash ? "7s" : "unset" }}
+        className={`flex flex-col items-center justify-center h-screen gap-10 `}
+        // style={{ animationDelay: appState.isShowSplash ? "7s" : "unset" }}
       >
         <h2
           className='font-diablo text-[70px] sm:text-[100px] md:text-[150px] select-none text-white'
@@ -46,7 +46,7 @@ const HomePage = () => {
           <Button className='font-diablo text-xl sm:text-2xl md:text-3xl bg-[#B2ADFF]'>Cài Đặt</Button>
         </div>
       </div>
-      <div className='fadeOut' style={{ animationDelay: appState.isShowSplash ? "8s" : "unset" }}>
+      {/* <div className='fadeOut' style={{ animationDelay: appState.isShowSplash ? "8s" : "unset" }}>
         <div
           className={`logo-container fixed top-[50%] -translate-y-1/2 left-[50%] -translate-x-1/2 flex justify-center items-center w-full max-w-[400px] sm:max-w-[600px] md:max-w-[800px] before:w-[95%] `}
         >
@@ -76,7 +76,7 @@ const HomePage = () => {
             </div>
           </h1>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

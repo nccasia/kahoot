@@ -1,6 +1,7 @@
 import Button from "@/components/Button";
 import SocketEvents from "@/constants/SocketEvents";
 import { useSocket } from "@/providers/SocketProvider";
+import { ROUTES } from "@/routes/routePath";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,11 +16,12 @@ const SearchGamePage = () => {
     socket.emit(SocketEvents.EMIT.ClientEmitJoinRoom, { roomCode: searchText });
   };
   const handleBackToListGame = () => {
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
-      navigate("/");
-    }
+    // if (window.history.length > 2) {
+    //   navigate(-1);
+    // } else {
+    //   navigate("/");
+    // }
+    navigate(ROUTES.HOME);
   };
 
   return (

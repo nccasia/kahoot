@@ -1,7 +1,7 @@
 import { ICurrentUser } from "@/interfaces/authTypes";
 
 interface PlayerItemProps {
-  player: ICurrentUser;
+  player?: ICurrentUser;
 }
 const PlayerItem = ({ player }: PlayerItemProps) => {
   return (
@@ -10,11 +10,14 @@ const PlayerItem = ({ player }: PlayerItemProps) => {
         <div
           className='w-full h-full  bg-center bg-contain rounded-md'
           style={{
-            backgroundImage: `url(${player.avatar || "/icons/icon-user.png"})`,
+            backgroundImage: `url(${player?.avatar || "/icons/icon-user.png"})`,
           }}
         ></div>
       </div>
-      <span className='font-diablo flex-1 line-clamp-1'>{player.userName}</span>
+      <div className='text-start flex flex-col gap-3'>
+        <span className='font-diablo flex-1 line-clamp-1 h-[30px]'>{player?.userName ?? "Tên người chơi"}</span>
+        <span className='font-diablo flex-1 line-clamp-1 h-[30px]'>{1000}</span>
+      </div>
     </div>
   );
 };

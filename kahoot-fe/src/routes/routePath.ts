@@ -7,4 +7,5 @@ export const ROUTES = {
   ROOM_DETAIL: "/room/:roomId",
   GAME_DETAIL: "/game-detail/:gameId",
   WAITING_ROOM: "/waiting-room/:roomId",
+  QUIZZ: "/quizz/:roomId",
 };

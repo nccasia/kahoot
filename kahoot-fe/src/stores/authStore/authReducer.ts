@@ -11,6 +11,7 @@ export interface AuthState {
 export const initAuthState: AuthState = {
   loading: false,
   isLogin: false,
+  currentUser: undefined,
 };
 
 const AuthReducer = (state = initAuthState, action: AppActionType<AUTH_TYPE>): AuthState => {

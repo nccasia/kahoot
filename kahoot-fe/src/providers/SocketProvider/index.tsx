@@ -27,6 +27,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         reconnectionDelay: 3000,
         extraHeaders: {
           "Bypass-Tunnel-Reminder": "true",
+          "ngrok-skip-browser-warning": "true",
           "X-Kahoot-User": JSON.stringify({
             userId: authState.currentUser.userId,
             mezonUserId: authState.currentUser.mezonUserId,

@@ -3,6 +3,7 @@ import CreateGamePage from "@/pages/CreateGamePage";
 import GameDetail from "@/pages/GameDetail";
 import HomePage from "@/pages/HomePage";
 import ListGamePage from "@/pages/ListGamePage";
+import QuizzPage from "@/pages/QuizzPage";
 import RoomPage from "@/pages/RoomPage";
 import SearchGamePage from "@/pages/SearchGamePage";
 import WaitingRoom from "@/pages/WaitingRoom";
@@ -23,6 +24,7 @@ const AppRoutes = () => {
             <Route path={ROUTES.GAME_DETAIL} element={<GameDetail />} />
             <Route path={ROUTES.WAITING_ROOM} element={<WaitingRoom />} />
             <Route path={ROUTES.SEARCH_ROOM} element={<SearchGamePage />} />
+            <Route path={ROUTES.QUIZZ} element={<QuizzPage />} />
           </Route>
         </Route>
       </Routes>

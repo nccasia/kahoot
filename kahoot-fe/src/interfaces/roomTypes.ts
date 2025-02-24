@@ -1,4 +1,4 @@
-import { IUser } from "./authTypes";
+import { ICurrentUser } from "./authTypes";
 
 export interface IRoom {
   id: string;
@@ -13,5 +13,5 @@ export interface IRoom {
 export interface IJoinRoomResponse {
   roomId: string;
   isOwner: boolean;
-  members: IUser[];
+  members: ICurrentUser[];
 }

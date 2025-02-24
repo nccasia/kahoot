@@ -8,6 +8,7 @@ const axiosConfig = axios.create({
   headers: {
     "Content-Type": "application/json",
     "Bypass-Tunnel-Reminder": "true",
+    "ngrok-skip-browser-warning": "true",
   },
   withCredentials: true,
 });
