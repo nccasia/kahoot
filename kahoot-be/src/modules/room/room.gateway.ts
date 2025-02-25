@@ -11,6 +11,7 @@ import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto'
 import { Question } from '@modules/question/entities/question.entity';
 import { User } from '@modules/user/entities/user.entity';
 import { Logger, UseGuards } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConnectedSocket,
@@ -69,11 +70,12 @@ export class RoomGateway
     @InjectRepository(RoomQuestion)
     private roomQuestionsRepository: Repository<RoomQuestion>,
     private roomCacheService: RoomCacheService,
+    private jwtService: JwtService,
   ) {}
 
   async afterInit() {
     this.logger.debug(`[WEBSOCKET RUN] -------`);
-    this.server.use(WSAuthMiddleware(this.usersRepository));
+    this.server.use(WSAuthMiddleware(this.usersRepository, this.jwtService));
   }
   // Owner events listeners
   @UseGuards(WsJwtGuard)
