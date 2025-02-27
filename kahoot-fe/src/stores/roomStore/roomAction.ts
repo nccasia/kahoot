@@ -1,7 +1,7 @@
 import { AppActionType } from "@/interfaces/appTypes";
 import { ICurrentUser } from "@/interfaces/authTypes";
-import { IQuestionGame } from "@/interfaces/questionTypes";
-import { IRoom } from "@/interfaces/roomTypes";
+import { IQuestionAnalyst, IQuestionGame } from "@/interfaces/questionTypes";
+import { IRoom, IUserPoint, IUserRanking } from "@/interfaces/roomTypes";
 
 export enum ROOM_TYPE {
   CHANGE_CURRENT_ROOM = "CHANGE_CURRENT_ROOM",
@@ -13,6 +13,18 @@ export enum ROOM_TYPE {
   CHANGE_CURRENT_QUESTION = "CHANGE_CURRENT_QUESTION",
   CHANGE_IS_SUBMIT_ANSWER = "CHANGE_IS_SUBMIT_ANSWER",
   CHANGE_IS_END_AN_QUESTION = "CHANGE_IS_END_AN_QUESTION",
+  CHANGE_CORRECT_ANSWER_OF_CURRENT_QUESTION = "CHANGE_CORRECT_ANSWER_OF_CURRENT_QUESTION",
+  CHANGE_SELECTED_ANSWER = "CHANGE_SELECTED_ANSWER",
+  CHANGE_LIST_QUESTION_ANALYSIS = "CHANGE_LIST_QUESTION_ANALYSIS",
+  CHANGE_LIST_USER_RANKING = "CHANGE_LIST_USER_RANKING",
+  CHANGE_SUBMITED_USER = "CHANGE_SUBMITED_USER",
+  CHANGE_USER_POINT = "CHANGE_USER_POINT",
+  CHANGE_CURRENT_QUESTION_POINT = "CHANGE_CURRENT_QUESTION_POINT",
+  CHANGE_TOTAL_POINT = "CHANGE_TOTAL_POINT",
+  CHANGE_IS_END_GAME = "CHANGE_IS_END_GAME",
+  CHANGE_IS_WAITING_END_GAME = "CHANGE_IS_WAITING_END_GAME",
+  CHANGE_IS_RECONECTING = "CHANGE_IS_RECONECTING",
+  CHANGE_TOTAL_QUESTION = "CHANGE_TOTAL_QUESTION",
 }
 
 const changeCurrentRoom = (currentRoom: IRoom): AppActionType<ROOM_TYPE> => {
@@ -57,7 +69,7 @@ const changeIsWaiting = (isWaiting: boolean): AppActionType<ROOM_TYPE> => {
   };
 };
 
-const changeCurrentQuestion = (currentQuestion: IQuestionGame): AppActionType<ROOM_TYPE> => {
+const changeCurrentQuestion = (currentQuestion?: IQuestionGame): AppActionType<ROOM_TYPE> => {
   return {
     type: ROOM_TYPE.CHANGE_CURRENT_QUESTION,
     payload: currentQuestion,
@@ -78,6 +90,90 @@ const changeIsEndAnQuestion = (isEndAnQuestion: boolean): AppActionType<ROOM_TYP
   };
 };
 
+const changeCorrectAnswerOfCurrentQuestion = (correctAnswer: number): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_CORRECT_ANSWER_OF_CURRENT_QUESTION,
+    payload: correctAnswer,
+  };
+};
+
+const changeListQuestionAnalysis = (listQuestionAnalysis: IQuestionAnalyst[]): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_LIST_QUESTION_ANALYSIS,
+    payload: listQuestionAnalysis,
+  };
+};
+
+const changeUserRanking = (userRanking: IUserRanking[]): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_LIST_USER_RANKING,
+    payload: userRanking,
+  };
+};
+
+const changeSubmitedUser = (submitedUser: number): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_SUBMITED_USER,
+    payload: submitedUser,
+  };
+};
+
+const changeSelectedAnswer = (selectedAnswer?: number): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_SELECTED_ANSWER,
+    payload: selectedAnswer,
+  };
+};
+
+const changeUserPoint = (userPoint?: IUserPoint): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_USER_POINT,
+    payload: userPoint,
+  };
+};
+
+const changeCurrentQuestionPoint = (currentQuestionPoint: number): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_CURRENT_QUESTION_POINT,
+    payload: currentQuestionPoint,
+  };
+};
+
+const changeTotalPoint = (totalPoint: number): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_TOTAL_POINT,
+    payload: totalPoint,
+  };
+};
+
+const changeIsEndGame = (isEndGame: boolean): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_IS_END_GAME,
+    payload: isEndGame,
+  };
+};
+
+const changeIsWaitingEndGame = (isWaitingEndGame: boolean): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_IS_WAITING_END_GAME,
+    payload: isWaitingEndGame,
+  };
+};
+
+const changeIsReconnecting = (isReconnecting: boolean): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_IS_RECONECTING,
+    payload: isReconnecting,
+  };
+};
+
+const changeTotalQuestion = (totalQuestion: number): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_TOTAL_QUESTION,
+    payload: totalQuestion,
+  };
+};
+
 const RoomActions = {
   changeCurrentRoom,
   changeListMemberOfRoom,
@@ -88,5 +184,17 @@ const RoomActions = {
   changeCurrentQuestion,
   changeIsSubmitAnswer,
   changeIsEndAnQuestion,
+  changeCorrectAnswerOfCurrentQuestion,
+  changeListQuestionAnalysis,
+  changeUserRanking,
+  changeSubmitedUser,
+  changeSelectedAnswer,
+  changeUserPoint,
+  changeCurrentQuestionPoint,
+  changeTotalPoint,
+  changeIsEndGame,
+  changeIsWaitingEndGame,
+  changeIsReconnecting,
+  changeTotalQuestion,
 };
 export default RoomActions;

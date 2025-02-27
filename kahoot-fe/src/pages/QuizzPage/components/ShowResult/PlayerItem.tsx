@@ -1,7 +1,7 @@
-import { ICurrentUser } from "@/interfaces/authTypes";
+import { IUserRanking } from "@/interfaces/roomTypes";
 
 interface PlayerItemProps {
-  player?: ICurrentUser;
+  player?: IUserRanking;
 }
 const PlayerItem = ({ player }: PlayerItemProps) => {
   return (
@@ -14,9 +14,9 @@ const PlayerItem = ({ player }: PlayerItemProps) => {
           }}
         ></div>
       </div>
-      <div className='text-start flex flex-col gap-3'>
+      <div className='text-start flex flex-col gap-3 text-white flex-1'>
         <span className='font-diablo flex-1 line-clamp-1 h-[30px]'>{player?.userName ?? "Tên người chơi"}</span>
-        <span className='font-diablo flex-1 line-clamp-1 h-[30px]'>{1000}</span>
+        <span className='font-diablo flex-1 line-clamp-1 h-[30px]'>{player?.totalPoint ?? 0}</span>
       </div>
     </div>
   );

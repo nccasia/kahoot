@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AppActionType } from "@/interfaces/appTypes";
-import { ICurrentUser, IGetTokenDTO } from "@/interfaces/authTypes";
+import { ICurrentUser, IGetTokenDTO, IMezonUser, IUserHashInfo } from "@/interfaces/authTypes";
 import authServices from "@/services/authServices";
 import AuthActions, { AUTH_TYPE } from "@/stores/authStore/authAction";
 import AuthReducer, { AuthState, initAuthState } from "@/stores/authStore/authReducer";
@@ -17,19 +16,54 @@ export const AuthContext = createContext<{ authState: AuthState; authDispatch: A
 
 const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [authState, authDispatch] = useReducer(AuthReducer, initAuthState);
+  const [mezonUser, setMezonUser] = React.useState<IMezonUser | null>(null);
+  const [userHashInfo, setUserHashInfo] = React.useState<IUserHashInfo | null>(null);
+
   useEffect(() => {
     window.Mezon.WebView?.postEvent("PING" as MezonWebViewEvent, { message: "PING" }, () => {
       console.log("PING");
+    });
+    window.Mezon.WebView?.postEvent("SEND_BOT_ID" as MezonWebViewEvent, { appId: "1840651530236071936" }, () => {
+      console.log("PING");
+    });
+    window.Mezon.WebView?.onEvent("USER_HASH_INFO" as MezonAppEvent, async (_, userHashData: any) => {
+      setUserHashInfo(userHashData.message as IUserHashInfo);
     });
     window.Mezon.WebView?.onEvent("CURRENT_USER_INFO" as MezonAppEvent, async (_, userData: any) => {
       if (!userData || !userData.user) {
         return;
       }
-      const getTokenData: IGetTokenDTO = {
-        mezonUserId: userData.user?.id,
+      const mezonUser: IMezonUser = {
         email: userData.email,
-        userName: userData.user?.username,
-        avatar: userData.user?.avatar_url,
+        mezon_id: userData.mezon_id,
+        user: {
+          avatar_url: userData.user.avatar_url,
+          display_name: userData.user.display_name,
+          id: userData.user.id,
+          username: userData.user.username,
+        },
+        wallet: userData.wallet,
+      };
+      setMezonUser(mezonUser);
+    });
+
+    return () => {
+      window.Mezon.WebView?.offEvent("CURRENT_USER_INFO" as MezonAppEvent, () => {});
+      window.Mezon.WebView?.offEvent("USER_HASH_INFO" as MezonAppEvent, () => {});
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mezonUser || !userHashInfo) {
+      return;
+    }
+    const fetchUserToken = async () => {
+      const getTokenData: IGetTokenDTO = {
+        mezonUserId: mezonUser.mezon_id,
+        email: mezonUser.email,
+        userName: mezonUser.user.username,
+        avatar: mezonUser.user.avatar_url,
+        hashKey: userHashInfo.hash,
       };
       const data = await authServices.getToken(getTokenData);
       if (data.statusCode === 200 || data.statusCode === 201) {
@@ -44,12 +78,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element 
         };
         authDispatch(AuthActions.changeCurrentUser(currentUser));
       }
-    });
-
-    return () => {
-      window.Mezon.WebView?.offEvent("CURRENT_USER_INFO" as MezonAppEvent, () => {});
     };
-  }, []);
+    fetchUserToken();
+  }, [mezonUser, userHashInfo]);
 
   return <AuthContext.Provider value={{ authState, authDispatch }}>{children}</AuthContext.Provider>;
 };

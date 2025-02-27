@@ -1,12 +1,16 @@
+import { IUserRanking } from "@/interfaces/roomTypes";
 import PlayerItem from "./PlayerItem";
 
-const ScoreRank = () => {
+interface ScoreRankProps {
+  userRanks: IUserRanking[];
+}
+const ScoreRank = ({ userRanks }: ScoreRankProps) => {
   return (
     <>
       <h5 className='font-diablo text-5xl mb-10'>Top 3</h5>
       <div className='flex flex-col gap-2 mt-2 justify-center items-center w-full'>
-        {Array.from({ length: 3 }).map((_, index) => (
-          <PlayerItem key={index} />
+        {userRanks?.map((userRank, index) => (
+          <PlayerItem player={userRank} key={index} />
         ))}
       </div>
     </>

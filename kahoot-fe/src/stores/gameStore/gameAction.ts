@@ -11,6 +11,7 @@ export enum GAME_TYPE {
   CHANGE_LIST_GAME = "CHANGE_LIST_GAME",
   CHANGE_FILTER_GAMES = "CHANGE_FILTER_GAMES",
   CHANGE_SELECTED_GAME = "CHANGE_SELECTED_GAME",
+  CHANGE_CURRETN_GAME_ID = "CHANGE_CURRETN_GAME_ID",
 }
 
 const addQuestion = (question: IQuestion): AppActionType<GAME_TYPE> => {
@@ -69,6 +70,13 @@ const changeSelectedGame = (game: IGame | null): AppActionType<GAME_TYPE> => {
   };
 };
 
+const changeCurrentGameId = (gameId?: string): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_CURRETN_GAME_ID,
+    payload: gameId,
+  };
+};
+
 const GameActions = {
   addQuestion,
   changeListQuestion,
@@ -78,5 +86,6 @@ const GameActions = {
   changeListGame,
   changeFilterGames,
   changeSelectedGame,
+  changeCurrentGameId,
 };
 export default GameActions;

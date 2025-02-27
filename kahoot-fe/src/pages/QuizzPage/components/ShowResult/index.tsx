@@ -1,27 +1,11 @@
-import { IQuestionAnalyst } from "@/interfaces/questionTypes";
+import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
+import { useContext } from "react";
 import QuestionAnalyst from "./QuestionAnalyst";
 import QuestionResult from "./QuestionResult";
 import ScoreRank from "./ScoreRank";
 
-const questionAnalyst: IQuestionAnalyst[] = [
-  {
-    answerIndex: "0",
-    totalSeleted: 5,
-  },
-  {
-    answerIndex: "1",
-    totalSeleted: 0,
-  },
-  {
-    answerIndex: "2",
-    totalSeleted: 2,
-  },
-  {
-    answerIndex: "3",
-    totalSeleted: 3,
-  },
-];
 const ShowResult = () => {
+  const { roomState } = useContext(RoomContext);
   return (
     <div
       className='backdrop-blur-md loading-overlay fixed z-50 top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-40 fadeIn'
@@ -34,11 +18,14 @@ const ShowResult = () => {
         >
           <div className='flex w-full h-full'>
             <div className='w-1/3 border-r-2 border-white p-2 flex justify-center flex-col items-center'>
-              <ScoreRank />
+              <ScoreRank userRanks={roomState.userRanking} />
             </div>
             <div className='w-2/3 p-2 flex justify-center flex-col items-center'>
-              <QuestionAnalyst correctAnswer={0} questionAnalyst={questionAnalyst} />
-              <QuestionResult correctAnswer={0} />
+              <QuestionAnalyst
+                correctAnswer={roomState.correctAnswerOfCurrentQuestion}
+                questionAnalyst={roomState.listQuestionAnalyst}
+              />
+              <QuestionResult question={roomState.currentQuestion} correctAnswer={roomState.correctAnswerOfCurrentQuestion} />
             </div>
           </div>
         </div>

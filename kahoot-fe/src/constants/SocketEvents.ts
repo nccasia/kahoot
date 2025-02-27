@@ -14,7 +14,8 @@ const SocketEvents = {
     ServerEmitUserSubmited: "server_emit_user_submited",
     ServerEmitNewUserSubmited: "server_emit_new_user_submited",
     ServerEmitQuestionFinished: "server_emit_question_finished",
-
+    ServerEmitCurrentQuestion: "server_emit_current_question",
+    UserReconnectedRoom: "user_reconnected_room",
     UserConnected: "user_connected",
     ClientError: "client_error",
   },

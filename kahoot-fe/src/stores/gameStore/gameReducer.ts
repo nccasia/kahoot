@@ -11,6 +11,7 @@ export interface GameState {
   selectedGame?: IGame | null;
   loading: boolean;
   openModalSaveGame: boolean;
+  currentGameId?: string;
 }
 
 export const initGameState: GameState = {
@@ -90,6 +91,13 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
       return {
         ...state,
         selectedGame: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_CURRETN_GAME_ID: {
+      return {
+        ...state,
+        currentGameId: action.payload,
       };
     }
 

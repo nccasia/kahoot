@@ -28,6 +28,7 @@ export interface IQuestionGame {
   endTime: string;
   mode: string;
   answerOptions: IAnswerOption;
+  order?: number;
 }
 
 export interface ISendAnswerDTO {
@@ -37,7 +38,7 @@ export interface ISendAnswerDTO {
 }
 
 export interface IQuestionAnalyst {
-  answerIndex: string;
+  answerIndex: number;
   totalSeleted: number;
 }
 

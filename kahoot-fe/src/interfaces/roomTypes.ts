@@ -1,4 +1,5 @@
 import { ICurrentUser } from "./authTypes";
+import { IQuestionGame } from "./questionTypes";
 
 export interface IRoom {
   id: string;
@@ -11,7 +12,35 @@ export interface IRoom {
 }
 
 export interface IJoinRoomResponse {
+  gameId: string;
   roomId: string;
   isOwner: boolean;
   members: ICurrentUser[];
+}
+
+export interface IUserRanking {
+  correctRate: number;
+  totalCorrect: number;
+  totalPoint: number;
+  totalWrong: number;
+  userId: string;
+  userName: string;
+  avatar?: string;
+}
+
+export interface IUserPoint {
+  currentQuestionPoint: number;
+  totalPoint: number;
+  isCorrect: boolean;
+}
+
+export interface ISubmitedAnswer {
+  answerIndex: number;
+  submitedAt: string;
+  submitedQuestionId: string;
+}
+
+export interface IGetCurrentQuestionResponse {
+  currentQuestion: IQuestionGame;
+  submitedAnswer?: ISubmitedAnswer;
 }
