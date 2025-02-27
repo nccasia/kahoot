@@ -1,7 +1,7 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
   Logger,
@@ -31,14 +31,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
             message: MESSAGES.UNKNOWN_EXCEPTION_MESSAGE,
           };
 
-    this.logger.error(
+    this.logger.warn(
       `[${request.method}] - [${status}] - [${request.url}] - ${exception}}`,
     );
 
     if (this.isExceptionObject(exception)) {
-      this.logger.error(exception.message, exception.stack);
+      this.logger.warn(exception.message, exception.stack);
     } else {
-      this.logger.error(exception);
+      this.logger.warn(exception);
     }
 
     response.status(status).json({

@@ -1,3 +1,4 @@
+import { AccessTokenPayload } from '@modules/auth/types';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
@@ -11,5 +12,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow('JWT_SECRET'),
     });
+  }
+
+  async validate(payload: AccessTokenPayload) {
+    return payload;
   }
 }

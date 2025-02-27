@@ -13,6 +13,9 @@ export class RoomUser extends AbstractEntity {
   @Column({ nullable: false, default: false })
   isOwner: boolean;
 
+  @Column({ nullable: true, default: false })
+  isLeave: boolean;
+
   @Column({ nullable: false, name: 'room_id' })
   roomId: string;
 

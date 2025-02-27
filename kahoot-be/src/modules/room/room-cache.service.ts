@@ -37,10 +37,9 @@ export class RoomCacheService extends BaseCacheService {
   }
 
   async removeRoomUser(roomId: string, user: SocketUser) {
-    console.log('Remove user from room', user);
     const { getKey } = CACHES.ROOM_USER;
     const cacheKey = getKey(roomId);
-    await this.removeFromSet(cacheKey, JSON.stringify(user));
+    this.removeFromSet(cacheKey, JSON.stringify(user));
   }
 
   async setTotalRoomQuestion(roomId: string, totalQuestion: number) {
@@ -79,6 +78,29 @@ export class RoomCacheService extends BaseCacheService {
     await this.setCache(cacheKey, questionData, exprieTime(questionTime));
   }
 
+  async removeCurrentQuestion(roomId: string) {
+    const { getKey } = CACHES.CURRENT_QUESTION;
+    const cacheKey = getKey(roomId);
+    await this.redis.del(cacheKey);
+  }
+
+  async setQuestionTimeout(
+    roomId: string,
+    questionId: string,
+    time: number,
+    timeoutId: NodeJS.Timeout,
+  ) {
+    const { getKey, exprieTime } = CACHES.ROOM_QUESTION_TIME;
+    const cacheKey = getKey(roomId, questionId);
+    await this.setCache(cacheKey, String(timeoutId), exprieTime(time));
+  }
+
+  async getQuestionTimeout(roomId: string, questionId: string) {
+    const { getKey } = CACHES.ROOM_QUESTION_TIME;
+    const cacheKey = getKey(roomId, questionId);
+    const timeoutId = await this.getCache(cacheKey);
+    return timeoutId;
+  }
   async setUserAnswer(roomId: string, userAmswer: UserAnswerDto) {
     const { getKey } = CACHES.ROOM_ANSWER;
     const cacheKey = getKey(roomId);
@@ -96,6 +118,25 @@ export class RoomCacheService extends BaseCacheService {
       .filter((item) => item.questionId === questionId)
       .map((item) => plainToInstance(UserAnswerDto, item));
     return userAnswers;
+  }
+
+  async getUserSubmittedAnswer(
+    roomId: string,
+    questionId: string,
+    userId: string,
+  ) {
+    const { getKey } = CACHES.ROOM_ANSWER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    if (!data) {
+      return null;
+    }
+    const userAnswer = _.first(
+      data.filter(
+        (item) => item.questionId === questionId && item.userId === userId,
+      ),
+    );
+    return userAnswer ? plainToInstance(UserAnswerDto, userAnswer) : null;
   }
 
   async getUserPoint(roomId: string, questionId: string, userId: string) {
@@ -122,6 +163,22 @@ export class RoomCacheService extends BaseCacheService {
     };
   }
 
+  async getUserTotalPoint(roomId: string, userId: string) {
+    const { getKey } = CACHES.ROOM_ANSWER;
+    const cacheKey = getKey(roomId);
+    const data = await this.getSetMembers(cacheKey);
+    if (!data) {
+      return 0;
+    }
+    const userAnswers = data
+      .filter((item) => item.userId === userId)
+      .map((item) => plainToInstance(UserAnswerDto, item));
+    const totalPoint = userAnswers.reduce((acc, item) => {
+      return acc + item.point;
+    }, 0);
+    return totalPoint ?? 0;
+  }
+
   async getRoomRanking(
     roomId: string,
     onlyTopOrder: boolean = true,
@@ -145,10 +202,12 @@ export class RoomCacheService extends BaseCacheService {
         const totalCorrect = answers.filter((item) => item.isCorrect).length;
         const totalWrong = answers.length - totalCorrect;
         const correctRate = totalCorrect / answers.length;
-        const userName = answers[0].userName;
+        const userName = _.first(answers)?.userName;
+        const avatar = _.first(answers)?.avatar;
         return {
           userId,
           userName,
+          avatar,
           totalPoint,
           totalCorrect,
           totalWrong,
@@ -197,7 +256,7 @@ export class RoomCacheService extends BaseCacheService {
     if (!data) {
       return 0;
     }
-    return data.filter((item) => item.questionId === questionId);
+    return data.filter((item) => item.questionId === questionId)?.length ?? 0;
   }
 
   async getCurrentQuestion(roomId: string) {
@@ -212,7 +271,8 @@ export class RoomCacheService extends BaseCacheService {
     const cacheKey = getKey(roomId);
     const data = await this.getSetMembers(cacheKey);
     const allAnswers = data.map((item) => plainToInstance(UserAnswerDto, item));
-    const countByUniqueQuestion = _.uniqBy(allAnswers, 'questionId').length;
+    const countByUniqueQuestion =
+      _.uniqBy(allAnswers, 'questionId')?.length ?? 0;
     return countByUniqueQuestion;
   }
 

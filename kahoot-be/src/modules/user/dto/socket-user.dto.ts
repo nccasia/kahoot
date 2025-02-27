@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 
 export class MezonUserDto {
   @ApiProperty()
@@ -20,6 +20,7 @@ export class MezonUserDto {
   userName: string;
   @ApiProperty()
   @Expose()
+  @IsUrl()
   avatar?: string;
 }
 

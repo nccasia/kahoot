@@ -12,6 +12,10 @@ export class UserRankDto {
 
   @ApiProperty()
   @Expose()
+  avatar?: string;
+
+  @ApiProperty()
+  @Expose()
   totalPoint: number;
 
   @ApiProperty()

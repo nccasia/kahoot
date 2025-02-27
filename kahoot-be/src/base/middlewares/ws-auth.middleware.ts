@@ -30,7 +30,7 @@ export const WSAuthMiddleware = (
     const header = client.handshake.headers;
     const bearerToken = header.authorization;
 
-    const token = bearerToken.split(' ')[1];
+    const token = bearerToken?.split(' ')[1];
     if (!bearerToken || !token) {
       next(
         new WsException({
