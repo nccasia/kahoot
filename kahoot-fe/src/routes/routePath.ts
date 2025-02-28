@@ -1,6 +1,11 @@
 export const ROUTES = {
   HOME: "/",
   ROOM: "/room",
+  SEARCH_ROOM: "/search-room",
+  LIST_GAME: "/list-game",
+  CREATE_GAME: "/create-game",
   ROOM_DETAIL: "/room/:roomId",
-  GAME: "/game/:gameId",
+  GAME_DETAIL: "/game-detail/:gameId",
+  WAITING_ROOM: "/waiting-room/:roomId",
+  QUIZZ: "/quizz/:roomId",
 };
