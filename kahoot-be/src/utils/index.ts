@@ -15,7 +15,7 @@ export const calculatePoint = (
   const timeTaken = submitTime.getTime() - questionStartTime.getTime();
   if (timeTaken <= 0) return 0;
   const questionPoint = Math.max(
-    0,
+    100,
     MAX_QUESTION_POINT - timeTaken * TIME_POINT_FACTOR,
   );
   return Math.round(questionPoint);

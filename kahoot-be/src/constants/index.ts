@@ -14,7 +14,7 @@ export const RECONNECT_WAIT_TIME = 3; // second
 export const WAIT_TIME_PER_QUESTION = 10; // seconds
 export const MAX_QUESTION_POINT = 1000;
 export const MAX_REDIS_CACHE_TIME = 60 * 60 * 24 * 7; // 7 days
-export const TIME_POINT_FACTOR = 0.01; // 0.01 point per ms
+export const TIME_POINT_FACTOR = 0.025; // Rate of decrease in points per millisecond
 export const RANKED_TOP = 3;
 export const CACHES = {
   SOCKET: {
