@@ -1,5 +1,5 @@
 import { MAX_QUESTION_POINT, TIME_POINT_FACTOR } from '@constants';
-
+import * as crypto from 'crypto';
 export const generateRoomCode = () => {
   return ((Date.now() % 1000000) + Math.floor(Math.random() * 1000))
     .toString()
@@ -19,4 +19,13 @@ export const calculatePoint = (
     MAX_QUESTION_POINT - timeTaken * TIME_POINT_FACTOR,
   );
   return Math.round(questionPoint);
+};
+
+export const Hasher = {
+  HMAC_SHA256: (key: string | Buffer, data: string | Buffer) => {
+    return crypto.createHmac('sha256', key).update(data).digest();
+  },
+  HEX: (data: Buffer) => {
+    return data.toString('hex');
+  },
 };

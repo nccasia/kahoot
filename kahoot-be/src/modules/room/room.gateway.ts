@@ -2,7 +2,6 @@ import { UserWs } from '@base/decorators/user-ws.decorator';
 import { WsJwtGuard } from '@base/guards/ws-auth.guard';
 import { WSAuthMiddleware } from '@base/middlewares/ws-auth.middleware';
 import {
-  corsConfig,
   NAME_SPACE_JOIN_GAME,
   RECONNECT_WAIT_TIME,
   WAIT_TIME_PER_QUESTION,
@@ -28,6 +27,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import * as _ from 'lodash';
 import { Namespace, Socket } from 'socket.io';
+import { corsConfig } from 'src/configs/cors.config';
 import { calculatePoint } from 'src/utils';
 import { In, Not, Repository } from 'typeorm';
 import { validate } from 'uuid';
@@ -100,13 +100,13 @@ export class RoomGateway
     });
     if (!room || room.ownerId !== client.user.userId) {
       client.emit(ClientConnectionEvent.ClientError, {
-        message: `Room with id ${roomId} not found or you are not the owner to start the game`,
+        message: `Room not found or you are not the owner`,
       });
       return;
     }
     if (room.status !== RoomStatus.Waiting) {
       client.emit(ClientConnectionEvent.ClientError, {
-        message: `Room with id ${roomId} cannot be start because it in progess or finished`,
+        message: `Room cannot be start because it in progess or finished`,
       });
       return;
     }
@@ -144,7 +144,7 @@ export class RoomGateway
     });
     if (!room || room.ownerId !== client.user.userId) {
       client.emit(ClientConnectionEvent.ClientError, {
-        message: `Room with id ${roomId} not found or you are not the owner to finish the game`,
+        message: `Room not found or you are not the owner`,
       });
       return;
     }
@@ -184,7 +184,7 @@ export class RoomGateway
     if (!joined) {
       if (room?.status !== RoomStatus.Waiting) {
         client.emit(ClientConnectionEvent.ClientError, {
-          message: `Room with code ${roomCode} cannot be join because it in progess or finished`,
+          message: `Room code ${roomCode} cannot be join because it in progess or finished`,
         });
 
         return;

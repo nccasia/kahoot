@@ -14,11 +14,8 @@ export class MezonAuthDto extends MezonUserDto {
 export class HashDto {
   @IsString()
   @Expose()
-  userId: string;
+  userid: string;
   @IsString()
   @Expose()
-  userName: string;
-  @IsString()
-  @Expose()
-  email: string;
+  username: string;
 }

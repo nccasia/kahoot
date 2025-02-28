@@ -22,9 +22,15 @@ export const CACHES = {
     // ? TODO
     // ttl:
   },
+
   CURRENT_QUESTION: {
     getKey: (roomId: string) => `ROOM_QUESTION:${roomId}`,
     exprieTime: (time: number) => time + RECONNECT_WAIT_TIME - 1,
+  },
+
+  ROOM_STATUS: {
+    getKey: (roomId: string) => `ROOM_STATUS:${roomId}`,
+    exprieTime: MAX_REDIS_CACHE_TIME,
   },
 
   ROOM_GAME: {

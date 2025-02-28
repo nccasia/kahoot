@@ -4,6 +4,7 @@ import { Socket } from 'socket.io';
 export enum RoomStatus {
   Waiting = 'waiting',
   InProgress = 'in_progress',
+  Paused = 'paused',
   Finished = 'finished',
 }
 
@@ -16,6 +17,8 @@ export enum RoomClientEvent {
   ClientEmitGetCurrentQuestion = 'client_emit_get_current_question',
   OwnerStartGame = 'owner_start_game',
   OwnerFinishGame = 'owner_finish_game',
+  OwnerPauseGame = 'owner_pause_game',
+  OwnerResumeGame = 'owner_resume_game',
   ClientEmitSubmitQuestion = 'client_emit_submit_question',
 }
 export enum ClientConnectionEvent {
@@ -24,6 +27,8 @@ export enum ClientConnectionEvent {
 }
 export enum RoomServerEvent {
   ServerEmitWaitGameFinished = 'server_emit_wait_game_finished',
+  ServerEmitGamePaused = 'server_emit_game_paused',
+  ServerEmitGameResumed = 'server_emit_game_resumed',
   ServerEmitGameFinished = 'server_emit_game_finished',
   ServerEmitQuestionFinished = 'server_emit_question_finished',
   ServerEmitWaitNextQuestion = 'server_emit_wait_next_question',

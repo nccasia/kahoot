@@ -6,9 +6,34 @@ import { plainToInstance } from 'class-transformer';
 import * as _ from 'lodash';
 import { UserAnswerDto } from './dto/user-answer.dto';
 import { UserRankDto } from './dto/user-rank.dto';
-import { StatusModifyCache } from './types';
+import { RoomStatus, StatusModifyCache } from './types';
 
 export class RoomCacheService extends BaseCacheService {
+  async pauseGame(roomId: string) {
+    const { getKey } = CACHES.ROOM_STATUS;
+    const cacheKey = getKey(roomId);
+    await this.setCache(cacheKey, RoomStatus.Paused);
+  }
+
+  async resumeGame(roomId: string) {
+    const { getKey } = CACHES.ROOM_STATUS;
+    const cacheKey = getKey(roomId);
+    await this.setCache(cacheKey, RoomStatus.InProgress);
+  }
+
+  async setGameStatus(roomId: string, status: RoomStatus) {
+    const { getKey } = CACHES.ROOM_STATUS;
+    const cacheKey = getKey(roomId);
+    await this.setCache(cacheKey, status);
+  }
+
+  async getGameStatus(roomId: string) {
+    const { getKey } = CACHES.ROOM_STATUS;
+    const cacheKey = getKey(roomId);
+    const status = await this.getCache(cacheKey);
+    return status;
+  }
+
   async setRoomUser(roomId: string, user: SocketUser) {
     const { getKey } = CACHES.ROOM_USER;
     const cacheKey = getKey(roomId);
@@ -101,6 +126,7 @@ export class RoomCacheService extends BaseCacheService {
     const timeoutId = await this.getCache(cacheKey);
     return timeoutId;
   }
+
   async setUserAnswer(roomId: string, userAmswer: UserAnswerDto) {
     const { getKey } = CACHES.ROOM_ANSWER;
     const cacheKey = getKey(roomId);
