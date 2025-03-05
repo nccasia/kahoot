@@ -1,15 +1,22 @@
+import SocketEvents from "@/constants/SocketEvents";
 import { AuthContext } from "@/providers/ContextProvider/AuthProvider";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
+import { useSocket } from "@/providers/SocketProvider";
 import randomResultAnswerText from "@/utils/functions/getAnswerText";
 import { useContext, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import TimeCountdown from "./TimeCountdown";
 import UserBox from "./UserBox";
 
-const InfoBox = () => {
+interface InfoBoxProps {
+  roomId: string;
+}
+const InfoBox = ({ roomId }: InfoBoxProps) => {
   const [time, setTime] = useState(30);
   const [key, setKey] = useState(0);
   const { authState } = useContext(AuthContext);
   const { roomState } = useContext(RoomContext);
+  const socket = useSocket();
 
   useEffect(() => {
     if (!roomState.currentQuestion?.id) return;
@@ -26,6 +33,20 @@ const InfoBox = () => {
 
     setKey((prev) => prev + 1);
   }, [roomState.currentQuestion?.id]);
+
+  const handleFinishGame = () => {
+    // Finish game
+    if (!socket) return;
+    if (!roomState.isOwner) {
+      toast.warning("Chỉ chủ phòng mới có thể kết thúc trò chơi");
+      return;
+    }
+    socket.emit(SocketEvents.EMIT.OwnerFinishGame, roomId);
+  };
+
+  const handlePauseGame = () => {
+    // Pause game
+  };
 
   const congratulationText = useMemo(() => {
     return randomResultAnswerText("congratulation");
@@ -49,7 +70,13 @@ const InfoBox = () => {
 
   return (
     <div className='p-4'>
-      <UserBox score={roomState.userPoint?.totalPoint ?? 0} user={authState.currentUser} />
+      <UserBox
+        isOwner={roomState.isOwner}
+        onFinishGame={handleFinishGame}
+        onPauseGame={handlePauseGame}
+        score={roomState.userPoint?.totalPoint ?? 0}
+        user={authState.currentUser}
+      />
       <div className='mt-4 min-h-[200px] bg-[#919a9070] w-full rounded-xl flex flex-col items-center  p-2 select-none cursor-pointer'>
         <div className='min-h-[100px] flex items-center justify-center w-full'>
           {roomState.isEndAnQuestion ? (
