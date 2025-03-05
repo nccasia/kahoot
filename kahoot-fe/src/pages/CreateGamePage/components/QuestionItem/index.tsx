@@ -1,3 +1,4 @@
+import Button from "@/components/Button";
 import Collapse from "@/components/Collapse";
 import Input from "@/components/Input";
 import { IQuestion } from "@/interfaces/questionTypes";
@@ -9,8 +10,9 @@ interface IQuestionItemProps {
   question: IQuestion;
   index?: number;
   handleUpdateQuestion?: (question: IQuestion) => void;
+  handleDeleteQuestion?: (questionId: string) => void;
 }
-const QuestionContent = ({ question, handleUpdateQuestion }: IQuestionItemProps) => {
+const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion }: IQuestionItemProps) => {
   const [textValue, setTextValue] = useState<string>("");
 
   const handleFocus = (field: string | number) => {
@@ -54,6 +56,9 @@ const QuestionContent = ({ question, handleUpdateQuestion }: IQuestionItemProps)
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
 
+  const deleteQuestion = () => {
+    handleDeleteQuestion?.(question.id ?? "");
+  };
   return (
     <div className='body p-4 font-diablo text-white'>
       <div className='flex items-center flex-wrap'>
@@ -101,6 +106,11 @@ const QuestionContent = ({ question, handleUpdateQuestion }: IQuestionItemProps)
           </div>
         ))}
       </div>
+      <div className='flex justify-end mt-4'>
+        <Button onClick={deleteQuestion} className='bg-red-500'>
+          Delete
+        </Button>
+      </div>
     </div>
   );
 };
@@ -118,13 +128,25 @@ const QuestionItem = ({ question, index }: IQuestionItemProps) => {
       gameDispatch(GameActions.changeSelectedQuestion(question.id ?? ""));
     }
   };
+  const handleDeleteQuestion = useCallback(
+    (questionId: string) => {
+      gameDispatch(GameActions.deleteQuestion(questionId));
+    },
+    [gameDispatch]
+  );
   return (
     <div className='select-none'>
       <Collapse
         hasError={question.isError}
         changeCollapse={handleChangeCollapse}
         open={question.id === gameState.selectedQuestion?.id}
-        content={<QuestionContent handleUpdateQuestion={handleUpdateQuestion} question={question} />}
+        content={
+          <QuestionContent
+            handleDeleteQuestion={handleDeleteQuestion}
+            handleUpdateQuestion={handleUpdateQuestion}
+            question={question}
+          />
+        }
       >
         <div className='font-diablo text-start text-white line-clamp-2 min-h-[50px]'>
           <span className='mr-2'>Câu {index}:</span>

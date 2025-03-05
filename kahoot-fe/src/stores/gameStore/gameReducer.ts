@@ -32,6 +32,12 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
         listQuestions: [...state.listQuestions, action.payload],
       };
 
+    case GAME_TYPE.DELETE_QUESTION:
+      return {
+        ...state,
+        listQuestions: state.listQuestions.filter((item) => item.id !== action.payload),
+      };
+
     case GAME_TYPE.CHANGE_LIST_QUESTION: {
       return {
         ...state,

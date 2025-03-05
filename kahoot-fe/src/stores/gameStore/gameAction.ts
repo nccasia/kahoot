@@ -4,6 +4,7 @@ import { IQuestion } from "@/interfaces/questionTypes";
 
 export enum GAME_TYPE {
   ADD_QUESTION = "ADD_QUESTION",
+  DELETE_QUESTION = "DELETE_QUESTION",
   CHANGE_LIST_QUESTION = "CHANGE_LIST_QUESTION",
   CHANGE_SELECTED_QUESTION = "CHANGE_SELECTED_QUESTION",
   CHANGE_QUESTION_VALUE = "CHANGE_QUESTION_VALUE",
@@ -18,6 +19,13 @@ const addQuestion = (question: IQuestion): AppActionType<GAME_TYPE> => {
   return {
     type: GAME_TYPE.ADD_QUESTION,
     payload: question,
+  };
+};
+
+const deleteQuestion = (questionId: string): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.DELETE_QUESTION,
+    payload: questionId,
   };
 };
 
@@ -79,6 +87,7 @@ const changeCurrentGameId = (gameId?: string): AppActionType<GAME_TYPE> => {
 
 const GameActions = {
   addQuestion,
+  deleteQuestion,
   changeListQuestion,
   changeSelectedQuestion,
   changeQuestionValue,
