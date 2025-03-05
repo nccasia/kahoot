@@ -18,7 +18,7 @@ const QuestionBox = ({
   correctAnswer,
 }: QuestionBoxProps) => {
   return (
-    <div className='p-4 mt-2 flex flex-col gap-4 justify-center  w-full h-full font-diablo'>
+    <div className='p-4 mt-2 flex flex-col gap-4 w-full h-full font-diablo'>
       {question?.order && <div className='p-2 font-diablo text-center text-white'>question {question?.order}</div>}
       {question?.title && (
         <div className='min-h-[200px] bg-[#ccccccb5] text-white w-full rounded-xl flex items-center justify-center p-2 select-none cursor-pointer'>

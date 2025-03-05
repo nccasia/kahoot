@@ -65,16 +65,19 @@ const WaitingRoom = () => {
         {/* Game PIN */}
         <div className='mt-2 bg-[#5d64d8c2] text-white rounded-lg p-2 shadow-xl flex flex-col justify-center items-center w-full max-w-[300px]'>
           <span className='inline-block h-[25px]'>Game PIN</span>
-          <div className='flex justify-center h-[60px] max-w-[250px] w-full items-center'>
-            {/* <span className='flex items-center justify-center bg-gray-400 h-[50px] w-full -rotate-2 rounded-lg'>
-              Loading Game Pin...
-            </span> */}
-            <span
-              onClick={handleCopy}
-              className='text-4xl hover:bg-gray-400 rounded-md cursor-pointer px-2 py-1 active:bg-gray-200 transition-all'
-            >
-              {roomState.currentRoom?.code}
-            </span>
+          <div className='flex justify-center h-[60px] max-w-[200px] w-full items-center'>
+            {!roomState.currentRoom?.code ? (
+              <span className='flex items-center justify-center bg-gray-400 h-[50px] w-full -rotate-2 rounded-lg'>
+                Loading Game Pin...
+              </span>
+            ) : (
+              <span
+                onClick={handleCopy}
+                className='text-4xl hover:bg-gray-400 rounded-md cursor-pointer px-2 py-1 active:bg-gray-200 transition-all'
+              >
+                {roomState.currentRoom?.code}
+              </span>
+            )}
           </div>
           <div className='h-[35px] flex justify-between items-center w-full mt-1'>
             <div className='flex items-center gap-2 text-xl w-[100px] bg-[#cccccca6] h-[35px] px-1 rounded-md'>
@@ -106,7 +109,7 @@ const WaitingRoom = () => {
           {roomState.listMemberOfRoom && roomState.listMemberOfRoom?.length > 0 ? (
             roomState.listMemberOfRoom?.map((player, index) => <PlayerItem player={player} key={index} />)
           ) : (
-            <div></div>
+            <div className='font-diablo text-2xl'>Chưa có người chơi nào tham gia</div>
           )}
         </div>
       </div>

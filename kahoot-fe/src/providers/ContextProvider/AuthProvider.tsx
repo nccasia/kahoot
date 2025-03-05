@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import ENV from "@/constants/Environment";
 import { AppActionType } from "@/interfaces/appTypes";
 import { ICurrentUser, IGetTokenDTO, IMezonUser, IUserHashInfo } from "@/interfaces/authTypes";
 import authServices from "@/services/authServices";
@@ -20,12 +22,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element 
   const [userHashInfo, setUserHashInfo] = React.useState<IUserHashInfo | null>(null);
 
   useEffect(() => {
-    window.Mezon.WebView?.postEvent("PING" as MezonWebViewEvent, { message: "PING" }, () => {
-      console.log("PING");
-    });
-    window.Mezon.WebView?.postEvent("SEND_BOT_ID" as MezonWebViewEvent, { appId: "1840651530236071936" }, () => {
-      console.log("PING");
-    });
+    window.Mezon.WebView?.postEvent("PING" as MezonWebViewEvent, { message: "PING" }, () => {});
+    window.Mezon.WebView?.postEvent("SEND_BOT_ID" as MezonWebViewEvent, { appId: ENV.APP_ID }, () => {});
     window.Mezon.WebView?.onEvent("USER_HASH_INFO" as MezonAppEvent, async (_, userHashData: any) => {
       setUserHashInfo(userHashData.message as IUserHashInfo);
     });
@@ -59,7 +57,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element 
     }
     const fetchUserToken = async () => {
       const getTokenData: IGetTokenDTO = {
-        mezonUserId: mezonUser.mezon_id,
+        mezonUserId: mezonUser.user.id,
         email: mezonUser.email,
         userName: mezonUser.user.username,
         avatar: mezonUser.user.avatar_url,

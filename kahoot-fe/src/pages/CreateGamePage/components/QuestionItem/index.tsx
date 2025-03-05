@@ -76,12 +76,19 @@ const QuestionContent = ({ question, handleUpdateQuestion }: IQuestionItemProps)
                 className='absolute cursor-pointer left-0 top-1/2 -translate-y-1/2 flex w-[40px] rounded-lg h-full bg-[#1C0C8E] items-center justify-center'
               >
                 <input
-                  disabled
+                  tabIndex={-1}
+                  hidden
                   checked={question.answerOptions.correctIndex === index}
                   type='radio'
-                  className='w-5 p-3 cursor-pointer'
+                  className='select-none w-5 h-5 text-blue-600 border-red-900 bg-white focus:border-white'
                 />
-                <div className='absolute left-0 top-0  z-10 w-full h-full'></div>
+                <div className='absolute left-0 top-0 z-10 w-full h-full flex items-center justify-center'>
+                  <div className={`w-5 h-5 border-white border-2 rounded-full flex items-center justify-center`}>
+                    {question.answerOptions.correctIndex === index && (
+                      <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>
+                    )}
+                  </div>
+                </div>
               </div>
               <Input
                 onFocus={() => handleFocus(index)}

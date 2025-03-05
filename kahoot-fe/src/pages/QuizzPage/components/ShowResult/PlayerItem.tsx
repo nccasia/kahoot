@@ -15,7 +15,7 @@ const PlayerItem = ({ player }: PlayerItemProps) => {
         ></div>
       </div>
       <div className='text-start flex flex-col gap-3 text-white flex-1'>
-        <span className='font-diablo flex-1 line-clamp-1 h-[30px]'>{player?.userName ?? "Tên người chơi"}</span>
+        <p className='font-diablo flex-1 block w-full line-clamp-1 h-[30px]'>{player?.userName ?? "Tên người chơi"}</p>
         <span className='font-diablo flex-1 line-clamp-1 h-[30px]'>{player?.totalPoint ?? 0}</span>
       </div>
     </div>

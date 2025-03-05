@@ -155,7 +155,7 @@ const CreateGamePage = () => {
             <Input
               value={gameData.name}
               onChange={(e) => handleChangeGameData("name", e.target.value)}
-              className='text-center placeholder-white'
+              className='text-center placeholder-white w-full max-w-[500px]'
               placeholder='Tên game'
             />
           </div>

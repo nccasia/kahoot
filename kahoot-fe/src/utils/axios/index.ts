@@ -1,4 +1,5 @@
 import ENV from "@/constants/Environment";
+import { ROUTES } from "@/routes/routePath";
 import axios from "axios";
 import { getFromLocalStorage } from "../localStorage";
 const baseURL = ENV.BACKEND_URL;
@@ -27,7 +28,7 @@ axiosConfig.interceptors.response.use(
   },
   async (error) => {
     if (error.response?.status === 401) {
-      window.location.href = "/login";
+      window.location.href = ROUTES.HOME;
     }
     return await Promise.reject(error);
   }

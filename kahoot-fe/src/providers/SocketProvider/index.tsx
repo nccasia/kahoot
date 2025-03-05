@@ -7,6 +7,7 @@ import RoomActions from "@/stores/roomStore/roomAction";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { io, Socket } from "socket.io-client";
 import { AuthContext } from "../ContextProvider/AuthProvider";
 import { GameContext } from "../ContextProvider/GameProvider";
@@ -27,7 +28,6 @@ export const SocketProvider = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("authState", authState);
     if (!socketInitialized && authState.currentUser?.userId) {
       socket.current = io(`${ENV.BACKEND_URL}/QUIZ`, {
         withCredentials: true,
@@ -44,6 +44,7 @@ export const SocketProvider = () => {
       });
       socket.current.on(SocketEvents.ON.ClientError, (error) => {
         console.log("Socket error", error);
+        toast.error(error.message);
       });
 
       socket.current.on(SocketEvents.ON.UserReconnectedRoom, (data: IJoinRoomResponse) => {
