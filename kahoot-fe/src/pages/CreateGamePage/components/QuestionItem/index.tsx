@@ -1,3 +1,4 @@
+import Button from "@/components/Button";
 import Collapse from "@/components/Collapse";
 import Input from "@/components/Input";
 import { IQuestion } from "@/interfaces/questionTypes";
@@ -9,8 +10,9 @@ interface IQuestionItemProps {
   question: IQuestion;
   index?: number;
   handleUpdateQuestion?: (question: IQuestion) => void;
+  handleDeleteQuestion?: (questionId: string) => void;
 }
-const QuestionContent = ({ question, handleUpdateQuestion }: IQuestionItemProps) => {
+const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion }: IQuestionItemProps) => {
   const [textValue, setTextValue] = useState<string>("");
 
   const handleFocus = (field: string | number) => {
@@ -54,6 +56,9 @@ const QuestionContent = ({ question, handleUpdateQuestion }: IQuestionItemProps)
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
 
+  const deleteQuestion = () => {
+    handleDeleteQuestion?.(question.id ?? "");
+  };
   return (
     <div className='body p-4 font-diablo text-white'>
       <div className='flex items-center flex-wrap'>
@@ -76,12 +81,19 @@ const QuestionContent = ({ question, handleUpdateQuestion }: IQuestionItemProps)
                 className='absolute cursor-pointer left-0 top-1/2 -translate-y-1/2 flex w-[40px] rounded-lg h-full bg-[#1C0C8E] items-center justify-center'
               >
                 <input
-                  disabled
+                  tabIndex={-1}
+                  hidden
                   checked={question.answerOptions.correctIndex === index}
                   type='radio'
-                  className='w-5 p-3 cursor-pointer'
+                  className='select-none w-5 h-5 text-blue-600 border-red-900 bg-white focus:border-white'
                 />
-                <div className='absolute left-0 top-0  z-10 w-full h-full'></div>
+                <div className='absolute left-0 top-0 z-10 w-full h-full flex items-center justify-center'>
+                  <div className={`w-5 h-5 border-white border-2 rounded-full flex items-center justify-center`}>
+                    {question.answerOptions.correctIndex === index && (
+                      <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>
+                    )}
+                  </div>
+                </div>
               </div>
               <Input
                 onFocus={() => handleFocus(index)}
@@ -93,6 +105,11 @@ const QuestionContent = ({ question, handleUpdateQuestion }: IQuestionItemProps)
             </div>
           </div>
         ))}
+      </div>
+      <div className='flex justify-end mt-4'>
+        <Button onClick={deleteQuestion} className='bg-red-500'>
+          Delete
+        </Button>
       </div>
     </div>
   );
@@ -111,13 +128,25 @@ const QuestionItem = ({ question, index }: IQuestionItemProps) => {
       gameDispatch(GameActions.changeSelectedQuestion(question.id ?? ""));
     }
   };
+  const handleDeleteQuestion = useCallback(
+    (questionId: string) => {
+      gameDispatch(GameActions.deleteQuestion(questionId));
+    },
+    [gameDispatch]
+  );
   return (
     <div className='select-none'>
       <Collapse
         hasError={question.isError}
         changeCollapse={handleChangeCollapse}
         open={question.id === gameState.selectedQuestion?.id}
-        content={<QuestionContent handleUpdateQuestion={handleUpdateQuestion} question={question} />}
+        content={
+          <QuestionContent
+            handleDeleteQuestion={handleDeleteQuestion}
+            handleUpdateQuestion={handleUpdateQuestion}
+            question={question}
+          />
+        }
       >
         <div className='font-diablo text-start text-white line-clamp-2 min-h-[50px]'>
           <span className='mr-2'>Câu {index}:</span>

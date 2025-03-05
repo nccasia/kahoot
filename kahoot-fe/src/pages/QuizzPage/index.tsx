@@ -38,8 +38,8 @@ const QuizzPage = () => {
       >
         {!roomState.isWaiting && !roomState.isEndGame && (
           <div className='flex w-full h-full'>
-            <div className='w-2/5 border-r-2 border-white'>
-              <InfoBox />
+            <div className='w-2/5'>
+              <InfoBox roomId={roomId ?? ""} />
             </div>
             <div className='w-3/5'>
               <QuestionBox
