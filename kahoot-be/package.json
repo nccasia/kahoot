@@ -18,11 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "typeorm-ts-node-commonjs",
-    "migration:run": "typeorm migration:run -d ./typeOrm.config.ts",
-    "migration:create": "typeorm migration:create ./migrations/$name",
-    "migration:revert": "typeorm -d ./typeOrm.config.ts migration:revert",
-    "migration:generate": "typeorm migration:generate ./migrations/$name -d ./typeOrm.config.ts"
+    "migration:run": "npx typeorm-ts-node-commonjs migration:run -d ./typeOrm.config.ts",
+    "migration:create": "npx typeorm-ts-node-commonjs migration:create ./src/migrations/Migration",
+    "migration:revert": "npx typeorm-ts-node-commonjs -d ./typeOrm.config.ts migration:revert",
+    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate ./src/migrations/Migration -d ./typeOrm.config.ts"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",

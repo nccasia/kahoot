@@ -1,6 +1,6 @@
-import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
+import { DataSource } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 config();
@@ -14,7 +14,7 @@ export default new DataSource({
   username: configService.get('POSTGRES_USER'),
   password: configService.get('POSTGRES_PASSWORD'),
   database: configService.get('POSTGRES_DATABASE'),
-  entities: ['dist/**/*.entity.js'],
-  migrations: ['dist/migrations/*.js'],
+  entities: ['./dist/**/*.entity.js'],
+  migrations: ['./**/*/src/migrations/*.{ts,js}'],
   namingStrategy: new SnakeNamingStrategy(),
 });
