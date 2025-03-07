@@ -28,7 +28,7 @@ const SoundLayout = () => {
       }
     };
     console.log("isPlayBgSound", isPlayBgSound);
-    // playAudio();
+    playAudio();
   }, [isPlayBgSound]);
 
   useEffect(() => {
