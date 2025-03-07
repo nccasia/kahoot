@@ -119,12 +119,7 @@ export class GameService {
     const game = await this.gamesRepository.findOne({
       where: { id: gameId, ownerId: payload.userId },
     });
-    if (!game)
-      throw new BadRequestException({
-        message: `Game with id ${gameId} not found or you are not the owner`,
-        errorCode: ERROR_CODES.GAME.GAME_NOT_FOUND,
-      });
-    await this.gamesRepository.remove(game);
+    await this.gamesRepository.softRemove(game);
     return { message: `Game with id ${gameId} has been deleted` };
   }
 }

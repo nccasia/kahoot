@@ -113,13 +113,7 @@ export class QuestionService {
     const question = await this.questionRepository.findOne({
       where: { id: questionId, ownerId: payload.userId },
     });
-    if (!question) {
-      throw new BadRequestException({
-        message: `Question with id ${questionId} not found or you are not the owner`,
-        errorCode: ERROR_CODES.QUESTION.QUESTION_NOT_FOUND,
-      });
-    }
-    await this.questionRepository.remove(question);
+    await this.questionRepository.softRemove(question);
     return { message: `Question with id ${questionId} he been removed` };
   }
 }
