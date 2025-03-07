@@ -11,8 +11,9 @@ interface IQuestionItemProps {
   index?: number;
   handleUpdateQuestion?: (question: IQuestion) => void;
   handleDeleteQuestion?: (questionId: string) => void;
+  isShowDeleteButton?: boolean;
 }
-const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion }: IQuestionItemProps) => {
+const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion, isShowDeleteButton }: IQuestionItemProps) => {
   const [textValue, setTextValue] = useState<string>("");
 
   const handleFocus = (field: string | number) => {
@@ -80,13 +81,13 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion 
                 onClick={() => handleChangeCorrectAnswer(index)}
                 className='absolute cursor-pointer left-0 top-1/2 -translate-y-1/2 flex w-[40px] rounded-lg h-full bg-[#1C0C8E] items-center justify-center'
               >
-                <input
+                {/* <input
                   tabIndex={-1}
                   hidden
                   checked={question.answerOptions.correctIndex === index}
                   type='radio'
                   className='select-none w-5 h-5 text-blue-600 border-red-900 bg-white focus:border-white'
-                />
+                /> */}
                 <div className='absolute left-0 top-0 z-10 w-full h-full flex items-center justify-center'>
                   <div className={`w-5 h-5 border-white border-2 rounded-full flex items-center justify-center`}>
                     {question.answerOptions.correctIndex === index && (
@@ -106,16 +107,18 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion 
           </div>
         ))}
       </div>
-      <div className='flex justify-end mt-4'>
-        <Button onClick={deleteQuestion} className='bg-red-500'>
-          Delete
-        </Button>
-      </div>
+      {isShowDeleteButton && (
+        <div className='flex justify-end mt-4'>
+          <Button onClick={deleteQuestion} className='bg-red-500'>
+            Xóa
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
 
-const QuestionItem = ({ question, index }: IQuestionItemProps) => {
+const QuestionItem = ({ question, index, isShowDeleteButton }: IQuestionItemProps) => {
   const { gameState, gameDispatch } = useContext(GameContext);
   const handleUpdateQuestion = useCallback(
     (question: IQuestion) => {
@@ -142,6 +145,7 @@ const QuestionItem = ({ question, index }: IQuestionItemProps) => {
         open={question.id === gameState.selectedQuestion?.id}
         content={
           <QuestionContent
+            isShowDeleteButton={isShowDeleteButton}
             handleDeleteQuestion={handleDeleteQuestion}
             handleUpdateQuestion={handleUpdateQuestion}
             question={question}

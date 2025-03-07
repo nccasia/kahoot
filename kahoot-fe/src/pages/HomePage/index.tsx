@@ -41,7 +41,7 @@ const HomePage = () => {
             Tìm Game
           </Button>
           <Button onClick={handleGoToCreateGame} className='font-diablo text-xl sm:text-2xl md:text-3xl bg-[#6F7CDD]'>
-            Tạo Game
+            Game của tôi
           </Button>
           <Button className='font-diablo text-xl sm:text-2xl md:text-3xl bg-[#B2ADFF]'>Cài Đặt</Button>
         </div>

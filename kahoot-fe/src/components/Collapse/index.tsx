@@ -6,10 +6,12 @@ interface CollapseProps {
   open?: boolean;
   hasError?: boolean;
   changeCollapse?: (isOpen: boolean) => void;
+  disabled?: boolean;
 }
-const Collapse = ({ children, content, open, changeCollapse, hasError = false }: CollapseProps) => {
+const Collapse = ({ children, content, open, changeCollapse, hasError = false, disabled = false }: CollapseProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleToogle = () => {
+    if (disabled) return;
     if (changeCollapse) {
       changeCollapse(!isOpen);
     }
@@ -17,12 +19,12 @@ const Collapse = ({ children, content, open, changeCollapse, hasError = false }:
   };
   useEffect(() => {
     setIsOpen(open || false);
-  }, [open]);
+  }, [disabled, open]);
   return (
     <div className={`w-full bg-[#466CF7A1] rounded-xl border-2 ${hasError ? " border-red-600" : "border-transparent"}`}>
-      <div
+      <button
         onClick={handleToogle}
-        className={`rounded-xl flex justify-between items-center gap-2 p-5 bg-[#466CF7A1] cursor-pointer border-b border-[#fff] transition-all duration-500 ease-in-out relative`}
+        className={`rounded-xl w-full outline-none focus:ring-0 focus:outline-none focus:border-b-2 flex justify-between items-center gap-2 p-5 bg-[#466CF7A1] cursor-pointer border-b border-[#fff] transition-all duration-500 ease-in-out relative`}
         style={{
           borderBottomRightRadius: isOpen ? 0 : undefined,
           borderBottomLeftRadius: isOpen ? 0 : undefined,
@@ -35,7 +37,9 @@ const Collapse = ({ children, content, open, changeCollapse, hasError = false }:
           </div>
         )}
         <div className='flex-1'>{children}</div>
-        <div className='w-[50px] flex justify-end '>
+        <div
+          className={`w-[16px] flex justify-end ${isOpen ? "rotate-180" : "rotate-0"} transition-all duration-500 ease-in-out`}
+        >
           <svg
             data-accordion-icon
             className='w-4 h-4 rotate-180 shrink-0'
@@ -47,7 +51,7 @@ const Collapse = ({ children, content, open, changeCollapse, hasError = false }:
             <path stroke='#fff' strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M9 5 5 1 1 5' />
           </svg>
         </div>
-      </div>
+      </button>
       <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? "max-h-[1000px]" : "max-h-0"}`}>
         <div className='body p-4 text-white'>{content}</div>
       </div>

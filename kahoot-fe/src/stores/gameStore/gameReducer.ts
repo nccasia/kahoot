@@ -8,10 +8,19 @@ export interface GameState {
   listGames: IGame[];
   filterGames: IGame[];
   selectedQuestion?: IQuestion;
+  oldQuestionData?: IQuestion;
   selectedGame?: IGame | null;
   loading: boolean;
   openModalSaveGame: boolean;
+  openModalConfirmDeleteGame: boolean;
+  openModalConfirmDeleteQuestion: boolean;
+  isUpdateQuestionOfGame: boolean;
+  isCreateQuestionOfGame: boolean;
+  isUpdateGame: boolean;
+  selectedGameId: string;
   currentGameId?: string;
+  isSubmitting: boolean;
+  isDeleting: boolean;
 }
 
 export const initGameState: GameState = {
@@ -21,6 +30,14 @@ export const initGameState: GameState = {
   selectedQuestion: undefined,
   loading: false,
   openModalSaveGame: false,
+  openModalConfirmDeleteGame: false,
+  openModalConfirmDeleteQuestion: false,
+  isUpdateQuestionOfGame: false,
+  isCreateQuestionOfGame: false,
+  isSubmitting: false,
+  isUpdateGame: false,
+  isDeleting: false,
+  selectedGameId: "",
   selectedGame: null,
 };
 
@@ -104,6 +121,69 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
       return {
         ...state,
         currentGameId: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_OPEN_MODAL_CONFIRM_DELETE_GAME: {
+      return {
+        ...state,
+        openModalConfirmDeleteGame: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_OPEN_MODAL_CONFIRM_DELETE_QUESTION: {
+      return {
+        ...state,
+        openModalConfirmDeleteQuestion: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_SELECTED_GAME_ID: {
+      return {
+        ...state,
+        selectedGameId: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_IS_UPDATE_QUESTION_OF_GAME: {
+      return {
+        ...state,
+        isUpdateQuestionOfGame: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_IS_CREATE_QUESTION_OF_GAME: {
+      return {
+        ...state,
+        isCreateQuestionOfGame: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_IS_UPDATE_GAME: {
+      return {
+        ...state,
+        isUpdateGame: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_OLD_QUESTION_DATA: {
+      return {
+        ...state,
+        oldQuestionData: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_IS_SUBMITTING: {
+      return {
+        ...state,
+        isSubmitting: action.payload,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_IS_DELETING_QUESTION: {
+      return {
+        ...state,
+        isDeleting: action.payload,
       };
     }
 

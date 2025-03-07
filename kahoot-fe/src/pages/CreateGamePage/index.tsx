@@ -30,7 +30,7 @@ const CreateGamePage = () => {
     const id = generateId(6, "mixed");
     const newQuestion: IQuestion = {
       id,
-      mode: "normal",
+      mode: "single_choice",
       title: "",
       time: 30,
       answerOptions: {
@@ -155,14 +155,19 @@ const CreateGamePage = () => {
             <Input
               value={gameData.name}
               onChange={(e) => handleChangeGameData("name", e.target.value)}
-              className='text-center placeholder-white w-full max-w-[500px]'
+              className='text-center placeholder-gray-400 w-full max-w-[500px]'
               placeholder='Tên game'
             />
           </div>
         </div>
         <div className='flex flex-col gap-3 mt-5'>
           {gameState.listQuestions.map((question, index) => (
-            <QuestionItem index={index + 1} key={index} question={question} />
+            <QuestionItem
+              isShowDeleteButton={gameState.listQuestions.length > 1}
+              index={index + 1}
+              key={index}
+              question={question}
+            />
           ))}
         </div>
         <div className='flex justify-center items-center gap-2 my-5'>

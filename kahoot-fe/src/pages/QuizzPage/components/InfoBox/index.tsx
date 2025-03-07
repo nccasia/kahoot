@@ -1,22 +1,16 @@
-import SocketEvents from "@/constants/SocketEvents";
 import { AuthContext } from "@/providers/ContextProvider/AuthProvider";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
-import { useSocket } from "@/providers/SocketProvider";
+import RoomActions from "@/stores/roomStore/roomAction";
 import randomResultAnswerText from "@/utils/functions/getAnswerText";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { toast } from "react-toastify";
 import TimeCountdown from "./TimeCountdown";
 import UserBox from "./UserBox";
 
-interface InfoBoxProps {
-  roomId: string;
-}
-const InfoBox = ({ roomId }: InfoBoxProps) => {
+const InfoBox = () => {
   const [time, setTime] = useState(30);
   const [key, setKey] = useState(0);
   const { authState } = useContext(AuthContext);
-  const { roomState } = useContext(RoomContext);
-  const socket = useSocket();
+  const { roomState, roomDispatch } = useContext(RoomContext);
 
   useEffect(() => {
     if (!roomState.currentQuestion?.id) return;
@@ -35,13 +29,7 @@ const InfoBox = ({ roomId }: InfoBoxProps) => {
   }, [roomState.currentQuestion?.id]);
 
   const handleFinishGame = () => {
-    // Finish game
-    if (!socket) return;
-    if (!roomState.isOwner) {
-      toast.warning("Chỉ chủ phòng mới có thể kết thúc trò chơi");
-      return;
-    }
-    socket.emit(SocketEvents.EMIT.OwnerFinishGame, roomId);
+    roomDispatch(RoomActions.changeOpenModalConfirmEndGame(true));
   };
 
   const handlePauseGame = () => {

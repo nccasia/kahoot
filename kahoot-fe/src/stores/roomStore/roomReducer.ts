@@ -22,6 +22,7 @@ export interface RoomState {
   isEndAnQuestion: boolean;
   isEndGame: boolean;
   isWaitingEndGame: boolean;
+  openMdoalConfirmEndGame: boolean;
   isReconecting?: boolean;
 }
 
@@ -40,6 +41,7 @@ export const initRoomState: RoomState = {
   isEndAnQuestion: false,
   isEndGame: false,
   isWaitingEndGame: false,
+  openMdoalConfirmEndGame: false,
   isReconecting: false,
 };
 
@@ -198,6 +200,12 @@ const RoomReducer = (state = initRoomState, action: AppActionType<ROOM_TYPE>): R
       return {
         ...state,
         isReconecting: action.payload,
+      };
+
+    case ROOM_TYPE.CHANGE_OPEN_MODAL_CONFIRM_END_GAME:
+      return {
+        ...state,
+        openMdoalConfirmEndGame: action.payload,
       };
 
     default:
