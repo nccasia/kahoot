@@ -27,7 +27,7 @@ const HomePage = () => {
     }
   }, [appDispatch, appState.isShowSplash]);
   return (
-    <div>
+    <div className='w-full'>
       <div
         className={`flex flex-col items-center justify-center h-screen opacity-0 gap-10 fadeIn`}
         style={{ animationDelay: appState.isShowSplash ? "7s" : "unset" }}
@@ -47,16 +47,16 @@ const HomePage = () => {
           </Button>
           <Button className='font-diablo text-xl sm:text-2xl md:text-3xl bg-[#B2ADFF]'>Cài Đặt</Button>
         </div>
-        <div className='max-w-[300px] w-full bg-[#3b3d3978] cursor-pointer min-h-[90px] rounded-lg flex items-center p-2 gap-2 shadow-xl filter brightness-100 hover:brightness-110 transition-all active:brightness-100'>
-          <div className='w-[70px] h-[70px] rounded-lg border-2 border-white p-2'>
+        <div className='max-w-[250px] fixed top-5 right-5 w-full bg-[#3b3d3978] cursor-pointer rounded-full flex items-center gap-2 shadow-xl filter brightness-100 hover:brightness-110 transition-all active:brightness-100'>
+          <span className='font-diablo flex-1 line-clamp-1'>{authState.currentUser?.userName ?? "ten.nguoichoi"} </span>
+          <div className='w-[50px] h-[50px] rounded-full border-2 border-white'>
             <div
-              className='w-full h-full  bg-center bg-contain rounded-md'
+              className='w-full h-full rounded-full  bg-center bg-contain'
               style={{
                 backgroundImage: `url(${authState.currentUser?.avatar || "/icons/icon-user.png"})`,
               }}
             ></div>
           </div>
-          <span className='font-diablo flex-1 line-clamp-1'>{authState.currentUser?.userName} </span>
         </div>
       </div>
       <div className='fadeOut' style={{ animationDelay: appState.isShowSplash ? "8s" : "unset" }}>
