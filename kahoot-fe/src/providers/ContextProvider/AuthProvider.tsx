@@ -6,7 +6,7 @@ import authServices from "@/services/authServices";
 import AuthActions, { AUTH_TYPE } from "@/stores/authStore/authAction";
 import AuthReducer, { AuthState, initAuthState } from "@/stores/authStore/authReducer";
 import { MezonAppEvent, MezonWebViewEvent } from "@/types/webview";
-import { getFromLocalStorage, setToLocalStorage } from "@/utils/localStorage";
+import { setToLocalStorage } from "@/utils/localStorage";
 import React, { Dispatch, createContext, useEffect, useReducer } from "react";
 
 type AuthDispatch = Dispatch<AppActionType<AUTH_TYPE>>;
@@ -52,24 +52,24 @@ const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element 
   }, []);
 
   useEffect(() => {
-    // if (!mezonUser || !userHashInfo) {
-    //   return;
-    // }
+    if (!mezonUser || !userHashInfo) {
+      return;
+    }
     const fetchUserToken = async () => {
-      const getTokenData: IGetTokenDTO = {
-        mezonUserId: getFromLocalStorage("mezonUserId") ?? "",
-        email: getFromLocalStorage("email") ?? "",
-        userName: getFromLocalStorage("userName") ?? "",
-        avatar: "https://mezon.imgix.net/default-avatar.png",
-        hashKey: "userHashInfo.hash",
-      };
       // const getTokenData: IGetTokenDTO = {
-      //   mezonUserId: mezonUser.user.id,
-      //   email: mezonUser.email,
-      //   userName: mezonUser.user.username,
-      //   avatar: mezonUser.user.avatar_url,
-      //   hashKey: userHashInfo.hash,
+      //   mezonUserId: getFromLocalStorage("mezonUserId") ?? "",
+      //   email: getFromLocalStorage("email") ?? "",
+      //   userName: getFromLocalStorage("userName") ?? "",
+      //   avatar: "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
+      //   hashKey: "userHashInfo.hash",
       // };
+      const getTokenData: IGetTokenDTO = {
+        mezonUserId: mezonUser.user.id,
+        email: mezonUser.email,
+        userName: mezonUser.user.username,
+        avatar: mezonUser.user.avatar_url,
+        hashKey: userHashInfo.hash,
+      };
       const data = await authServices.getToken(getTokenData);
       if (data.statusCode === 200 || data.statusCode === 201) {
         setToLocalStorage("accessToken", data.data.accessToken);

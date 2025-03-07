@@ -85,7 +85,7 @@ const QuizzPage = () => {
           }
         />
       )}
-      {roomState.isEndAnQuestion && roomState.isOwner && <ShowResult />}
+      {roomState.isEndAnQuestion && roomState.isOwner && !roomState.isEndGame && <ShowResult />}
       {roomState.isEndGame && <EndGame />}
       <ModalConfirm
         isOpen={roomState.openMdoalConfirmEndGame}

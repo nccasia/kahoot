@@ -24,11 +24,12 @@ const Collapse = ({ children, content, open, changeCollapse, hasError = false, d
     <div className={`w-full bg-[#466CF7A1] rounded-xl border-2 ${hasError ? " border-red-600" : "border-transparent"}`}>
       <button
         onClick={handleToogle}
-        className={`rounded-xl w-full outline-none focus:ring-0 focus:outline-none focus:border-b-2 flex justify-between items-center gap-2 p-5 bg-[#466CF7A1] cursor-pointer border-b border-[#fff] transition-all duration-500 ease-in-out relative`}
+        className={`rounded-xl w-full outline-none border-none focus:ring-0 focus:outline-none flex justify-between items-center gap-2 p-5 bg-[#466CF7A1] cursor-pointer transition-all duration-500 ease-in-out relative`}
         style={{
           borderBottomRightRadius: isOpen ? 0 : undefined,
           borderBottomLeftRadius: isOpen ? 0 : undefined,
-          borderColor: isOpen ? "#fff" : "transparent",
+          borderBottomWidth: "2px",
+          borderBottomColor: isOpen ? "#fff" : "transparent",
         }}
       >
         {hasError && (

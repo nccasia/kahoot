@@ -47,6 +47,17 @@ const GameDetail = () => {
     getGameQuestions();
   }, [gameDispatch, gameId]);
 
+  useEffect(() => {
+    gameDispatch(GameActions.changeOpenModalConfirmDeleteGame(false));
+    gameDispatch(GameActions.changeSelectedGameId(""));
+    gameDispatch(GameActions.changeOpenModalConfirmDeleteQuestion(false));
+    gameDispatch(GameActions.changeSelectedQuestion(""));
+    gameDispatch(GameActions.changeIsDeleting(false));
+    gameDispatch(GameActions.changeIsCreateQuestionOfGame(false));
+    gameDispatch(GameActions.changeIsUpdateQuestionOfGame(false));
+    gameDispatch(GameActions.changeIsUpdateGame(false));
+  }, [gameDispatch]);
+
   const handleCloseModalConfirmDeleteGame = () => {
     gameDispatch(GameActions.changeOpenModalConfirmDeleteGame(false));
     gameDispatch(GameActions.changeSelectedGameId(""));

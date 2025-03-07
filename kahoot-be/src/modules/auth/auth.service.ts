@@ -1,7 +1,7 @@
 import { SecurityOptions } from '@constants';
 import { MezonUserDto } from '@modules/user/dto/socket-user.dto';
 import { User } from '@modules/user/entities/user.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -42,12 +42,12 @@ export class AuthService {
     const secretKey = Hasher.HMAC_SHA256(botToken, 'WebAppData');
     const hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, hashParams));
 
-    // if (hashedData !== authDto.hashKey) {
-    //   throw new UnauthorizedException({
-    //     message:
-    //       'You are not authorized with Mezon, please login and try again',
-    //   });
-    // }
+    if (hashedData !== authDto.hashKey) {
+      throw new UnauthorizedException({
+        message:
+          'You are not authorized with Mezon, please login and try again',
+      });
+    }
 
     let storedUser = await this.usersRepository.findOne({
       where: {
