@@ -25,6 +25,7 @@ export enum ROOM_TYPE {
   CHANGE_IS_WAITING_END_GAME = "CHANGE_IS_WAITING_END_GAME",
   CHANGE_IS_RECONECTING = "CHANGE_IS_RECONECTING",
   CHANGE_TOTAL_QUESTION = "CHANGE_TOTAL_QUESTION",
+  CHANGE_OPEN_MODAL_CONFIRM_END_GAME = "CHANGE_OPEN_MODAL_CONFIRM_END_GAME",
 }
 
 const changeCurrentRoom = (currentRoom: IRoom): AppActionType<ROOM_TYPE> => {
@@ -174,6 +175,13 @@ const changeTotalQuestion = (totalQuestion: number): AppActionType<ROOM_TYPE> =>
   };
 };
 
+const changeOpenModalConfirmEndGame = (isOpen: boolean): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_OPEN_MODAL_CONFIRM_END_GAME,
+    payload: isOpen,
+  };
+};
+
 const RoomActions = {
   changeCurrentRoom,
   changeListMemberOfRoom,
@@ -196,5 +204,6 @@ const RoomActions = {
   changeIsWaitingEndGame,
   changeIsReconnecting,
   changeTotalQuestion,
+  changeOpenModalConfirmEndGame,
 };
 export default RoomActions;

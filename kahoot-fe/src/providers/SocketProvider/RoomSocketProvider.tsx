@@ -139,8 +139,9 @@ const RoomSocketProvider: React.FC = () => {
 
     socket.on(SocketEvents.ON.ServerEmitWaitGameFinished, (data) => {
       console.log("Server emit wait game finished", data);
-      // roomDispatch(RoomActions.changeIsWaitingEndGame(true));
+      roomDispatch(RoomActions.changeIsWaitingEndGame(true));
       roomDispatch(RoomActions.changeIsEndAnQuestion(true));
+      roomDispatch(RoomActions.changeIsSubmitAnswer(true));
     });
 
     return () => {

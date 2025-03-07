@@ -13,6 +13,15 @@ export enum GAME_TYPE {
   CHANGE_FILTER_GAMES = "CHANGE_FILTER_GAMES",
   CHANGE_SELECTED_GAME = "CHANGE_SELECTED_GAME",
   CHANGE_CURRETN_GAME_ID = "CHANGE_CURRETN_GAME_ID",
+  CHANGE_OPEN_MODAL_CONFIRM_DELETE_GAME = "CHANGE_OPEN_MODAL_CONFIRM_DELETE_GAME",
+  CHANGE_OPEN_MODAL_CONFIRM_DELETE_QUESTION = "CHANGE_OPEN_MODAL_CONFIRM_DELETE_QUESTION",
+  CHANGE_SELECTED_GAME_ID = "CHANGE_SELECTED_GAME_ID",
+  CHANGE_IS_SUBMITTING = "CHANGE_IS_SUBMITTING",
+  CHANGE_IS_UPDATE_QUESTION_OF_GAME = "CHANGE_IS_UPDATE_QUESTION_OF_GAME",
+  CHANGE_IS_UPDATE_GAME = "CHANGE_IS_UPDATE_GAME",
+  CHANGE_IS_CREATE_QUESTION_OF_GAME = "CHANGE_IS_CREATE_QUESTION_OF_GAME",
+  CHANGE_OLD_QUESTION_DATA = "CHANGE_OLD_QUESTION_DATA",
+  CHANGE_IS_DELETING_QUESTION = "CHANGE_IS_DELETING_QUESTION",
 }
 
 const addQuestion = (question: IQuestion): AppActionType<GAME_TYPE> => {
@@ -85,6 +94,69 @@ const changeCurrentGameId = (gameId?: string): AppActionType<GAME_TYPE> => {
   };
 };
 
+const changeOpenModalConfirmDeleteGame = (isOpen: boolean): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_OPEN_MODAL_CONFIRM_DELETE_GAME,
+    payload: isOpen,
+  };
+};
+
+const changeOpenModalConfirmDeleteQuestion = (isOpen: boolean): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_OPEN_MODAL_CONFIRM_DELETE_QUESTION,
+    payload: isOpen,
+  };
+};
+
+const changeSelectedGameId = (gameId: string): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_SELECTED_GAME_ID,
+    payload: gameId,
+  };
+};
+
+const changeIsUpdateQuestionOfGame = (isUpdate: boolean): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_IS_UPDATE_QUESTION_OF_GAME,
+    payload: isUpdate,
+  };
+};
+
+const changeIsUpdateGame = (isUpdate: boolean): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_IS_UPDATE_GAME,
+    payload: isUpdate,
+  };
+};
+
+const changeOldQuestionData = (question: IQuestion): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_OLD_QUESTION_DATA,
+    payload: question,
+  };
+};
+
+const changeIsCreateQuestionOfGame = (isCreate: boolean): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_IS_CREATE_QUESTION_OF_GAME,
+    payload: isCreate,
+  };
+};
+
+const changeIsSubmitting = (isSubmitting: boolean): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_IS_SUBMITTING,
+    payload: isSubmitting,
+  };
+};
+
+const changeIsDeleting = (isDeleting: boolean): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_IS_DELETING_QUESTION,
+    payload: isDeleting,
+  };
+};
+
 const GameActions = {
   addQuestion,
   deleteQuestion,
@@ -96,5 +168,14 @@ const GameActions = {
   changeFilterGames,
   changeSelectedGame,
   changeCurrentGameId,
+  changeOpenModalConfirmDeleteGame,
+  changeOpenModalConfirmDeleteQuestion,
+  changeSelectedGameId,
+  changeIsUpdateQuestionOfGame,
+  changeIsCreateQuestionOfGame,
+  changeIsUpdateGame,
+  changeOldQuestionData,
+  changeIsSubmitting,
+  changeIsDeleting,
 };
 export default GameActions;

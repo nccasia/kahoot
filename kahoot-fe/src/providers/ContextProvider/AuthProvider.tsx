@@ -56,6 +56,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element 
       return;
     }
     const fetchUserToken = async () => {
+      // const getTokenData: IGetTokenDTO = {
+      //   mezonUserId: getFromLocalStorage("mezonUserId") ?? "",
+      //   email: getFromLocalStorage("email") ?? "",
+      //   userName: getFromLocalStorage("userName") ?? "",
+      //   avatar: "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
+      //   hashKey: "userHashInfo.hash",
+      // };
       const getTokenData: IGetTokenDTO = {
         mezonUserId: mezonUser.user.id,
         email: mezonUser.email,
