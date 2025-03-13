@@ -110,6 +110,15 @@ export class RoomGateway
       });
       return;
     }
+
+    const countRoomPlayer = await this.roomCacheService.countRoomUsers(roomId);
+    if (countRoomPlayer < 1) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: `Game cannot be start because it has no player`,
+      });
+      return;
+    }
+
     await this.roomsRepository.update(
       { id: roomId },
       { status: RoomStatus.InProgress },
@@ -194,6 +203,11 @@ export class RoomGateway
         userId,
         isOwner: isOwner,
       });
+    } else {
+      this.roomUsersRepository.update(
+        { roomId: room.id, userId: userId },
+        { isLeave: false },
+      );
     }
 
     const isJoined = await this.roomCacheService.isJoinedRoom(room.id, userId);
@@ -228,17 +242,17 @@ export class RoomGateway
       });
       return;
     }
-    const roomStatus = await this.roomsRepository.findOne({
-      where: {
-        id: roomId,
-      },
-    });
-    if (roomStatus?.status === RoomStatus.Waiting) {
-      this.roomUsersRepository.delete({
-        roomId,
-        userId: client.user.userId,
-      });
-    }
+    // const roomStatus = await this.roomsRepository.findOne({
+    //   where: {
+    //     id: roomId,
+    //   },
+    // });
+    // if (roomStatus?.status === RoomStatus.Waiting) {
+    //   this.roomUsersRepository.delete({
+    //     roomId,
+    //     userId: client.user.userId,
+    //   });
+    // }
 
     this.roomUsersRepository.update(
       { roomId, userId: client.user.userId },
@@ -384,7 +398,7 @@ export class RoomGateway
         userId: client.user.userId,
         isLeave: false,
         room: {
-          status: RoomStatus.InProgress,
+          status: Not(RoomStatus.Finished),
         },
       },
       relations: ['user', 'room'],
@@ -397,6 +411,11 @@ export class RoomGateway
           client.user,
         ));
 
+      await this.roomUsersRepository.update(
+        { roomId: playingRoom.roomId, userId: client.user.userId },
+        { isLeave: false },
+      );
+
       const socketMembers = await this.roomCacheService.getRoomUsers(
         playingRoom?.roomId,
       );
@@ -405,6 +424,8 @@ export class RoomGateway
       client.emit(RoomServerEvent.UserReconnectedRoom, {
         gameId: playingRoom?.room?.gameId,
         roomId: playingRoom?.roomId,
+        roomCode: playingRoom?.room?.code,
+        roomStatus: playingRoom?.room?.status,
         isOwner: playingRoom?.isOwner,
         members: socketMembers,
       });
@@ -414,50 +435,52 @@ export class RoomGateway
           .to(playingRoom.roomId)
           .emit(RoomServerEvent.ServerEmitUserJoinRoom, client.user);
 
-      setTimeout(async () => {
-        const currentRoomQuestion =
-          await this.roomCacheService.getCurrentQuestion(playingRoom.roomId);
+      if (playingRoom.room.status === RoomStatus.InProgress) {
+        setTimeout(async () => {
+          const currentRoomQuestion =
+            await this.roomCacheService.getCurrentQuestion(playingRoom.roomId);
 
-        const lastTotalPoint = await this.roomCacheService.getUserTotalPoint(
-          playingRoom.roomId,
-          client.user.userId,
-        );
-
-        if (!currentRoomQuestion) {
-          client.emit(RoomServerEvent.ServerEmitWaitNextQuestion, {
-            message:
-              'Question has been finished, please wait for next question',
-            lastTotalPoint: lastTotalPoint,
-          });
-          return;
-        }
-
-        const gameQuestion = plainToInstance(
-          GameQuestionDto,
-          currentRoomQuestion,
-          {
-            excludeExtraneousValues: true,
-          },
-        );
-
-        const submitedAnswer =
-          await this.roomCacheService.getUserSubmittedAnswer(
+          const lastTotalPoint = await this.roomCacheService.getUserTotalPoint(
             playingRoom.roomId,
-            currentRoomQuestion.id,
             client.user.userId,
           );
 
-        client.emit(RoomServerEvent.ServerEmitCurrentQuestion, {
-          currentQuestion: gameQuestion,
-          submitedAnswer: submitedAnswer
-            ? {
-                answerIndex: submitedAnswer.answerIndex,
-                submitedAt: submitedAnswer.submittedAt,
-                submitedQuestionId: submitedAnswer.questionId,
-              }
-            : null,
-        });
-      }, RECONNECT_WAIT_TIME * 1000);
+          if (!currentRoomQuestion) {
+            client.emit(RoomServerEvent.ServerEmitWaitNextQuestion, {
+              message:
+                'Question has been finished, please wait for next question',
+              lastTotalPoint: lastTotalPoint,
+            });
+            return;
+          }
+
+          const gameQuestion = plainToInstance(
+            GameQuestionDto,
+            currentRoomQuestion,
+            {
+              excludeExtraneousValues: true,
+            },
+          );
+
+          const submitedAnswer =
+            await this.roomCacheService.getUserSubmittedAnswer(
+              playingRoom.roomId,
+              currentRoomQuestion.id,
+              client.user.userId,
+            );
+
+          client.emit(RoomServerEvent.ServerEmitCurrentQuestion, {
+            currentQuestion: gameQuestion,
+            submitedAnswer: submitedAnswer
+              ? {
+                  answerIndex: submitedAnswer.answerIndex,
+                  submitedAt: submitedAnswer.submittedAt,
+                  submitedQuestionId: submitedAnswer.questionId,
+                }
+              : null,
+          });
+        }, RECONNECT_WAIT_TIME * 1000);
+      }
     }
 
     client.on('disconnecting', async () => {
@@ -475,16 +498,11 @@ export class RoomGateway
       if (currentRoomIds) {
         currentRoomIds.forEach(async (room) => {
           this.roomCacheService.removeRoomUser(room.roomId, client.user);
-        });
-      }
-
-      const socketRooms = Array.from(client.rooms).filter(
-        (el) => el !== client.id,
-      );
-
-      if (socketRooms.length !== 0) {
-        this.server.to(socketRooms).emit(RoomServerEvent.ServerEmitLeaveRoom, {
-          userId: client.user.userId,
+          this.server
+            .to(room.roomId)
+            .emit(RoomServerEvent.ServerEmitLeaveRoom, {
+              userId: client.user.userId,
+            });
         });
       }
 
