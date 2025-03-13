@@ -22,11 +22,11 @@ const QuestionBox = ({
     <div className='p-4 mt-2 flex flex-col gap-4 w-full h-full font-diablo'>
       {question?.order && <div className='p-2 font-diablo text-center text-white'>question {question?.order}</div>}
       {question?.title && (
-        <div className='min-h-[200px] bg-[#ccccccb5] text-white w-full rounded-xl flex items-center justify-center p-2 select-none '>
+        <div className='min-h-[30%] flex-1 bg-[#ccccccb5] text-white w-full rounded-xl flex items-center justify-center p-2 select-none '>
           <p>{question?.title}</p>
         </div>
       )}
-      <div className='grid grid-cols-2 gap-4 mt-4 w-full'>
+      <div className='grid grid-cols-2 gap-4 mt-4 w-full min-h-[50%]'>
         {question?.answerOptions?.options?.map((option, index) => (
           <Button
             onClick={() => onSendAnswer(question.id, index)}

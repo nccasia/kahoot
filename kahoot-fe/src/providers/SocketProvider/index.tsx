@@ -48,13 +48,18 @@ export const SocketProvider = () => {
       });
 
       socket.current.on(SocketEvents.ON.UserReconnectedRoom, (data: IJoinRoomResponse) => {
-        const { roomId, members, isOwner, gameId } = data;
-        roomDispatch(RoomActions.changeListMemberOfRoom(members));
+        const { roomId, members, isOwner, gameId, roomStatus } = data;
         roomDispatch(RoomActions.changeIsOwner(isOwner));
-        roomDispatch(RoomActions.changeIsReconnecting(true));
-        roomDispatch(RoomActions.changeIsReconnecting(true));
-        roomDispatch(RoomActions.changeIsWaiting(false));
+        roomDispatch(RoomActions.changeListMemberOfRoom(members));
         gameDispatch(GameActions.changeCurrentGameId(gameId));
+        roomDispatch(RoomActions.changeIsWaiting(false));
+
+        if (roomStatus === "waiting") {
+          navigate(ROUTES.WAITING_ROOM.replace(":roomId", roomId));
+          return;
+        }
+
+        roomDispatch(RoomActions.changeIsReconnecting(true));
         navigate(ROUTES.QUIZZ.replace(":roomId", roomId));
       });
 

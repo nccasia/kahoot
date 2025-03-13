@@ -16,6 +16,7 @@ export interface IJoinRoomResponse {
   roomId: string;
   isOwner: boolean;
   members: ICurrentUser[];
+  roomStatus: string;
 }
 
 export interface IUserRanking {

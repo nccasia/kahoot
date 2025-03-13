@@ -9,7 +9,7 @@ const TopRank = ({ top3 }: TopRankProps) => {
       <div className='w-1/3'>
         {top3[1] && (
           <div className='font-diablo text-lg flex flex-col justify-center items-center'>
-            <img className='w-[70px] rounded-full mb-2' src={top3[1]?.avatar ?? "/icons/icon-user.png"} />
+            <img className='w-[70px] h-[70px] rounded-full mb-2' src={top3[1]?.avatar ?? "/icons/icon-user.png"} />
             <h5>{top3[1]?.userName}</h5>
             <div className='flex justify-center items-center gap-2 py-3 mt-3 px-5 mb-3 rounded-full bg-black '>
               <img className='w-[30px] h-[30px]' src='/icons/StarIcon.png' />
@@ -26,7 +26,7 @@ const TopRank = ({ top3 }: TopRankProps) => {
       <div className='w-1/3'>
         {top3[0] && (
           <div className='font-diablo text-lg flex flex-col justify-center items-center'>
-            <img className='w-[70px] rounded-full mb-2' src={top3[0]?.avatar ?? "/icons/icon-user.png"} />
+            <img className='w-[70px] h-[70px] rounded-full mb-2' src={top3[0]?.avatar ?? "/icons/icon-user.png"} />
             <h5>{top3[0]?.userName}</h5>
             <div className='flex justify-center items-center gap-2 py-3 mt-3 px-5 mb-3 rounded-full bg-black '>
               <img className='w-[30px] h-[30px]' src='/icons/StarIcon.png' />
@@ -43,7 +43,7 @@ const TopRank = ({ top3 }: TopRankProps) => {
       <div className='w-1/3'>
         {top3[2] && (
           <div className='font-diablo text-lg flex flex-col justify-center items-center'>
-            <img className='w-[70px] rounded-full mb-2' src={top3[2]?.avatar ?? "/icons/icon-user.png"} />
+            <img className='w-[70px] h-[70px] rounded-full mb-2' src={top3[2]?.avatar ?? "/icons/icon-user.png"} />
             <h5>{top3[2]?.userName}</h5>
             <div className='flex justify-center items-center gap-2 py-3 mt-3 px-5 mb-3 rounded-full bg-black '>
               <img className='w-[30px] h-[30px]' src='/icons/StarIcon.png' />
