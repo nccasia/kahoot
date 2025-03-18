@@ -38,8 +38,6 @@ export class AuthService {
     const hashedData = Hasher.HEX(
       Hasher.HMAC_SHA256(secretKey, hashParamsString),
     );
-    console.log('hashedData: ', hashedData);
-    console.log('hash: ', hash);
     if (hashedData !== hash) {
       throw new UnauthorizedException({
         message:
