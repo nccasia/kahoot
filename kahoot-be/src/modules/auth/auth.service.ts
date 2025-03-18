@@ -1,14 +1,16 @@
 import { SecurityOptions } from '@constants';
-import { MezonUserDto } from '@modules/user/dto/socket-user.dto';
+import { MezonHashUser } from '@modules/user/dto/socket-user.dto';
 import { User } from '@modules/user/entities/user.entity';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
+import { Base64 } from 'js-base64';
+import * as queryString from 'query-string';
 import { Hasher } from 'src/utils';
 import { Repository } from 'typeorm';
-import { HashDto, MezonAuthDto } from './dto/mezon-auth.dto';
+import { HashData, MezonAuthDto } from './dto/mezon-auth.dto';
 import { ResponseToken } from './types';
 
 @Injectable()
@@ -21,28 +23,24 @@ export class AuthService {
   ) {}
 
   async getAccessTokenAsync(authDto: MezonAuthDto) {
-    const mezonUser = plainToInstance(MezonUserDto, authDto, {
-      excludeExtraneousValues: true,
+    const { hashData } = authDto;
+    const rawHashData = Base64.decode(hashData);
+    const mezonEventData: any = queryString.parse(rawHashData, {
+      sort: false,
     });
 
-    const preHashData = plainToInstance(
-      HashDto,
-      { userid: mezonUser.mezonUserId, username: mezonUser.userName },
-      {
-        excludeExtraneousValues: true,
-      },
-    );
-
-    const dataKeys = Object.keys(preHashData).sort();
-    const hashParams = dataKeys
-      .map((key) => `${key}=${preHashData[key]}`)
-      .join('\n');
+    const { hash, ...hashParams } = mezonEventData as HashData;
+    const mezonUser = JSON.parse(hashParams?.user) as MezonHashUser;
+    const hashParamsString = queryString.stringify(hashParams, { sort: false });
 
     const botToken = this.configService.getOrThrow('MEZON_APP_SECRET');
     const secretKey = Hasher.HMAC_SHA256(botToken, 'WebAppData');
-    const hashedData = Hasher.HEX(Hasher.HMAC_SHA256(secretKey, hashParams));
-
-    if (hashedData !== authDto.hashKey) {
+    const hashedData = Hasher.HEX(
+      Hasher.HMAC_SHA256(secretKey, hashParamsString),
+    );
+    console.log('hashedData: ', hashedData);
+    console.log('hash: ', hash);
+    if (hashedData !== hash) {
       throw new UnauthorizedException({
         message:
           'You are not authorized with Mezon, please login and try again',
@@ -51,8 +49,8 @@ export class AuthService {
 
     let storedUser = await this.usersRepository.findOne({
       where: {
-        mezonUserId: mezonUser.mezonUserId,
-        userName: mezonUser.userName,
+        mezonUserId: mezonUser.id,
+        userName: mezonUser.username,
       },
     });
     if (!storedUser) {
@@ -63,7 +61,7 @@ export class AuthService {
     }
     const token = await this.buildToken({
       ...storedUser,
-      avatar: mezonUser?.avatar,
+      avatar: mezonUser?.avatar_url,
     });
 
     return plainToInstance(

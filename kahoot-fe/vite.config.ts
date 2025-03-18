@@ -10,6 +10,6 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ["doban.vncsoft.com"],
+    allowedHosts: true
   },
 });

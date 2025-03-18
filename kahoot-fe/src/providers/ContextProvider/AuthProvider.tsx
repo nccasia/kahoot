@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import ENV from "@/constants/Environment";
 import { AppActionType } from "@/interfaces/appTypes";
-import { ICurrentUser, IGetTokenDTO, IMezonUser, IUserHashInfo } from "@/interfaces/authTypes";
+import { ICurrentUser, IGetTokenDTO, IMezonUser } from "@/interfaces/authTypes";
 import authServices from "@/services/authServices";
 import AuthActions, { AUTH_TYPE } from "@/stores/authStore/authAction";
 import AuthReducer, { AuthState, initAuthState } from "@/stores/authStore/authReducer";
 import { MezonAppEvent, MezonWebViewEvent } from "@/types/webview";
 import { setToLocalStorage } from "@/utils/localStorage";
+import { Base64 } from "js-base64";
 import React, { Dispatch, createContext, useEffect, useReducer } from "react";
 
 type AuthDispatch = Dispatch<AppActionType<AUTH_TYPE>>;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<{ authState: AuthState; authDispatch: AuthDispatch }>({
   authState: initAuthState,
   authDispatch: () => {}, // Provide a default function to avoid TypeScript errors
@@ -19,13 +21,16 @@ export const AuthContext = createContext<{ authState: AuthState; authDispatch: A
 const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [authState, authDispatch] = useReducer(AuthReducer, initAuthState);
   const [mezonUser, setMezonUser] = React.useState<IMezonUser | null>(null);
-  const [userHashInfo, setUserHashInfo] = React.useState<IUserHashInfo | null>(null);
+  const [userHashData, setUserHashData] = React.useState<string | null>(null);
 
   useEffect(() => {
     window.Mezon.WebView?.postEvent("PING" as MezonWebViewEvent, { message: "PING" }, () => {});
     window.Mezon.WebView?.postEvent("SEND_BOT_ID" as MezonWebViewEvent, { appId: ENV.APP_ID }, () => {});
-    window.Mezon.WebView?.onEvent("USER_HASH_INFO" as MezonAppEvent, async (_, userHashData: any) => {
-      setUserHashInfo(userHashData.message as IUserHashInfo);
+    window.Mezon.WebView?.onEvent("USER_HASH_INFO" as MezonAppEvent, async (_, data: any) => {
+      const mezonEventData: string | null | undefined = data?.message?.web_app_data;
+      if (mezonEventData) {
+        setUserHashData(Base64.encode(mezonEventData));
+      }
     });
     window.Mezon.WebView?.onEvent("CURRENT_USER_INFO" as MezonAppEvent, async (_, userData: any) => {
       if (!userData || !userData.user) {
@@ -52,40 +57,29 @@ const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.Element 
   }, []);
 
   useEffect(() => {
-    if (!mezonUser || !userHashInfo) {
+    if (!mezonUser || !userHashData) {
       return;
     }
     const fetchUserToken = async () => {
-      // const getTokenData: IGetTokenDTO = {
-      //   mezonUserId: getFromLocalStorage("mezonUserId") ?? "",
-      //   email: getFromLocalStorage("email") ?? "",
-      //   userName: getFromLocalStorage("userName") ?? "",
-      //   avatar: "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
-      //   hashKey: "userHashInfo.hash",
-      // };
       const getTokenData: IGetTokenDTO = {
-        mezonUserId: mezonUser.user.id,
-        email: mezonUser.email,
-        userName: mezonUser.user.username,
-        avatar: mezonUser.user.avatar_url,
-        hashKey: userHashInfo.hash,
+        hashData: userHashData,
       };
       const data = await authServices.getToken(getTokenData);
       if (data.statusCode === 200 || data.statusCode === 201) {
         setToLocalStorage("accessToken", data.data.accessToken);
         const currentUser: ICurrentUser = {
           userId: data.data.userId,
-          mezonUserId: getTokenData.mezonUserId,
+          mezonUserId: mezonUser.user.id,
           userName: data.data.userName,
-          avatar: getTokenData.avatar,
+          avatar: mezonUser.user.avatar_url,
           accessToken: data.data.accessToken,
-          email: getTokenData.email,
+          email: data.data.email ?? mezonUser.email,
         };
         authDispatch(AuthActions.changeCurrentUser(currentUser));
       }
     };
     fetchUserToken();
-  }, [mezonUser, userHashInfo]);
+  }, [mezonUser, userHashData]);
 
   return <AuthContext.Provider value={{ authState, authDispatch }}>{children}</AuthContext.Provider>;
 };

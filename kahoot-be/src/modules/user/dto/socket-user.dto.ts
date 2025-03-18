@@ -24,6 +24,24 @@ export class MezonUserDto {
   avatar?: string;
 }
 
+export class MezonHashUser {
+  @Expose()
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+  @Expose()
+  @IsNotEmpty()
+  @IsString()
+  mezon_id: string;
+  @Expose()
+  @IsNotEmpty()
+  @IsString()
+  username: string;
+  @Expose()
+  display_name?: string;
+  @Expose()
+  avatar_url?: string;
+}
 export class SocketUser extends MezonUserDto {
   @Expose()
   userId: string;

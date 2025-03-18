@@ -1,21 +1,29 @@
-import { MezonUserDto } from '@modules/user/dto/socket-user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class MezonAuthDto extends MezonUserDto {
+export class MezonAuthDto {
   @ApiProperty()
   @Expose()
   @IsNotEmpty()
   @IsString()
-  hashKey: string;
+  hashData: string;
 }
 
-export class HashDto {
+export class HashData {
   @IsString()
   @Expose()
-  userid: string;
+  query_id: string;
   @IsString()
   @Expose()
-  username: string;
+  user: string;
+  @IsNumber()
+  @Expose()
+  auth_date: number;
+  @IsString()
+  @Expose()
+  signature: string;
+  @IsString()
+  @Expose()
+  hash: string;
 }

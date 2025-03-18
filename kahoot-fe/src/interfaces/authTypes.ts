@@ -8,11 +8,7 @@ export interface IRegisterData {
   fullName: string;
 }
 export interface IGetTokenDTO {
-  mezonUserId: string;
-  email: string;
-  userName: string;
-  avatar: string;
-  hashKey: string;
+  hashData: string;
 }
 
 export interface IGetTokenResponse {
