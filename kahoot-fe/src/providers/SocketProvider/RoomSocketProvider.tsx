@@ -62,7 +62,7 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
       roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
-      roomDispatch(RoomActions.changeListQuestionAnalysis([]));
+      roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
 
       if (data.submitedAnswer) {
         roomDispatch(RoomActions.changeSelectedAnswer(data.submitedAnswer.answerIndex));
@@ -79,7 +79,7 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
       roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
-      roomDispatch(RoomActions.changeListQuestionAnalysis([]));
+      roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
       roomDispatch(RoomActions.changeSubmitedUser(0));
       roomDispatch(RoomActions.changeSelectedAnswer(undefined));
       roomDispatch(RoomActions.changeUserPoint(undefined));
@@ -98,7 +98,7 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
       roomDispatch(RoomActions.changeIsReconnecting(false));
       roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
-      roomDispatch(RoomActions.changeListQuestionAnalysis([]));
+      roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
       roomDispatch(RoomActions.changeSubmitedUser(0));
       roomDispatch(RoomActions.changeSelectedAnswer(undefined));
       roomDispatch(RoomActions.changeCurrentQuestionPoint(0));
@@ -111,8 +111,14 @@ const RoomSocketProvider: React.FC = () => {
     });
 
     socket.on(SocketEvents.ON.ServerEmitCorrectAnswer, (data) => {
+      console.log("Server emit correct answer", data);
       roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(data?.correctIndex));
-      roomDispatch(RoomActions.changeListQuestionAnalysis(data?.questionAnalysis));
+      roomDispatch(
+        RoomActions.changeListQuestionAnalysis({
+          totalOptions: data?.totalOptions,
+          listQuestionAnalysis: data?.questionAnalysis,
+        })
+      );
     });
 
     socket.on(SocketEvents.ON.ServerEmitWaitNextQuestion, (data) => {

@@ -1,5 +1,6 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import SelectDropdown from "@/components/SelectDropdown";
 import { IQuestion } from "@/interfaces/questionTypes";
 interface IQuestionContentProps {
   question: IQuestion;
@@ -12,7 +13,15 @@ interface IQuestionContentProps {
   dataUpdate: IQuestion;
   changeDataUpdate: (data: IQuestion) => void;
 }
-
+const timeOptions: Array<{
+  label: string;
+  value: number;
+}> = [
+  { label: "15s", value: 15 },
+  { label: "30s", value: 30 },
+  { label: "45s", value: 45 },
+  { label: "60s", value: 60 },
+];
 const QuestionContent = ({
   question,
   onOpenModalConfirmDeleteQuestion,
@@ -45,6 +54,44 @@ const QuestionContent = ({
       ...dataUpdate,
     };
     newQuestion.answerOptions.correctIndex = index;
+    changeDataUpdate(newQuestion);
+  };
+
+  const handleChangeTime = (option: { label: string; value: number | string }) => {
+    const newQuestion = {
+      ...dataUpdate,
+      time: option.value as number,
+    };
+    changeDataUpdate(newQuestion);
+  };
+
+  const handleAddAnswer = () => {
+    if (dataUpdate.answerOptions.options.length >= 4) return;
+    const newQuestion = {
+      ...dataUpdate,
+      answerOptions: {
+        ...dataUpdate.answerOptions,
+        options: [...dataUpdate.answerOptions.options, ""],
+      },
+    };
+    changeDataUpdate(newQuestion);
+  };
+
+  const handleDeleteAnswer = (index: number) => {
+    if (dataUpdate.answerOptions.options.length <= 2) return;
+    const newQuestion = {
+      ...dataUpdate,
+      answerOptions: {
+        ...dataUpdate.answerOptions,
+        options: dataUpdate.answerOptions.options.filter((_, i) => i !== index),
+      },
+    };
+    if (
+      newQuestion.answerOptions.correctIndex &&
+      newQuestion.answerOptions.correctIndex >= newQuestion.answerOptions.options.length
+    ) {
+      newQuestion.answerOptions.correctIndex = null;
+    }
     changeDataUpdate(newQuestion);
   };
 
@@ -84,8 +131,24 @@ const QuestionContent = ({
                       className='rounded-lg w-full pl-11 font-coiny'
                     />
                   </div>
+                  <div className='w-16 flex justify-end items-center'>
+                    <span
+                      onClick={() => handleDeleteAnswer(index)}
+                      className='w-[40px] h-[40px] p-3 flex items-center justify-center bg-[#6B00E7] rounded-md cursor-pointer hover:bg-red-500 transition-all'
+                    >
+                      <img src='/icons/CloseIcon.png' />
+                    </span>
+                  </div>
                 </div>
               ))}
+            </div>
+            <div className='flex'>
+              <div className='ml-[208px] flex gap-2'>
+                <Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
+                  <img className='w-10' src='/icons/PlusIcon.png' />
+                </Button>
+                <SelectDropdown selectedValue={question.time} options={timeOptions} onSelect={handleChangeTime} />
+              </div>
             </div>
           </>
         ) : (

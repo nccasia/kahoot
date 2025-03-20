@@ -88,6 +88,12 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         options: question.answerOptions.options.filter((_, i) => i !== index),
       },
     };
+    if (
+      newQuestion.answerOptions.correctIndex &&
+      newQuestion.answerOptions.correctIndex >= newQuestion.answerOptions.options.length
+    ) {
+      newQuestion.answerOptions.correctIndex = null;
+    }
     if (question.isError) {
       newQuestion.isError = !checkQuestionData(newQuestion);
     }
@@ -95,7 +101,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
   };
 
   const handleAddAnswer = () => {
-    if (question.answerOptions.options.length >= 6) return;
+    if (question.answerOptions.options.length >= 4) return;
     const newQuestion = {
       ...question,
       answerOptions: {

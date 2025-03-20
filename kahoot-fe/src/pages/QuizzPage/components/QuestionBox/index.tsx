@@ -37,7 +37,7 @@ const QuestionBox = ({
             }}
             size='large'
             disabled={isSubmitAnswer || isOwner}
-            className={` flex items-center justify-center rounded-xl min-h-[130px] p-2 transition-all filter  text-white text-xl 
+            className={` flex items-center justify-center rounded-xl min-h-[130px] max-h-[200px] p-2 transition-all filter  text-white text-xl 
                ${
                  !isSubmitAnswer && !isOwner
                    ? "hover:brightness-110 active:brightness-100 select-none cursor-pointer"

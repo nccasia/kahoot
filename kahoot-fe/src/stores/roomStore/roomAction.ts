@@ -98,10 +98,13 @@ const changeCorrectAnswerOfCurrentQuestion = (correctAnswer: number): AppActionT
   };
 };
 
-const changeListQuestionAnalysis = (listQuestionAnalysis: IQuestionAnalyst[]): AppActionType<ROOM_TYPE> => {
+const changeListQuestionAnalysis = (data: {
+  totalOptions: number;
+  listQuestionAnalysis: IQuestionAnalyst[];
+}): AppActionType<ROOM_TYPE> => {
   return {
     type: ROOM_TYPE.CHANGE_LIST_QUESTION_ANALYSIS,
-    payload: listQuestionAnalysis,
+    payload: data,
   };
 };
 
