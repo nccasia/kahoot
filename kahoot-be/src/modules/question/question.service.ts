@@ -1,6 +1,6 @@
 import { QueryOptionsHelper } from '@base/decorators/query-options.decorator';
 import { QueryOptionsDto } from '@base/dtos/query-options.dto';
-import { ERROR_CODES } from '@constants';
+import { ERROR_CODES, MAX_QUESTION_OPTIONS } from '@constants';
 import { AccessTokenPayload } from '@modules/auth/types';
 import { Game } from '@modules/game/entities/game.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
@@ -23,6 +23,20 @@ export class QuestionService {
     gameId: string,
     payload: AccessTokenPayload,
   ) {
+    const isQuestionInvalid = createQuestionDtoes.some((question) => {
+      return (
+        question.answerOptions.options.length < 2 ||
+        question.answerOptions.options.length > MAX_QUESTION_OPTIONS
+      );
+    });
+
+    if (isQuestionInvalid) {
+      throw new BadRequestException({
+        message: `Question options must be between 2 and ${MAX_QUESTION_OPTIONS}`,
+        errorCode: ERROR_CODES.QUESTION.QUESTION_LIMIT_EXCEEDED,
+      });
+    }
+
     const game = await this.gameRepository.findOne({
       where: { id: gameId, ownerId: payload.userId },
     });

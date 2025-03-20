@@ -721,6 +721,7 @@ export class RoomGateway
     // Emit correct answer to room
     this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
       questionId: rawGameQuestion.id,
+      totalOptions: rawGameQuestion?.answerOptions?.options?.length,
       correctIndex: rawGameQuestion.correctIndex,
       questionAnalysis: questionAnalysis,
     });

@@ -11,7 +11,7 @@ export class RawGameQuestionDto extends PickType(Question, [
 ]) {
   @ApiProperty({ type: () => SingleChoiceGameAnswerOptions, isArray: true })
   @Expose()
-  answerOptions: SingleChoiceGameAnswerOptions[];
+  answerOptions: SingleChoiceGameAnswerOptions;
   @ApiProperty()
   @Expose()
   correctIndex: number;

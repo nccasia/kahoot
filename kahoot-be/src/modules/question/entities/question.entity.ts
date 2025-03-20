@@ -44,7 +44,7 @@ export class Question extends AbstractEntity {
 
   @ApiProperty({ type: () => SingleChoiceAnswerOptionsDto })
   @IsNotEmpty()
-  @ValidateNested()
+  @ValidateNested({ each: true })
   // more type. like multiple choice ...
   @Type(() => SingleChoiceAnswerOptionsDto)
   @Column({ type: 'json' })
