@@ -55,23 +55,23 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
   };
   return (
     <div className='left-box max-w-[350px] p-2 w-full border-r-2 border-[#1C0C8E] bg-[#6b00e78a]'>
-      <div className='flex justify-center font-diablo text-xl items-center min-h-[60px] border-b-2 border-[#1C0C8E] py-2'>
+      <div className='flex justify-center font-coiny text-xl items-center min-h-[60px] border-b-2 border-[#1C0C8E] py-2'>
         <span>{gameInfo?.name}</span>
       </div>
-      <div className='flex flex-col gap-2 p-2 justify-center items-center'>
-        <div className='flex gap-2'>
-          <Button onClick={handleBackToListGame} className='text-center bg-[#e93d3d] font-diablo w-full max-w-[250px]'>
+      <div className='flex flex-col gap-3 p-2 justify-center items-center'>
+        <div className='flex gap-3 w-full'>
+          <Button onClick={handleBackToListGame} className='text-center bg-[#e93d3d] font-coiny text-lg w-full max-w-[270px]'>
             Quay lại
           </Button>
-          <Button onClick={handleDeleteGame} className='text-center bg-[#ded525] font-diablo w-full max-w-[250px]'>
+          <Button onClick={handleDeleteGame} className='text-center bg-[#ded525] font-coiny text-lg w-full max-w-[270px]'>
             Xoá Game
           </Button>
         </div>
-        <Button onClick={createNewGame} className='text-center bg-[#6BB3E0] font-diablo w-full max-w-[250px]'>
+        <Button onClick={createNewGame} className='text-center bg-[#6BB3E0] font-coiny text-lg w-full'>
           Bắt đầu game mới
         </Button>
       </div>
-      <div className='font-diablo mt-5'>
+      <div className='font-coiny mt-5'>
         <div className='flex justify-between items-center mt-3'>
           <span className='mr-2'>Tổng số câu hỏi:</span>
           <span>{totalQuestion ?? 0}</span>

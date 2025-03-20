@@ -53,20 +53,20 @@ const SearchGamePage = () => {
             </div>
           </h1>
         </div>
-        <div className='w-full max-w-[400px] min-h-[150px] bg-[#ba85ff] rounded-lg flex-col flex items-center justify-center p-4 font-diablo'>
+        <div className='w-full max-w-[400px] min-h-[150px] bg-[#ba85ff] rounded-lg flex-col flex items-center justify-center p-4 font-coiny'>
           <input
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             type='text'
             placeholder='Nhập mã pin'
             maxLength={6}
-            className='w-full text-center text-white placeholder:text-white bg-transparent border-2 border-gray-500 p-2 rounded-lg  focus:border-2 focus-within:bottom-2 focus-visible:border-2 outline-none focus:border-gray-900'
+            className='w-full text-center text-xl text-white placeholder:text-white bg-transparent border-2 border-gray-500 p-2 rounded-lg  focus:border-2 focus-within:bottom-2 focus-visible:border-2 outline-none focus:border-gray-900'
           />
-          <div className='flex w-full gap-2'>
-            <Button onClick={handleBackToListGame} className='w-full flex-1 mt-2 bg-[#d43d3d]'>
+          <div className='flex w-full gap-2 justify-center'>
+            <Button onClick={handleBackToListGame} className='text-[20px] mt-2 bg-[#d43d3d]'>
               Quay lại
             </Button>
-            <Button onClick={handleSearchGame} className='w-full mt-2 bg-[#6BB3E0]'>
+            <Button onClick={handleSearchGame} className='text-[20px] flex-1 mt-2 bg-[#6BB3E0]'>
               Tìm Game
             </Button>
           </div>

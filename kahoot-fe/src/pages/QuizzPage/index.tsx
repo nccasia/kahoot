@@ -39,6 +39,7 @@ const QuizzPage = () => {
       return;
     }
     socket.emit(SocketEvents.EMIT.OwnerFinishGame, roomId);
+    roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
   };
   const handleCloseModalConfirmEndGame = () => {
     roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
@@ -92,7 +93,7 @@ const QuizzPage = () => {
         onClose={handleCloseModalConfirmEndGame}
         title={
           <span>
-            Bạn có chắc chắn <br /> muốn kết thúc game bây giờ không?
+            Bạn có chắc chắn <br /> muốn kết thúc game ngay không?
           </span>
         }
         onConfirm={handleConfirmFinishGame}

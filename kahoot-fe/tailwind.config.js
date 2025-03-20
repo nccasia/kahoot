@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         diablo: ["SVN-Diablo", "sans-serif"],
+        coiny: ["Coiny-Regular", "sans-serif"],
       },
     },
   },

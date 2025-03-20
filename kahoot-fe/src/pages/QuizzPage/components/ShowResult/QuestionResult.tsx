@@ -8,7 +8,7 @@ interface QuestionResultProps {
 const QuestionResult = ({ correctAnswer, question }: QuestionResultProps) => {
   return (
     <>
-      <div className='font-diablo mt-5 min-h-[120px] bg-[#ccccccb5] text-white w-full rounded-xl flex items-center justify-center p-2 select-none cursor-pointer'>
+      <div className='font-coiny mt-5 min-h-[120px] bg-[#ccccccb5] text-white w-full rounded-xl flex items-center justify-center p-2 select-none cursor-pointer'>
         <p>{question?.title ?? ""}</p>
       </div>
 
@@ -24,7 +24,7 @@ const QuestionResult = ({ correctAnswer, question }: QuestionResultProps) => {
             <span className='absolute left-0 top-0 h-full flex items-center justify-center w-[50px]'>
               <img className='w-[30px]' src={correctAnswer === index ? "/icons/ApproveIcon.png" : "/icons/CloseIcon.png"} />
             </span>
-            <p className='pl-[60px] font-diablo select-none line-clamp-3 text-white'>{option}</p>
+            <p className='pl-[60px] font-coiny select-none line-clamp-3 text-white'>{option}</p>
           </div>
         ))}
       </div>

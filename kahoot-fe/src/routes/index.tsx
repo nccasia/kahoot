@@ -1,6 +1,7 @@
 import MainLayout from "@/layouts/MainLayout";
 import SoundLayout from "@/layouts/SoundLayout";
 import CreateGamePage from "@/pages/CreateGamePage";
+import CreateGameTypePage from "@/pages/CreateGameTypePage";
 import GameDetail from "@/pages/GameDetail";
 import HomePage from "@/pages/HomePage";
 import ListGamePage from "@/pages/ListGamePage";
@@ -23,6 +24,7 @@ const AppRoutes = () => {
             <Route path={ROUTES.ROOM} element={<RoomPage />} />
             <Route path={ROUTES.LIST_GAME} element={<ListGamePage />} />
             <Route path={ROUTES.CREATE_GAME} element={<CreateGamePage />} />
+            <Route path={ROUTES.CREATE_GAME_TYPE} element={<CreateGameTypePage />} />
             <Route element={<RoomSocketProvider />}>
               <Route path={ROUTES.SEARCH_ROOM} element={<SearchGamePage />} />
               <Route element={<SoundLayout />}>

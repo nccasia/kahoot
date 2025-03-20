@@ -69,7 +69,7 @@ const InfoBox = () => {
         <div className='min-h-[100px] flex items-center justify-center w-full'>
           {roomState.isEndAnQuestion ? (
             <div
-              className='h-full flex justify-center items-center text-white font-diablo text-5xl animate-pulse'
+              className='h-full flex justify-center items-center text-white font-coiny text-5xl animate-pulse'
               style={{ animationDuration: ".5s" }}
             >
               <span>+{roomState.userPoint?.currentQuestionPoint ?? 0}</span>
@@ -79,29 +79,29 @@ const InfoBox = () => {
           )}
         </div>
         {roomState.isOwner ? (
-          <div className='w-full flex justify-between items-center font-diablo'>
+          <div className='w-full flex justify-between items-center font-coiny'>
             <div className='flex items-center justify-center gap-1 flex-col w-[150px] text-white'>
               <img className='w-[100px] h-[100px]' src='/icons/icon-mouse.png' />
-              <span className='text-sm'>Đang chơi</span>
+              <span className='text-lg'>Đang chơi</span>
               <span className='text-xl'>{roomState.listMemberOfRoom?.length}</span>
             </div>
             <div className='flex items-center justify-center gap-1 flex-col w-[150px] text-white'>
               <img className='w-[100px] h-[100px]' src='/icons/icon-cat-1.png' />
-              <span className='text-sm'>Đã trả lời</span>
+              <span className='text-lg'>Đã trả lời</span>
               <span className='text-xl'>{roomState.submitedUser}</span>
             </div>
           </div>
         ) : (
-          <div className='font-diablo text-white'>
+          <div className='font-coiny text-white'>
             {roomState.isEndAnQuestion ? (
               <>
                 {roomState.correctAnswerOfCurrentQuestion === roomState.selectedAnswer ? (
-                  <div className='text-sm'>
+                  <div className='text-lg'>
                     <h5>{congratulationText}</h5>
                     <h5>{correctText}</h5>
                   </div>
                 ) : (
-                  <div className='text-sm'>
+                  <div className='text-lg'>
                     <h5>{errorText}</h5>
                     <h5>{wrongText}</h5>
                   </div>
@@ -110,11 +110,11 @@ const InfoBox = () => {
             ) : (
               <>
                 {roomState.isSubmitAnswer ? (
-                  <div className='text-sm'>
+                  <div className='text-lg'>
                     <h5>{waitingText}</h5>
                   </div>
                 ) : (
-                  <div className='text-sm'>
+                  <div className='text-lg'>
                     <h5>{startText}</h5>
                   </div>
                 )}

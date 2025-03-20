@@ -18,7 +18,7 @@ const TimeCountdown = ({ timeLeft }: { timeLeft: number }) => {
   }, [timeCountDown]);
   return (
     <div className='flex items-center justify-center w-full px-4 mt-5 mb-5 relative'>
-      <div className='time-box font-diablo text-5xl items-center justify-center absolute z-10 flex gap-1 top-4 animate-bounce text-white'>
+      <div className='time-box font-coiny text-5xl items-center justify-center absolute z-10 flex gap-1 top-4 animate-bounce text-white'>
         <span>{Math.floor(timeCountDown / 60) >= 0 ? `0${Math.floor(timeCountDown / 60)}`.slice(-2) : "00"}</span>
         <span>:</span>
         <span>{timeCountDown % 60 >= 0 ? `0${timeCountDown % 60}`.slice(-2) : "00"} </span>

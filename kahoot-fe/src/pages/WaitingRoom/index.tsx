@@ -52,7 +52,7 @@ const WaitingRoom = () => {
   };
   return (
     <div className='w-full h-screen'>
-      <div className='font-diablo h-[140px] flex items-center justify-center flex-col w-full relative'>
+      <div className='font-coiny h-[140px] flex items-center justify-center flex-col w-full relative'>
         {/* Button out game */}
         <div
           onClick={handleOutGame}
@@ -64,7 +64,7 @@ const WaitingRoom = () => {
 
         {/* Game PIN */}
         <div className='mt-2 bg-[#5d64d8c2] text-white rounded-lg p-2 shadow-xl flex flex-col justify-center items-center w-full max-w-[300px]'>
-          <span className='inline-block h-[25px]'>Game PIN</span>
+          <span className='inline-block h-[25px] text-2xl'>GAME PIN</span>
           <div className='flex justify-center h-[60px] max-w-[200px] w-full items-center'>
             {!roomState.currentRoom?.code ? (
               <span className='flex items-center justify-center bg-gray-400 h-[50px] w-full -rotate-2 rounded-lg'>
@@ -105,11 +105,11 @@ const WaitingRoom = () => {
       </div>
       <div className='flex justify-center items-center w-full h-[calc(100%-140px)] p-2 '>
         <div className='w-full max-w-[1200px] bg-[#ba85ff8f] rounded-xl h-full p-4 flex justify-around items-center flex-wrap gap-4 overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
-          {/* <span className='font-diablo text-xl'>Chờ người chơi tham gia!</span> */}
+          {/* <span className='font-coiny text-xl'>Chờ người chơi tham gia!</span> */}
           {roomState.listMemberOfRoom && roomState.listMemberOfRoom?.length > 0 ? (
             roomState.listMemberOfRoom?.map((player, index) => <PlayerItem player={player} key={index} />)
           ) : (
-            <div className='font-diablo text-2xl'>Chưa có người chơi nào tham gia</div>
+            <div className='font-coiny text-2xl'>Chưa có người chơi nào tham gia</div>
           )}
         </div>
       </div>

@@ -21,7 +21,7 @@ const ListGamePage = () => {
   const handleGoToCreateGame = () => {
     gameDispatch(GameActions.changeSelectedGame(null));
     gameDispatch(GameActions.changeListQuestion([]));
-    navigate(ROUTES.CREATE_GAME);
+    navigate(ROUTES.CREATE_GAME_TYPE);
   };
   const handleChangeSearchText = (value: string) => {
     setSearchText(value);
@@ -64,7 +64,7 @@ const ListGamePage = () => {
           placeholder='Tìm kiếm...'
           className='text-center w-[200px] placeholder-white'
         />
-        <Button onClick={handleGoToCreateGame} className='text-center bg-[#6B00E7] font-diablo min-w-[100px] md:min-w-[150px]'>
+        <Button onClick={handleGoToCreateGame} className='text-center bg-[#6B00E7] font-coiny min-w-[100px] md:min-w-[150px]'>
           Tạo game
         </Button>
       </div>
@@ -79,12 +79,9 @@ const ListGamePage = () => {
             ))}
           </div>
         ) : (
-          <div className='flex justify-center items-center h-[400px] flex-col gap-5 text-white font-diablo text-2xl'>
+          <div className='flex justify-center items-center h-[400px] flex-col gap-5 text-white font-coiny text-2xl'>
             <span>Bạn chưa tạo game nào trước đó!</span>
-            <Button
-              onClick={handleGoToCreateGame}
-              className='text-center bg-[#6BB3E0] font-diablo min-w-[100px] md:min-w-[150px]'
-            >
+            <Button onClick={handleGoToCreateGame} className='text-center bg-[#6BB3E0] font-coiny min-w-[100px] md:min-w-[150px]'>
               Tạo game
             </Button>
           </div>

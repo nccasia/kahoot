@@ -58,9 +58,9 @@ const ModalSaveGame = () => {
       isOpen={gameState.openModalSaveGame}
       onClose={handleCloseModal}
       modalTitle='Nhập thông tin game'
-      headerClassName='flex items-center justify-center font-bold text-lg font-diablo'
+      headerClassName='flex items-center justify-center font-bold text-lg font-coiny'
     >
-      <div className='text-white text-sm font-diablo'>
+      <div className='text-white text-sm font-coiny'>
         <div className='text-center '>
           <span className='text-sm '>Hãy điền thông tin game của bạn để mọi người biết đến dễ dàng hơn!</span>
         </div>

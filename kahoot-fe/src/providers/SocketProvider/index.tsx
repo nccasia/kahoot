@@ -4,6 +4,7 @@ import { IJoinRoomResponse } from "@/interfaces/roomTypes";
 import { ROUTES } from "@/routes/routePath";
 import GameActions from "@/stores/gameStore/gameAction";
 import RoomActions from "@/stores/roomStore/roomAction";
+import { MezonWebViewEvent } from "@/types/webview";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -61,6 +62,13 @@ export const SocketProvider = () => {
 
         roomDispatch(RoomActions.changeIsReconnecting(true));
         navigate(ROUTES.QUIZZ.replace(":roomId", roomId));
+        window.Mezon.WebView?.postEvent(
+          "JOIN_ROOM" as MezonWebViewEvent,
+          {
+            roomId: roomId,
+          },
+          () => {}
+        );
       });
 
       setSocketInitialized(true);

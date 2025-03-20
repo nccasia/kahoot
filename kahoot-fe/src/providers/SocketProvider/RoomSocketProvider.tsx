@@ -6,6 +6,7 @@ import { ROUTES } from "@/routes/routePath";
 import AppActions from "@/stores/appStore/appAction";
 import GameActions from "@/stores/gameStore/gameAction";
 import RoomActions from "@/stores/roomStore/roomAction";
+import { MezonWebViewEvent } from "@/types/webview";
 import { useContext, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useSocket } from ".";
@@ -27,20 +28,34 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsOwner(isOwner));
       gameDispatch(GameActions.changeCurrentGameId(gameId));
       navigate(ROUTES.WAITING_ROOM.replace(":roomId", roomId));
+      window.Mezon.WebView?.postEvent(
+        "JOIN_ROOM" as MezonWebViewEvent,
+        {
+          roomId: data.roomId,
+        },
+        () => {}
+      );
     });
 
     socket.on(SocketEvents.ON.ServerEmitUserJoinRoom, (data: ICurrentUser) => {
-      console.log("User joind room", data);
       roomDispatch(RoomActions.userJoinRoom(data));
     });
 
+    socket.on(SocketEvents.ON.UserLeftRoom, (data) => {
+      window.Mezon.WebView?.postEvent(
+        "LEAVE_ROOM" as MezonWebViewEvent,
+        {
+          roomId: data?.roomId,
+        },
+        () => {}
+      );
+    });
+
     socket.on(SocketEvents.ON.ServerEmitLeaveRoom, (data: ICurrentUser) => {
-      console.log("User leave room", data);
       roomDispatch(RoomActions.userLeaveRoom(data));
     });
 
     socket.on(SocketEvents.ON.ServerEmitCurrentQuestion, (data: IGetCurrentQuestionResponse) => {
-      console.log("Server emit current question", data);
       roomDispatch(RoomActions.changeCurrentQuestion(data.currentQuestion));
       roomDispatch(RoomActions.changeIsWaiting(false));
       roomDispatch(RoomActions.changeIsReconnecting(false));
@@ -52,6 +67,10 @@ const RoomSocketProvider: React.FC = () => {
       if (data.submitedAnswer) {
         roomDispatch(RoomActions.changeSelectedAnswer(data.submitedAnswer.answerIndex));
         roomDispatch(RoomActions.changeIsSubmitAnswer(true));
+      }
+      const lastTotalPoint = data?.lastTotalPoint;
+      if (lastTotalPoint !== undefined) {
+        roomDispatch(RoomActions.changeTotalPoint(lastTotalPoint));
       }
     });
 
@@ -68,6 +87,7 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeCurrentQuestion(undefined));
       roomDispatch(RoomActions.changeIsEndGame(false));
       roomDispatch(RoomActions.changeIsWaitingEndGame(false));
+      roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
 
       navigate(ROUTES.QUIZZ.replace(":roomId", data.roomId));
     });
@@ -96,7 +116,6 @@ const RoomSocketProvider: React.FC = () => {
     });
 
     socket.on(SocketEvents.ON.ServerEmitWaitNextQuestion, (data) => {
-      console.log("Server emit wait next question", data);
       roomDispatch(RoomActions.changeIsEndAnQuestion(true));
       const lastTotalPoint = data?.lastTotalPoint;
       if (lastTotalPoint !== undefined) {
@@ -105,7 +124,6 @@ const RoomSocketProvider: React.FC = () => {
     });
 
     socket.on(SocketEvents.ON.ServerEmitUserRanking, (data) => {
-      console.log("Server emit user ranking", data);
       roomDispatch(RoomActions.changeUserRanking(data?.userRanking));
     });
 
@@ -132,6 +150,7 @@ const RoomSocketProvider: React.FC = () => {
     socket.on(SocketEvents.ON.ServerEmitGameFinished, (data) => {
       console.log("Server emit game finished", data);
       roomDispatch(RoomActions.changeIsEndGame(true));
+      roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
       // roomDispatch(RoomActions.changeIsWaitingEndGame(false));
       roomDispatch(RoomActions.changeUserRanking(data?.userRanking));
       roomDispatch(RoomActions.changeTotalQuestion(data?.totalQuestions ?? 1));

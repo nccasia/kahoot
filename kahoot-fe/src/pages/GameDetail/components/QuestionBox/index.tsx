@@ -44,7 +44,7 @@ const QuestionBox = ({ questions, gameId }: QuestionItemProps) => {
         correctIndex: null,
       },
     };
-    gameDispatch(GameActions.addQuestion(newQuestion));
+    gameDispatch(GameActions.addQuestion([newQuestion]));
     gameDispatch(GameActions.changeSelectedQuestion(id));
     gameDispatch(GameActions.changeIsCreateQuestionOfGame(true));
     gameDispatch(GameActions.changeIsUpdateQuestionOfGame(true));
@@ -66,7 +66,7 @@ const QuestionBox = ({ questions, gameId }: QuestionItemProps) => {
       <div className='flex justify-center items-center gap-2 my-5'>
         <button
           onClick={handleAddQuestion}
-          className='bg-none outline-none text-3xl  bg-[#6B00E7] hover:border-transparent font-diablo w-[60px] h-[60px] rounded-full p-0 flex items-center justify-center focus:outline-none hover:scale-[1.03] active:scale-[0.97] filter brightness-100 hover:brightness-110 transition-all duration-300 ease-in-out shadow-md shadow-blue-400'
+          className='bg-none outline-none text-3xl  bg-[#6B00E7] hover:border-transparent font-coiny w-[60px] h-[60px] rounded-full p-0 flex items-center justify-center focus:outline-none hover:scale-[1.03] active:scale-[0.97] filter brightness-100 hover:brightness-110 transition-all duration-300 ease-in-out shadow-md shadow-blue-400'
         >
           +
         </button>

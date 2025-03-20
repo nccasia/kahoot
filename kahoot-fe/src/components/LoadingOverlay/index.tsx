@@ -12,7 +12,7 @@ const LoadingOverlay = ({ title = "Loading..." }: LoadingOverlayProps) => {
       <div className='loading-spinner'>
         <div className='spinner-3'></div>
       </div>
-      <div className='mt-10 font-diablo text-2xl'>{title}</div>
+      <div className='mt-10 font-coiny text-2xl'>{title}</div>
     </div>
   );
 };

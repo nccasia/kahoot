@@ -24,7 +24,7 @@ export enum GAME_TYPE {
   CHANGE_IS_DELETING_QUESTION = "CHANGE_IS_DELETING_QUESTION",
 }
 
-const addQuestion = (question: IQuestion): AppActionType<GAME_TYPE> => {
+const addQuestion = (question: IQuestion[]): AppActionType<GAME_TYPE> => {
   return {
     type: GAME_TYPE.ADD_QUESTION,
     payload: question,

@@ -6,6 +6,7 @@ const SocketEvents = {
     ServerEmitWaitNextQuestion: "server_emit_wait_next_question",
     ServerEmitUserRanking: "server_emit_user_ranking",
     UserJoinedRoom: "user_joined_room",
+    UserLeftRoom: "user_left_room",
     ServerEmitQuestion: "server_emit_question",
     ServerEmitCorrectAnswer: "server_emit_correct_answer",
     ServerEmitUserJoinRoom: "server_emit_user_join_room",

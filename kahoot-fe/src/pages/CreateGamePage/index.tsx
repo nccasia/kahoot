@@ -38,7 +38,7 @@ const CreateGamePage = () => {
         correctIndex: null,
       },
     };
-    gameDispatch(GameActions.addQuestion(newQuestion));
+    gameDispatch(GameActions.addQuestion([newQuestion]));
     gameDispatch(GameActions.changeSelectedQuestion(id));
   }, [gameDispatch]);
 
@@ -136,7 +136,7 @@ const CreateGamePage = () => {
         <ButtonBack />
         {gameState.listQuestions?.length > 0 && (
           <div className='flex gap-2'>
-            <Button isLoading={isLoading} onClick={handleSaveGame} className='text-center  bg-[#6B00E7] font-diablo'>
+            <Button isLoading={isLoading} onClick={handleSaveGame} className='text-center  bg-[#6B00E7] font-coiny'>
               Lưu lại
             </Button>
           </div>
@@ -146,7 +146,7 @@ const CreateGamePage = () => {
         style={{ animationDelay: "unset" }}
         className='fadeIn h-[calc(100%-100px)] mt-[20px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
       >
-        <div className='font-diablo min-h-[50px] rounded-xl border-2 border-transparent gap-2 p-5 px-2 bg-[#466CF7A1] cursor-pointer border-b border-[#fff] transition-all duration-500 ease-in-out relative'>
+        <div className='font-coiny min-h-[50px] rounded-xl border-2 border-transparent gap-2 p-5 px-2 bg-[#466CF7A1] cursor-pointer border-b border-[#fff] transition-all duration-500 ease-in-out relative'>
           <div className='flex items-center gap-2 justify-center w-full flex-col'>
             <span className='border-b border-white pb-2'>Thông tin trò chơi</span>
             <span className='text-sm'>Hãy điền đầy đủ thông tin trò chơi của bạn để mọi người biết đến dễ dàng hơn!</span>
@@ -173,7 +173,7 @@ const CreateGamePage = () => {
         <div className='flex justify-center items-center gap-2 my-5'>
           <button
             onClick={handleAddQuestion}
-            className='bg-none outline-none text-3xl  bg-[#6B00E7] hover:border-transparent font-diablo w-[60px] h-[60px] rounded-full p-0 flex items-center justify-center focus:outline-none hover:scale-[1.03] active:scale-[0.97] filter brightness-100 hover:brightness-110 transition-all duration-300 ease-in-out shadow-xl'
+            className='bg-none outline-none text-3xl  bg-[#6B00E7] hover:border-transparent font-coiny w-[60px] h-[60px] rounded-full p-0 flex items-center justify-center focus:outline-none hover:scale-[1.03] active:scale-[0.97] filter brightness-100 hover:brightness-110 transition-all duration-300 ease-in-out shadow-xl'
           >
             +
           </button>

@@ -49,18 +49,22 @@ const QuestionContent = ({
   };
 
   return (
-    <div className='body p-2 font-diablo text-white'>
+    <div className='body p-2 font-coiny text-white'>
       <div className='flex flex-col gap-3'>
         {isEditing ? (
           <>
             <div className='flex items-center flex-wrap'>
-              <span className='inline-block min-w-[200px] text-start text-2xl'>Câu hỏi:</span>
-              <Input onChange={(e) => handleChange(e, "title")} value={dataUpdate.title} className='flex-1 rounded-lg' />
+              <span className='inline-block font-coiny min-w-[200px] text-start text-2xl'>Câu hỏi:</span>
+              <Input
+                onChange={(e) => handleChange(e, "title")}
+                value={dataUpdate.title}
+                className='flex-1 rounded-lg font-coiny'
+              />
             </div>
             <div className='flex flex-col gap-3 mt-2 pt-2 border-t-2 border-gray-100'>
               {dataUpdate.answerOptions?.options.map((option, index) => (
                 <div key={index} className='flex items-center flex-wrap gap-1'>
-                  <span className='inline-block min-w-[200px] text-start text-2xl'>Đáp án {index + 1}:</span>
+                  <span className='inline-block font-coiny min-w-[200px] text-start text-2xl'>Đáp án {index + 1}:</span>
                   <div className='input-box flex-1 min-w-[300px] relative'>
                     <div
                       onClick={() => handleChangeCorrectAnswer(index)}
@@ -74,7 +78,11 @@ const QuestionContent = ({
                         </div>
                       </div>
                     </div>
-                    <Input onChange={(e) => handleChange(e, index)} value={option} className='rounded-lg w-full pl-11' />
+                    <Input
+                      onChange={(e) => handleChange(e, index)}
+                      value={option}
+                      className='rounded-lg w-full pl-11 font-coiny'
+                    />
                   </div>
                 </div>
               ))}
@@ -82,7 +90,7 @@ const QuestionContent = ({
           </>
         ) : (
           question.answerOptions?.options.map((option, index) => (
-            <div key={index} className='flex items-center flex-wrap gap-2 min-h-[30px]'>
+            <div key={index} className='flex items-center flex-wrap gap-2 min-h-[30px] font-coiny '>
               <span className='w-[50px] inline-block'>{index + 1}.</span>
               <span className='flex-1 text-start'>{option}</span>
               <span className='w-[50px] inline-block'>
@@ -94,19 +102,19 @@ const QuestionContent = ({
       </div>
       {isEditing ? (
         <div className='flex justify-end gap-2 mt-5'>
-          <Button onClick={onCanCelSaveChange} className='text-center bg-[#e93d3d] font-diablo '>
+          <Button onClick={onCanCelSaveChange} className='text-center bg-[#e93d3d] font-coiny text-lg '>
             Huỷ bỏ
           </Button>
-          <Button isLoading={isSubmitting} onClick={onConfirmSaveChange} className='text-center bg-[#ded525] font-diablo '>
+          <Button isLoading={isSubmitting} onClick={onConfirmSaveChange} className='text-center bg-[#ded525] font-coiny text-lg '>
             Lưu thay đổi
           </Button>
         </div>
       ) : (
         <div className='flex justify-end gap-2 mt-5'>
-          <Button onClick={() => handleUpdateQuestion(question)} className='text-center bg-[#ded525] font-diablo '>
+          <Button onClick={() => handleUpdateQuestion(question)} className='text-center bg-[#ded525] font-coiny text-lg '>
             Chỉnh sửa
           </Button>
-          <Button onClick={handleOpenModalConfirmDeleteQuestion} className='text-center bg-[#e93d3d] font-diablo '>
+          <Button onClick={handleOpenModalConfirmDeleteQuestion} className='text-center bg-[#e93d3d] font-coiny text-lg '>
             Xoá câu hỏi
           </Button>
         </div>

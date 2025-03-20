@@ -14,7 +14,7 @@ const PlayerItem = ({ player }: PlayerItemProps) => {
           }}
         ></div>
       </div>
-      <span className='font-diablo flex-1 line-clamp-1'>{player.userName} </span>
+      <span className='font-coiny flex-1 line-clamp-1'>{player.userName} </span>
     </div>
   );
 };

@@ -7,7 +7,7 @@ const Header = ({ isOwner, onOutGame, onPlayAgain }: HeaderProps) => {
   return (
     <div className='w-full h-[100px] flex justify-center mb-5 relative'>
       <div className="w-[250px] h-[100px] bg-[url('/backgrounds/bg-rank.png')] bg-no-repeat bg-cover bg-center text-gray-700 relative">
-        <span className='absolute top-10 text-2xl font-diablo left-1/2 -translate-x-1/2'>Xếp hạng</span>
+        <span className='absolute top-10 text-2xl font-coiny left-1/2 -translate-x-1/2 mt-2'>Xếp hạng</span>
       </div>
       <div
         onClick={onOutGame}

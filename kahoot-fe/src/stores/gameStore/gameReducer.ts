@@ -46,7 +46,7 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
     case GAME_TYPE.ADD_QUESTION:
       return {
         ...state,
-        listQuestions: [...state.listQuestions, action.payload],
+        listQuestions: [...state.listQuestions, ...action.payload],
       };
 
     case GAME_TYPE.DELETE_QUESTION:

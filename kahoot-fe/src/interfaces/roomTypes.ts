@@ -44,4 +44,5 @@ export interface ISubmitedAnswer {
 export interface IGetCurrentQuestionResponse {
   currentQuestion: IQuestionGame;
   submitedAnswer?: ISubmitedAnswer;
+  lastTotalPoint?: number;
 }
