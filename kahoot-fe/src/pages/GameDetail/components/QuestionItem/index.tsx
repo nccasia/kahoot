@@ -40,10 +40,10 @@ const QuestionItem = ({
     }
   };
 
-  const checkQuestionData = (question: IQuestion) => {
-    const checkAnswerOptions = question.answerOptions.options.every((option) => option && option.trim() !== "");
-    const checkTitle = question.title && question.title.trim() !== "";
-    const checkCorrectIndex = question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0;
+  const checkQuestionData = (dataUpdate: IQuestion) => {
+    const checkAnswerOptions = dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "");
+    const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
+    const checkCorrectIndex = dataUpdate.answerOptions.correctIndex !== null && dataUpdate.answerOptions.correctIndex >= 0;
     return checkAnswerOptions && checkTitle && checkCorrectIndex;
   };
 

@@ -118,8 +118,10 @@ const RoomReducer = (state = initRoomState, action: AppActionType<ROOM_TYPE>): R
       };
 
     case ROOM_TYPE.CHANGE_LIST_QUESTION_ANALYSIS: {
-      const listQuestionAnalysis: IQuestionAnalyst[] = Array.from({ length: 4 }).map((_, index) => {
-        const checkInPayload = action.payload.find((item: IQuestionAnalyst) => +item.answerIndex === index);
+      const listQuestionAnalysis: IQuestionAnalyst[] = Array.from({ length: action.payload.totalOptions }).map((_, index) => {
+        const checkInPayload = action.payload?.listQuestionAnalysis?.find(
+          (item: IQuestionAnalyst) => +item.answerIndex === index
+        );
         const questionAnalysis: IQuestionAnalyst = {
           answerIndex: index,
           totalSeleted: checkInPayload ? checkInPayload.totalSeleted : 0,
