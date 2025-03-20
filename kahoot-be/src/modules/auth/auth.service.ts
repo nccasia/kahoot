@@ -53,7 +53,10 @@ export class AuthService {
     });
     if (!storedUser) {
       storedUser = this.usersRepository.create({
-        ...mezonUser,
+        mezonUserId: mezonUser.id,
+        userName: mezonUser.username,
+        email: mezonUser.mezon_id,
+        avatar: mezonUser.avatar_url,
       });
       await this.usersRepository.save(storedUser);
     }
