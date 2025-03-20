@@ -10,6 +10,7 @@ export enum Table {
 
 export const GLOBAL_PREFIX = 'v1';
 export const NAME_SPACE_JOIN_GAME = 'QUIZ';
+export const MAX_QUESTION_OPTIONS = 4;
 export const RECONNECT_WAIT_TIME = 3; // second
 export const WAIT_TIME_PER_QUESTION = 10; // seconds
 export const MAX_QUESTION_POINT = 1000;
