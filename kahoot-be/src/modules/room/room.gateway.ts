@@ -157,7 +157,7 @@ export class RoomGateway
       });
       return;
     }
-    await this.handleGameFinish(roomId);
+    await this.handleGameFinish(roomId, true);
   }
 
   // Client or users events listeners
