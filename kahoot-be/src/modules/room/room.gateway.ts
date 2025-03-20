@@ -157,7 +157,7 @@ export class RoomGateway
       });
       return;
     }
-    await this.handleGameFinish(roomId);
+    await this.handleGameFinish(roomId, true);
   }
 
   // Client or users events listeners
@@ -242,22 +242,14 @@ export class RoomGateway
       });
       return;
     }
-    // const roomStatus = await this.roomsRepository.findOne({
-    //   where: {
-    //     id: roomId,
-    //   },
-    // });
-    // if (roomStatus?.status === RoomStatus.Waiting) {
-    //   this.roomUsersRepository.delete({
-    //     roomId,
-    //     userId: client.user.userId,
-    //   });
-    // }
-
     this.roomUsersRepository.update(
       { roomId, userId: client.user.userId },
       { isLeave: true },
     );
+
+    client.emit(RoomServerEvent.UserLeftRoom, {
+      roomId: roomId,
+    });
 
     this.roomCacheService.removeRoomUser(roomId, client.user);
     client.leave(roomId);
@@ -471,6 +463,7 @@ export class RoomGateway
 
           client.emit(RoomServerEvent.ServerEmitCurrentQuestion, {
             currentQuestion: gameQuestion,
+            lastTotalPoint: lastTotalPoint,
             submitedAnswer: submitedAnswer
               ? {
                   answerIndex: submitedAnswer.answerIndex,

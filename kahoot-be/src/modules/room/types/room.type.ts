@@ -34,6 +34,7 @@ export enum RoomServerEvent {
   ServerEmitWaitNextQuestion = 'server_emit_wait_next_question',
   ServerEmitUserRanking = 'server_emit_user_ranking',
   UserJoinedRoom = 'user_joined_room',
+  UserLeftRoom = 'user_left_room',
   UserReconnectedRoom = 'user_reconnected_room',
   ServerEmitCurrentQuestion = 'server_emit_current_question',
   ServerEmitQuestion = 'server_emit_question',
