@@ -471,6 +471,7 @@ export class RoomGateway
 
           client.emit(RoomServerEvent.ServerEmitCurrentQuestion, {
             currentQuestion: gameQuestion,
+            lastTotalPoint: lastTotalPoint,
             submitedAnswer: submitedAnswer
               ? {
                   answerIndex: submitedAnswer.answerIndex,
