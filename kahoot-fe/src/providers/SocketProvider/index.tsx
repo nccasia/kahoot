@@ -54,14 +54,6 @@ export const SocketProvider = () => {
         roomDispatch(RoomActions.changeListMemberOfRoom(members));
         gameDispatch(GameActions.changeCurrentGameId(gameId));
         roomDispatch(RoomActions.changeIsWaiting(false));
-
-        if (roomStatus === "waiting") {
-          navigate(ROUTES.WAITING_ROOM.replace(":roomId", roomId));
-          return;
-        }
-
-        roomDispatch(RoomActions.changeIsReconnecting(true));
-        navigate(ROUTES.QUIZZ.replace(":roomId", roomId));
         window.Mezon.WebView?.postEvent(
           "JOIN_ROOM" as MezonWebViewEvent,
           {
@@ -69,6 +61,12 @@ export const SocketProvider = () => {
           },
           () => {}
         );
+        if (roomStatus === "waiting") {
+          navigate(ROUTES.WAITING_ROOM.replace(":roomId", roomId));
+          return;
+        }
+        roomDispatch(RoomActions.changeIsReconnecting(true));
+        navigate(ROUTES.QUIZZ.replace(":roomId", roomId));
       });
 
       setSocketInitialized(true);
