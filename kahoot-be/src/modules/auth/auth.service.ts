@@ -31,7 +31,7 @@ export class AuthService {
 
     const { hash, ...hashParams } = mezonEventData as HashData;
     const mezonUser = JSON.parse(hashParams?.user) as MezonHashUser;
-    const hashParamsString = queryString.stringify(hashParams, { sort: false });
+    const hashParamsString = rawHashData.split('&hash=')[0];
 
     const botToken = this.configService.getOrThrow('MEZON_APP_SECRET');
     const secretKey = Hasher.HMAC_SHA256(botToken, 'WebAppData');
