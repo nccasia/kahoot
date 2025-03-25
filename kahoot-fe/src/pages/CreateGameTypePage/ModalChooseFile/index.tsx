@@ -24,11 +24,16 @@ const ModalChooseFile = ({ isOpen, onClose }: IModalChooseFileProps) => {
         toast.warning("Bạn chỉ có thể chọn file word để nhập vào hệ thống");
         return;
       }
+
       reader.onload = (e) => {
         if (!e.target || !e.target.result) return;
         const content = e.target.result;
         const result = importQuestion(content);
-        gameDispatch(GameActions.changeListQuestion(result as IQuestion[]));
+        if (!result.isSuccess) {
+          toast.error(result.message as string);
+          return;
+        }
+        gameDispatch(GameActions.changeListQuestion(result.data as IQuestion[]));
         navigate(ROUTES.CREATE_GAME);
       };
       reader.onerror = (err) => console.error(err);

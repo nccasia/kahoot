@@ -9,22 +9,34 @@ function str2xml(str: string) {
   return new DOMParser().parseFromString(str, "text/xml");
 }
 function getParagraphs(content: string | ArrayBuffer) {
-  const zip = new PizZip(content);
-  const xml = str2xml(zip.files["word/document.xml"].asText());
-  const paragraphsXml = xml.getElementsByTagName("w:p");
-  const paragraphs = [];
-  for (let i = 0, len = paragraphsXml.length; i < len; i++) {
-    let fullText = "";
-    const textsXml = paragraphsXml[i].getElementsByTagName("w:t");
-    for (let j = 0, len2 = textsXml.length; j < len2; j++) {
-      const textXml = textsXml[j];
-      if (textXml.childNodes) {
-        fullText += textXml.childNodes[0].nodeValue;
+  try {
+    const zip = new PizZip(content);
+    const xml = str2xml(zip.files["word/document.xml"].asText());
+    const paragraphsXml = xml.getElementsByTagName("w:p");
+    const paragraphs = [];
+    for (let i = 0, len = paragraphsXml.length; i < len; i++) {
+      let fullText = "";
+      const textsXml = paragraphsXml[i].getElementsByTagName("w:t");
+      for (let j = 0, len2 = textsXml.length; j < len2; j++) {
+        const textXml = textsXml[j];
+        console.log(textXml.childNodes);
+        if (textXml.childNodes) {
+          if (textsXml.length > 1) {
+            fullText = textXml.childNodes[0]?.nodeValue + "\n";
+            paragraphs.push(fullText);
+            continue;
+          }
+          fullText += textXml.childNodes[0]?.nodeValue + "\n";
+        }
       }
+      if (textsXml.length > 1) continue;
+      paragraphs.push(fullText);
     }
-    paragraphs.push(fullText);
+    return paragraphs;
+  } catch (e) {
+    console.log(e);
+    throw new Error("File không đúng định dạng");
   }
-  return paragraphs;
 }
 // Load the docx file as binary content
 const questionRegex = /^(\d*\.|Câu \d+). */; // This regex is used to detect the question e.g. 1. or Câu 1.
@@ -68,8 +80,21 @@ function convertArrayToJSON(inputArray: string[]) {
 }
 const importQuestion = (content: string | ArrayBuffer) => {
   // const content = fs.readFileSync(filepath, "binary");
-  const inputArray = getParagraphs(content);
-  const jsonArray = convertArrayToJSON(inputArray);
-  return jsonArray;
+  try {
+    const inputArray = getParagraphs(content);
+    const jsonArray = convertArrayToJSON(inputArray);
+    return {
+      isSuccess: true,
+      data: jsonArray,
+      message: "Import question successfully",
+    };
+  } catch (e) {
+    console.log("Error", e);
+    return {
+      isSuccess: false,
+      data: null,
+      message: e,
+    };
+  }
 };
 export default importQuestion;

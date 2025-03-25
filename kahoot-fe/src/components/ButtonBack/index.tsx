@@ -3,12 +3,17 @@ import { useNavigate } from "react-router-dom";
 const ButtonBack = () => {
   const navigate = useNavigate();
   const handleBack = () => {
-    if (window.history.length > 2) {
-      navigate(-1);
+    if (window.self !== window.top) {
+      if (window.history.length > 2) {
+        navigate(-1);
+      } else {
+        navigate("/");
+      }
     } else {
-      navigate("/");
+      window.history.back();
     }
   };
+
   return (
     <button
       onClick={handleBack}
