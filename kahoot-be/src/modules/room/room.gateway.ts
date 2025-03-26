@@ -530,9 +530,13 @@ export class RoomGateway
       startTime: roomQuestion.startTime,
       endTime: roomQuestion.endTime,
     });
+
     const gameQuestion = plainToInstance(
       GameQuestionDto,
-      { ...rawGameQuestion },
+      {
+        ...rawGameQuestion,
+        answerOptions: { options: rawGameQuestion?.answerOptions?.options },
+      },
       {
         excludeExtraneousValues: true,
       },
@@ -732,7 +736,7 @@ export class RoomGateway
     const finishedQuestions =
       await this.roomCacheService.countFinishedQuestion(roomId);
     const userRanking = await this.roomCacheService.getRoomRanking(roomId);
-    this.roomCacheService.removeCurrentQuestion(roomId);
+    await this.roomCacheService.removeCurrentQuestion(roomId);
 
     if (totalQuestions === finishedQuestions) {
       this.server.to(roomId).emit(RoomServerEvent.ServerEmitUserRanking, {
