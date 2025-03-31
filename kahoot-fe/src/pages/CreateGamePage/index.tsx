@@ -84,6 +84,7 @@ const CreateGamePage = () => {
   }, [gameState.listQuestions, gameDispatch]);
 
   const handleSaveGame = useCallback(async () => {
+
     if (!gameData.name || gameData.name.trim() === "") {
       toast.error("Vui lòng nhập tên game!");
       return;
@@ -106,7 +107,9 @@ const CreateGamePage = () => {
         title: question.title,
         time: question.time,
         answerOptions: question.answerOptions,
+        // imageFile: question.imageFile
       }));
+      console.log("listQuestions", listQuestions);
       const addQuestionsResponse = await questionServices.addQuestion(gameId, listQuestions);
       if (!(addQuestionsResponse.statusCode === 200 || addQuestionsResponse.statusCode === 201)) {
         toast.error("Lỗi khi lưu câu hỏi!");
