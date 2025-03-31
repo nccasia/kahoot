@@ -6,4 +6,5 @@ export class UpdateQuestionDto extends PickType(Question, [
   'mode',
   'time',
   'title',
+  'image',
 ]) {}

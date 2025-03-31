@@ -42,6 +42,11 @@ export class Question extends AbstractEntity {
   @Column()
   title: string;
 
+  @ApiProperty({ nullable: true })
+  @Expose()
+  @Column({ nullable: true })
+  image: string;
+
   @ApiProperty({ type: () => SingleChoiceAnswerOptionsDto })
   @IsNotEmpty()
   @ValidateNested({ each: true })

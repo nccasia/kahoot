@@ -8,6 +8,7 @@ export class GameQuestionDto extends PickType(Question, [
   'mode',
   'time',
   'title',
+  'image',
 ]) {
   @ApiProperty({ type: () => SingleChoiceGameAnswerOptions, isArray: true })
   @Expose()
