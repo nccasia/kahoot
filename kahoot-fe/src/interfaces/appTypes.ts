@@ -12,8 +12,16 @@ export interface IPaginationData {
 }
 export interface IAppResponseBase<T> {
   statusCode: number;
-  pagination: IPaginationData;
+  pagination?: IPaginationData;
   errorCode: number | null;
   message: string | null;
   data: T;
+}
+
+export interface IUploadImageResponse {
+  public_id: string;
+  url: string;
+  secure_url: string;
+  display_name: string;
+  format: string;
 }
