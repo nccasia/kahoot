@@ -7,6 +7,7 @@ import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import { ROUTES } from "@/routes/routePath";
 import gameServices from "@/services/gameServices";
 import questionServices from "@/services/questionServices";
+import uploadService from "@/services/uploadService";
 import GameActions from "@/stores/gameStore/gameAction";
 import generateId from "@/utils/functions/generateId";
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -84,7 +85,6 @@ const CreateGamePage = () => {
   }, [gameState.listQuestions, gameDispatch]);
 
   const handleSaveGame = useCallback(async () => {
-
     if (!gameData.name || gameData.name.trim() === "") {
       toast.error("Vui lòng nhập tên game!");
       return;
@@ -101,15 +101,32 @@ const CreateGamePage = () => {
         toast.error("Lỗi khi lưu game!");
         return;
       }
-      const gameId = createGameResponse.data.id;
-      const listQuestions: IAddQuestionToGameDTO[] = gameState.listQuestions?.map((question) => ({
-        mode: question.mode,
-        title: question.title,
-        time: question.time,
-        answerOptions: question.answerOptions,
-        // imageFile: question.imageFile
-      }));
-      console.log("listQuestions", listQuestions);
+      const gameId = "createGameResponse.data.id";
+      const listQuestions: IAddQuestionToGameDTO[] = [];
+      for (const question of gameState.listQuestions) {
+        if (question.imageFile) {
+          const uploadImageResponse = await uploadService.uploadAnImage(question.imageFile);
+          if (uploadImageResponse.statusCode !== 200) {
+            toast.error("Lỗi khi tải ảnh lên!");
+            return;
+          }
+          const imageUrl = uploadImageResponse.data.secure_url;
+          listQuestions.push({
+            mode: question.mode,
+            title: question.title,
+            time: question.time,
+            answerOptions: question.answerOptions,
+            image: imageUrl,
+          });
+        } else {
+          listQuestions.push({
+            mode: question.mode,
+            title: question.title,
+            time: question.time,
+            answerOptions: question.answerOptions,
+          });
+        }
+      }
       const addQuestionsResponse = await questionServices.addQuestion(gameId, listQuestions);
       if (!(addQuestionsResponse.statusCode === 200 || addQuestionsResponse.statusCode === 201)) {
         toast.error("Lỗi khi lưu câu hỏi!");

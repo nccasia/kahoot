@@ -11,8 +11,8 @@ export interface IQuestion {
   gameId?: string;
   answerOptions: IAnswerOption;
   isError?: boolean;
-  imageFile?: File | null;
-  imagePreview?: string | null;
+  imageFile?: File;
+  image?: string;
 }
 
 export interface IAddQuestionToGameDTO {
@@ -21,7 +21,7 @@ export interface IAddQuestionToGameDTO {
   title: string;
   answerOptions: IAnswerOption;
   imageFile?: File | null;
-  imagePreview?: string | null;
+  image?: string | null;
 }
 
 export interface IQuestionGame {
@@ -34,7 +34,7 @@ export interface IQuestionGame {
   answerOptions: IAnswerOption;
   order?: number;
   imageFile?: File | null;
-  imagePreview?: string | null;
+  image?: string | null;
 }
 
 export interface ISendAnswerDTO {

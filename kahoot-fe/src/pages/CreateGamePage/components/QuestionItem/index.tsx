@@ -4,7 +4,6 @@ import Input from "@/components/Input";
 import SelectDropdown from "@/components/SelectDropdown";
 import { IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
-import uploadService from "@/services/uploadService";
 import GameActions from "@/stores/gameStore/gameAction";
 import { useCallback, useContext, useRef, useState } from "react";
 
@@ -12,11 +11,11 @@ const timeOptions: Array<{
   label: string;
   value: number;
 }> = [
-    { label: "15s", value: 15 },
-    { label: "30s", value: 30 },
-    { label: "45s", value: 45 },
-    { label: "60s", value: 60 },
-  ];
+  { label: "15s", value: 15 },
+  { label: "30s", value: 30 },
+  { label: "45s", value: 45 },
+  { label: "60s", value: 60 },
+];
 
 interface IQuestionItemProps {
   question: IQuestion;
@@ -116,46 +115,38 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const handleAddImage = () => {
     fileInputRef.current?.click();
-  }
+  };
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       try {
-        const response = await uploadService.uploadAnImage(file);
-
-        if (response.statusCode === 200 && response.data?.secure_url) {
-          const newQuestion = {
-            ...question,
-            imagePreview: response.data.secure_url,
-            imageFile: file
-          };
-          if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
-        } else {
-          console.error('Upload thất bại:', response.message);
-        }
+        const newQuestion = {
+          ...question,
+          image: URL.createObjectURL(file),
+          imageFile: file,
+        };
+        if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
       } catch (error) {
-        console.error('Lỗi upload ảnh:', error);
+        console.error("Lỗi upload ảnh:", error);
       }
     }
   };
 
   const handleDeleteImage = async () => {
-    if (!question.imagePreview) return;
+    if (!question.image) return;
 
     try {
-      await uploadService.deleteAnImage(question.imagePreview);
-
       const newQuestion = {
         ...question,
-        imagePreview: undefined,
-        imageFile: undefined
+        image: undefined,
+        imageFile: undefined,
       };
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     } catch (error) {
-      console.error('Lỗi xóa ảnh:', error);
+      console.error("Lỗi xóa ảnh:", error);
     }
   };
 
@@ -177,26 +168,18 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
           <img className='w-[40px] h-[40px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
         </span>
 
-        <input
-          type='file'
-          accept='image/*'
-          ref={fileInputRef}
-          className='hidden'
-          onChange={handleImageUpload}
-        />
-
+        <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
       </div>
-      <div className='relative flex items-center justify-center'>
-        {question.imagePreview && (
-          <div className='relative mt-2 '>
-            <img src={question.imagePreview} className='w-auto h-20 object-cover rounded-md' />
+      <div className='relative flex '>
+        {question.image && (
+          <div className='relative mt-2 ml-[205px] border-2 border-gray-100 rounded-md p-2'>
+            <img src={question.image} className='w-auto h-[150px] object-cover rounded-md' />
             <span
               onClick={handleDeleteImage}
               className='absolute top-[-5px] right-[-5px] w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-red-90 transition-all'
             >
               <img src='/icons/remove.png' />
             </span>
-
           </div>
         )}
       </div>
@@ -249,8 +232,6 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
               Xóa
             </Button>
           </>
-
-
         )}
       </div>
     </div>
