@@ -5,7 +5,7 @@ import SelectDropdown from "@/components/SelectDropdown";
 import { IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import GameActions from "@/stores/gameStore/gameAction";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 
 const timeOptions: Array<{
   label: string;
@@ -24,6 +24,7 @@ interface IQuestionItemProps {
   handleDeleteQuestion?: (questionId: string) => void;
   isShowDeleteButton?: boolean;
 }
+
 const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion, isShowDeleteButton }: IQuestionItemProps) => {
   const [textValue, setTextValue] = useState<string>("");
 
@@ -114,6 +115,40 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleAddImage = () => {
+    fileInputRef.current?.click();
+  };
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      try {
+        const newQuestion = {
+          ...question,
+          image: URL.createObjectURL(file),
+          imageFile: file,
+        };
+        if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+      } catch (error) {
+        console.error("Lỗi upload ảnh:", error);
+      }
+    }
+  };
+
+  const handleDeleteImage = async () => {
+    if (!question.image) return;
+
+    try {
+      const newQuestion = {
+        ...question,
+        image: undefined,
+        imageFile: undefined,
+      };
+      if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+    } catch (error) {
+      console.error("Lỗi xóa ảnh:", error);
+    }
+  };
 
   return (
     <div className='body p-4 font-coiny text-white'>
@@ -126,6 +161,27 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
           defaultValue={question.title}
           className='flex-1 rounded-lg'
         />
+        <span
+          onClick={handleAddImage}
+          className='ml-7 w-[40px] h-[40px] flex items-center justify-center cursor-pointer hover:bg-green-500 transition-all rounded-full'
+        >
+          <img className='w-[40px] h-[40px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
+        </span>
+
+        <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
+      </div>
+      <div className='relative flex '>
+        {question.image && (
+          <div className='relative mt-2 ml-[205px] border-2 border-gray-100 rounded-md p-2'>
+            <img src={question.image} className='w-auto h-[150px] object-cover rounded-md' />
+            <span
+              onClick={handleDeleteImage}
+              className='absolute top-[-5px] right-[-5px] w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-red-90 transition-all'
+            >
+              <img src='/icons/remove.png' />
+            </span>
+          </div>
+        )}
       </div>
       <div className='flex flex-col gap-3 mt-2 pt-2 border-t-2 border-gray-100'>
         {question.answerOptions?.options.map((option, index) => (
@@ -171,9 +227,11 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
           <SelectDropdown selectedValue={question.time} options={timeOptions} onSelect={handleChangeTime} />
         </div>
         {isShowDeleteButton && (
-          <Button onClick={deleteQuestion} className='bg-red-500'>
-            Xóa
-          </Button>
+          <>
+            <Button onClick={deleteQuestion} className='bg-red-500'>
+              Xóa
+            </Button>
+          </>
         )}
       </div>
     </div>
