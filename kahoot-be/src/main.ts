@@ -14,6 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix(GLOBAL_PREFIX);
 
+  console.log('corsConfig: ', corsConfig);
   app.enableCors(corsConfig);
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new AllExceptionsFilter());

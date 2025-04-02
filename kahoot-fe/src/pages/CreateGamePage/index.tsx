@@ -1,6 +1,7 @@
 import Button from "@/components/Button";
 import ButtonBack from "@/components/ButtonBack";
 import Input from "@/components/Input";
+import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { ICreateGameDTO } from "@/interfaces/gameTypes";
 import { IAddQuestionToGameDTO, IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
@@ -37,6 +38,7 @@ const CreateGamePage = () => {
       answerOptions: {
         options: ["", "", "", ""],
         correctIndex: null,
+        correctIndexes: null,
       },
     };
     gameDispatch(GameActions.addQuestion([newQuestion]));
@@ -49,6 +51,7 @@ const CreateGamePage = () => {
 
   const checkQuestionData = useCallback(() => {
     const listQuestions = gameState.listQuestions as IQuestion[];
+    console.log("listQuestions", listQuestions);
     if (!listQuestions || listQuestions.length === 0) {
       toast.error("Bạn chưa thêm câu hỏi nào!")!;
       return false;
@@ -56,10 +59,22 @@ const CreateGamePage = () => {
     let check = true;
     const listErrorQuestion: string[] = [];
     listQuestions.forEach((question) => {
-      const checkAnswerOptions = question.answerOptions.options.every((option) => option && option.trim() !== "");
+      const checkAnswerOptions =
+        question.mode !== EQuestionTypes.TEXT
+          ? question.answerOptions.options.every((option) => option && option.trim() !== "")
+          : true;
+      const checkAnswerIndexes =
+        question.mode === EQuestionTypes.MULTIPLE_CHOICE
+          ? question.answerOptions.correctIndexes && question.answerOptions.correctIndexes.length > 0
+          : true;
       const checkTitle = question.title && question.title.trim() !== "";
-      const checkCorrectIndex = question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0;
-      if (!checkAnswerOptions || !checkTitle || !checkCorrectIndex) {
+      const checkAnswerText =
+        question.mode === EQuestionTypes.TEXT.toString() ? question?.answerText && question.answerText?.trim() !== "" : true;
+      const checkCorrectIndex =
+        question.mode === EQuestionTypes.SINGLE_CHOICE
+          ? question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0
+          : true;
+      if (!checkAnswerOptions || !checkAnswerText || !checkAnswerIndexes || !checkTitle || !checkCorrectIndex) {
         listErrorQuestion.push(question?.id ?? "");
         check = false;
       }
@@ -116,6 +131,7 @@ const CreateGamePage = () => {
             title: question.title,
             time: question.time,
             answerOptions: question.answerOptions,
+            answerText: question.answerText,
             image: imageUrl,
           });
         } else {
@@ -123,6 +139,7 @@ const CreateGamePage = () => {
             mode: question.mode,
             title: question.title,
             time: question.time,
+            answerText: question.answerText,
             answerOptions: question.answerOptions,
           });
         }

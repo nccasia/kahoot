@@ -1,6 +1,7 @@
 export interface IAnswerOption {
   options: string[];
   correctIndex: number | null;
+  correctIndexes: number[] | null;
 }
 export interface IQuestion {
   id?: string;
@@ -10,6 +11,7 @@ export interface IQuestion {
   ownerId?: string;
   gameId?: string;
   answerOptions: IAnswerOption;
+  answerText?: string;
   isError?: boolean;
   imageFile?: File;
   image?: string;
@@ -20,6 +22,7 @@ export interface IAddQuestionToGameDTO {
   time: number;
   title: string;
   answerOptions: IAnswerOption;
+  answerText?: string;
   imageFile?: File | null;
   image?: string | null;
 }
