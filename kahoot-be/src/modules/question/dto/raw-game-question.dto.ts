@@ -1,7 +1,10 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { Question } from '../entities/question.entity';
-import { SingleChoiceGameAnswerOptions } from '../types';
+import {
+  MultipleChoiceGameAnswerOptions,
+  SingleChoiceGameAnswerOptions,
+} from '../types';
 
 export class RawGameQuestionDto extends PickType(Question, [
   'id',
@@ -10,12 +13,28 @@ export class RawGameQuestionDto extends PickType(Question, [
   'title',
   'image',
 ]) {
-  @ApiProperty({ type: () => SingleChoiceGameAnswerOptions, isArray: true })
+  @ApiProperty({
+    type: () => [
+      SingleChoiceGameAnswerOptions,
+      MultipleChoiceGameAnswerOptions,
+    ],
+    isArray: true,
+  })
   @Expose()
-  answerOptions: SingleChoiceGameAnswerOptions;
+  answerOptions?:
+    | SingleChoiceGameAnswerOptions
+    | MultipleChoiceGameAnswerOptions
+    | undefined;
+
   @ApiProperty()
   @Expose()
-  correctIndex: number;
+  correctIndex?: number;
+  @ApiProperty()
+  @Expose()
+  correctIndexs?: number[];
+  @ApiProperty()
+  @Expose()
+  answerText?: string;
   @ApiProperty()
   @Expose()
   startTime: Date;

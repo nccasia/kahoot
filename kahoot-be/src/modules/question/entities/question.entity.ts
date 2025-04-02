@@ -11,11 +11,13 @@ import {
   IsNotEmpty,
   IsPositive,
   IsUUID,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import {
   AnswerOptionsDto,
+  MultipleChoiceAnswerOptionsDto,
   QuestionMode,
   SingleChoiceAnswerOptionsDto,
 } from '../types';
@@ -47,13 +49,22 @@ export class Question extends AbstractEntity {
   @Column({ nullable: true })
   image: string;
 
-  @ApiProperty({ type: () => SingleChoiceAnswerOptionsDto })
-  @IsNotEmpty()
+  @ApiProperty({
+    type: () => SingleChoiceAnswerOptionsDto,
+    nullable: true,
+  })
   @ValidateNested({ each: true })
   // more type. like multiple choice ...
   @Type(() => SingleChoiceAnswerOptionsDto)
-  @Column({ type: 'json' })
-  answerOptions: AnswerOptionsDto;
+  @Type(() => MultipleChoiceAnswerOptionsDto)
+  @Column({ type: 'json', nullable: true })
+  answerOptions?: AnswerOptionsDto;
+
+  @ApiProperty({ nullable: true })
+  @ValidateIf((o) => o.mode === QuestionMode.Text)
+  @Expose()
+  @Column({ nullable: true })
+  answerText?: string;
 
   @ApiProperty()
   @IsUUID()

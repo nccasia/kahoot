@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Question } from './entities/question.entity';
+import { QuestionMode } from './types';
 
 @Injectable()
 export class QuestionService {
@@ -23,17 +24,53 @@ export class QuestionService {
     gameId: string,
     payload: AccessTokenPayload,
   ) {
-    const isQuestionInvalid = createQuestionDtoes.some((question) => {
+    const singleChoiceQuestions = createQuestionDtoes.filter(
+      (question) => question.mode === QuestionMode.SingleChoice,
+    );
+
+    const multipleChoiceQuestions = createQuestionDtoes.filter(
+      (question) => question.mode === QuestionMode.MultipleChoice,
+    );
+
+    const textQuestions = createQuestionDtoes.filter(
+      (question) => question.mode === QuestionMode.Text,
+    );
+
+    const isSingleQuestionInvalid = singleChoiceQuestions.some((question) => {
       return (
         question.answerOptions.options.length < 2 ||
         question.answerOptions.options.length > MAX_QUESTION_OPTIONS
       );
     });
 
-    if (isQuestionInvalid) {
+    const isMultipleQuestionInvalid = multipleChoiceQuestions.some(
+      (question) =>
+        question.answerOptions.options.length < 3 ||
+        question.answerOptions.options.length > MAX_QUESTION_OPTIONS,
+    );
+
+    const isTextQuestionInvalid = textQuestions.some(
+      (question) => !!question.answerText,
+    );
+
+    if (isSingleQuestionInvalid && singleChoiceQuestions.length > 0) {
       throw new BadRequestException({
-        message: `Question options must be between 2 and ${MAX_QUESTION_OPTIONS}`,
+        message: `Single choice question options must be between 2 and ${MAX_QUESTION_OPTIONS}`,
         errorCode: ERROR_CODES.QUESTION.QUESTION_LIMIT_EXCEEDED,
+      });
+    }
+
+    if (isMultipleQuestionInvalid && multipleChoiceQuestions.length > 0) {
+      throw new BadRequestException({
+        message: `Multiple choice question options must be between 3 and ${MAX_QUESTION_OPTIONS}`,
+        errorCode: ERROR_CODES.QUESTION.QUESTION_LIMIT_EXCEEDED,
+      });
+    }
+
+    if (isTextQuestionInvalid && textQuestions.length > 0) {
+      throw new BadRequestException({
+        message: `Text question must have an answer text`,
+        errorCode: ERROR_CODES.QUESTION.QUESTION_TEXT_ANSWER_REQUIRED,
       });
     }
 
@@ -115,6 +152,47 @@ export class QuestionService {
         message: `Question with id ${questionId} not found or you are not the owner`,
         errorCode: ERROR_CODES.QUESTION.QUESTION_NOT_FOUND,
       });
+    }
+
+    switch (question.mode) {
+      case QuestionMode.SingleChoice:
+        if (
+          updateQuestionDto.answerOptions &&
+          updateQuestionDto.answerOptions.options.length < 2
+        ) {
+          throw new BadRequestException({
+            message: `Single choice question options must be between 2 and ${MAX_QUESTION_OPTIONS}`,
+            errorCode: ERROR_CODES.QUESTION.QUESTION_LIMIT_EXCEEDED,
+          });
+        }
+        break;
+
+      case QuestionMode.MultipleChoice:
+        if (
+          updateQuestionDto.answerOptions &&
+          updateQuestionDto.answerOptions.options.length < 3
+        ) {
+          throw new BadRequestException({
+            message: `Multiple choice question options must be between 3 and ${MAX_QUESTION_OPTIONS}`,
+            errorCode: ERROR_CODES.QUESTION.QUESTION_LIMIT_EXCEEDED,
+          });
+        }
+        break;
+
+      case QuestionMode.Text:
+        if (updateQuestionDto.answerText) {
+          throw new BadRequestException({
+            message: `Text question must not have an answer text`,
+            errorCode: ERROR_CODES.QUESTION.QUESTION_TEXT_ANSWER_REQUIRED,
+          });
+        }
+        break;
+
+      default:
+        throw new BadRequestException({
+          message: `Question mode is invalid`,
+          errorCode: ERROR_CODES.QUESTION.INVALID_QUESTION_ID,
+        });
     }
     const updatedQuestion = await this.questionRepository.save({
       ...question,

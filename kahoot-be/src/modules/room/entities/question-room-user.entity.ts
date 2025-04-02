@@ -14,8 +14,14 @@ export class QuestionRoomUser extends AbstractEntity {
   @Column({ nullable: false, name: 'question_id' })
   questionId: string;
 
-  @Column({ nullable: false })
-  answerIndex: number;
+  @Column({ nullable: true })
+  answerIndex?: number;
+
+  @Column({ nullable: true })
+  answerText?: string;
+
+  @Column({ nullable: true, type: 'int', array: true })
+  answerIndexs?: number[];
 
   @Column({ nullable: false })
   isCorrect: boolean;

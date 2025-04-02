@@ -9,6 +9,11 @@ import {
 import { GameQuestionDto } from '@modules/question/dto/game-question.dto';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
 import { Question } from '@modules/question/entities/question.entity';
+import {
+  MultipleChoiceAnswerOptionsDto,
+  QuestionMode,
+  SingleChoiceAnswerOptionsDto,
+} from '@modules/question/types';
 import { User } from '@modules/user/entities/user.entity';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -303,8 +308,33 @@ export class RoomGateway
       return;
     }
 
-    const isCorrect =
-      currentGameQuestion.correctIndex === submitDto.answerIndex;
+    let isCorrect = false;
+    switch (currentGameQuestion.mode) {
+      case QuestionMode.SingleChoice:
+        isCorrect = currentGameQuestion.correctIndex === submitDto.answerIndex;
+        break;
+
+      case QuestionMode.MultipleChoice:
+        isCorrect =
+          currentGameQuestion.correctIndexs &&
+          currentGameQuestion.correctIndexs.length > 0 &&
+          currentGameQuestion.correctIndexs.every((index) => {
+            return submitDto.answerIndexes?.includes(index);
+          });
+        break;
+
+      case QuestionMode.Text:
+        isCorrect =
+          currentGameQuestion.answerText?.toLowerCase() ===
+          submitDto.answerText?.toLowerCase();
+        break;
+
+      default:
+        client.emit(ClientConnectionEvent.ClientError, {
+          message: 'Invalid question mode',
+        });
+        return;
+    }
 
     const lastSubmitResult = await this.questionRoomUsersRepository.findOne({
       where: {
@@ -326,15 +356,48 @@ export class RoomGateway
       isCorrect,
     );
 
-    const newSubmitResult = this.questionRoomUsersRepository.create({
-      roomId: submitDto.roomId,
-      userId: client.user.userId,
-      questionId: currentGameQuestion.id,
-      isCorrect,
-      point: questionPoint,
-      answerIndex: submitDto.answerIndex,
-      submittedAt: submitTime.toISOString(),
-    });
+    let newSubmitResult: QuestionRoomUser;
+    switch (currentGameQuestion.mode) {
+      case QuestionMode.SingleChoice:
+        newSubmitResult = this.questionRoomUsersRepository.create({
+          roomId: submitDto.roomId,
+          userId: client.user.userId,
+          questionId: currentGameQuestion.id,
+          isCorrect,
+          point: questionPoint,
+          answerIndex: submitDto.answerIndex,
+          submittedAt: submitTime.toISOString(),
+        });
+        break;
+
+      case QuestionMode.MultipleChoice:
+        newSubmitResult = this.questionRoomUsersRepository.create({
+          roomId: submitDto.roomId,
+          userId: client.user.userId,
+          questionId: currentGameQuestion.id,
+          isCorrect,
+          point: questionPoint,
+          answerIndexs: submitDto.answerIndexes,
+          submittedAt: submitTime.toISOString(),
+        });
+        break;
+
+      case QuestionMode.Text:
+        newSubmitResult = this.questionRoomUsersRepository.create({
+          roomId: submitDto.roomId,
+          userId: client.user.userId,
+          questionId: currentGameQuestion.id,
+          isCorrect,
+          point: questionPoint,
+          answerText: submitDto.answerText,
+          submittedAt: submitTime.toISOString(),
+        });
+      default:
+        client.emit(ClientConnectionEvent.ClientError, {
+          message: 'Invalid question mode',
+        });
+        return;
+    }
 
     await this.roomCacheService.setUserAnswer(submitDto.roomId, {
       ...newSubmitResult,
@@ -524,9 +587,17 @@ export class RoomGateway
       ).toISOString(),
     });
     await this.roomQuestionsRepository.save(roomQuestion);
+
     const rawGameQuestion = plainToInstance(RawGameQuestionDto, {
       ...question,
-      correctIndex: question.answerOptions.correctIndex,
+      correctIndex:
+        question.mode === QuestionMode.SingleChoice &&
+        (question.answerOptions as SingleChoiceAnswerOptionsDto)?.correctIndex,
+      correctIndexs:
+        question.mode === QuestionMode.MultipleChoice &&
+        (question.answerOptions as MultipleChoiceAnswerOptionsDto)
+          ?.correctIndexes,
+      answerText: question.mode === QuestionMode.Text && question.answerText,
       startTime: roomQuestion.startTime,
       endTime: roomQuestion.endTime,
     });
@@ -535,7 +606,9 @@ export class RoomGateway
       GameQuestionDto,
       {
         ...rawGameQuestion,
-        answerOptions: { options: rawGameQuestion?.answerOptions?.options },
+        answerOptions: question.mode !== QuestionMode.Text && {
+          options: rawGameQuestion?.answerOptions?.options,
+        },
       },
       {
         excludeExtraneousValues: true,
@@ -643,11 +716,49 @@ export class RoomGateway
         });
 
         // Emit correct answer to room
-        this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
-          questionId: currentGameQuestion.id,
-          correctIndex: currentGameQuestion.correctIndex,
-          questionAnalysis: questionAnalysis,
-        });
+        switch (currentGameQuestion.mode) {
+          case QuestionMode.SingleChoice:
+            this.server
+              .to(roomId)
+              .emit(RoomServerEvent.ServerEmitCorrectAnswer, {
+                questionMode: currentGameQuestion.mode,
+                questionId: currentGameQuestion.id,
+                totalOptions:
+                  currentGameQuestion?.answerOptions?.options?.length,
+                correctIndex: currentGameQuestion?.correctIndex,
+                questionAnalysis: questionAnalysis,
+              });
+            break;
+
+          case QuestionMode.MultipleChoice:
+            this.server
+              .to(roomId)
+              .emit(RoomServerEvent.ServerEmitCorrectAnswer, {
+                questionMode: currentGameQuestion.mode,
+                questionId: currentGameQuestion.id,
+                totalOptions:
+                  currentGameQuestion?.answerOptions?.options?.length,
+                correctIndexs: currentGameQuestion?.correctIndexs,
+                questionAnalysis: questionAnalysis,
+              });
+            break;
+
+          case QuestionMode.Text:
+            this.server
+              .to(roomId)
+              .emit(RoomServerEvent.ServerEmitCorrectAnswer, {
+                questionMode: currentGameQuestion.mode,
+                questionId: currentGameQuestion.id,
+                totalOptions:
+                  currentGameQuestion?.answerOptions?.options?.length,
+                correctText: currentGameQuestion?.answerText,
+                questionAnalysis: questionAnalysis,
+              });
+            break;
+
+          default:
+            break;
+        }
       }
     }
 
@@ -723,12 +834,40 @@ export class RoomGateway
     });
 
     // Emit correct answer to room
-    this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
-      questionId: rawGameQuestion.id,
-      totalOptions: rawGameQuestion?.answerOptions?.options?.length,
-      correctIndex: rawGameQuestion.correctIndex,
-      questionAnalysis: questionAnalysis,
-    });
+    switch (rawGameQuestion.mode) {
+      case QuestionMode.SingleChoice:
+        this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
+          questionMode: rawGameQuestion.mode,
+          questionId: rawGameQuestion.id,
+          totalOptions: rawGameQuestion?.answerOptions?.options?.length,
+          correctIndex: rawGameQuestion?.correctIndex,
+          questionAnalysis: questionAnalysis,
+        });
+        break;
+
+      case QuestionMode.MultipleChoice:
+        this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
+          questionMode: rawGameQuestion.mode,
+          questionId: rawGameQuestion.id,
+          totalOptions: rawGameQuestion?.answerOptions?.options?.length,
+          correctIndexs: rawGameQuestion?.correctIndexs,
+          questionAnalysis: questionAnalysis,
+        });
+        break;
+
+      case QuestionMode.Text:
+        this.server.to(roomId).emit(RoomServerEvent.ServerEmitCorrectAnswer, {
+          questionMode: rawGameQuestion.mode,
+          questionId: rawGameQuestion.id,
+          totalOptions: rawGameQuestion?.answerOptions?.options?.length,
+          correctText: rawGameQuestion?.answerText,
+          questionAnalysis: questionAnalysis,
+        });
+        break;
+
+      default:
+        break;
+    }
 
     await this.roomCacheService.setFinishedQuestion(roomId, rawGameQuestion.id);
     const totalQuestions =
