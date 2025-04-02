@@ -11,11 +11,11 @@ const timeOptions: Array<{
   label: string;
   value: number;
 }> = [
-  { label: "15s", value: 15 },
-  { label: "30s", value: 30 },
-  { label: "45s", value: 45 },
-  { label: "60s", value: 60 },
-];
+    { label: "15s", value: 15 },
+    { label: "30s", value: 30 },
+    { label: "45s", value: 45 },
+    { label: "60s", value: 60 },
+  ];
 
 interface IQuestionItemProps {
   question: IQuestion;
@@ -139,14 +139,22 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     if (!question.image) return;
 
     try {
+      URL.revokeObjectURL(question.image); // Xóa URL cũ khỏi bộ nhớ trình duyệt
+
       const newQuestion = {
         ...question,
         image: undefined,
-        imageFile: undefined,
+        imageFile: undefined
       };
+
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+
+      // Reset input file để chọn lại ảnh cũ cũng được trigger
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     } catch (error) {
-      console.error("Lỗi xóa ảnh:", error);
+      console.error('Lỗi xóa ảnh:', error);
     }
   };
 

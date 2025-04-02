@@ -101,7 +101,7 @@ const CreateGamePage = () => {
         toast.error("Lỗi khi lưu game!");
         return;
       }
-      const gameId = "createGameResponse.data.id";
+      const gameId = createGameResponse.data.id;
       const listQuestions: IAddQuestionToGameDTO[] = [];
       for (const question of gameState.listQuestions) {
         if (question.imageFile) {
