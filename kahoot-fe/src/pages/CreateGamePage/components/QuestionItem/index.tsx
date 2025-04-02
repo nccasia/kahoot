@@ -159,14 +159,22 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     if (!question.image) return;
 
     try {
+      URL.revokeObjectURL(question.image); // Xóa URL cũ khỏi bộ nhớ trình duyệt
+
       const newQuestion = {
         ...question,
         image: undefined,
-        imageFile: undefined,
+        imageFile: undefined
       };
+
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+
+      // Reset input file để chọn lại ảnh cũ cũng được trigger
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     } catch (error) {
-      console.error("Lỗi xóa ảnh:", error);
+      console.error('Lỗi xóa ảnh:', error);
     }
   };
 

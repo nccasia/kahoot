@@ -2,6 +2,7 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import SelectDropdown from "@/components/SelectDropdown";
 import { IQuestion } from "@/interfaces/questionTypes";
+import { useRef } from "react";
 interface IQuestionContentProps {
   question: IQuestion;
   handleUpdateQuestion: (question: IQuestion) => void;
@@ -12,16 +13,17 @@ interface IQuestionContentProps {
   onConfirmSaveChange: () => void;
   dataUpdate: IQuestion;
   changeDataUpdate: (data: IQuestion) => void;
+  handleDeleteQuestion?: (questionId: string) => void;
 }
 const timeOptions: Array<{
   label: string;
   value: number;
 }> = [
-  { label: "15s", value: 15 },
-  { label: "30s", value: 30 },
-  { label: "45s", value: 45 },
-  { label: "60s", value: 60 },
-];
+    { label: "15s", value: 15 },
+    { label: "30s", value: 30 },
+    { label: "45s", value: 45 },
+    { label: "60s", value: 60 },
+  ];
 const QuestionContent = ({
   question,
   onOpenModalConfirmDeleteQuestion,
@@ -94,20 +96,81 @@ const QuestionContent = ({
     }
     changeDataUpdate(newQuestion);
   };
+  const handleDeleteImage = async () => {
+    if (!dataUpdate.image) return;
 
+    try {
+      URL.revokeObjectURL(dataUpdate.image);
+
+      const newQuestion = {
+        ...dataUpdate,
+        image: undefined,
+        imageFile: undefined
+      };
+
+      changeDataUpdate(newQuestion);
+      if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error('Lỗi xóa ảnh:', error);
+    }
+  };
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      try {
+        const newQuestion = {
+          ...dataUpdate,
+          image: URL.createObjectURL(file),
+          imageFile: file,
+        }; changeDataUpdate(newQuestion);
+        if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+      } catch (error) {
+        console.error("Lỗi upload ảnh:", error);
+      }
+    }
+  };
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleAddImage = () => {
+    fileInputRef.current?.click();
+  };
   return (
     <div className='body p-2 font-coiny text-white'>
       <div className='flex flex-col gap-3'>
         {isEditing ? (
           <>
-            <div className='flex items-center flex-wrap'>
-              <span className='inline-block font-coiny min-w-[200px] text-start text-2xl'>Câu hỏi:</span>
-              <Input
-                onChange={(e) => handleChange(e, "title")}
-                value={dataUpdate.title}
-                className='flex-1 rounded-lg font-coiny'
-              />
+            <div className='flex flex-col items-start flex-wrap'>
+              <div className='flex items-center w-full'>
+                <span className='inline-block font-coiny min-w-[200px] text-start text-2xl'>Câu hỏi:</span>
+                <Input
+                  onChange={(e) => handleChange(e, 'title')}
+                  value={dataUpdate.title}
+                  className='flex-1 rounded-lg font-coiny'
+                />
+                <span
+                  onClick={handleAddImage}
+                  className='ml-7 w-[40px] h-[40px] flex items-center justify-center cursor-pointer hover:bg-green-500 transition-all rounded-full'
+                >
+                  <img className='w-[40px] h-[40px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
+                </span>
+              </div>
+              <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
+              {dataUpdate.image && (
+                <div className='relative mt-2 border-2 border-gray-100 rounded-md p-2 self-start'>
+                  <img src={dataUpdate.image} className='w-auto h-[150px] object-cover rounded-md' />
+                  <span
+                    onClick={handleDeleteImage}
+                    className='absolute top-[-5px] right-[-5px] w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-red-600 transition-all'
+                  >
+                    <img src='/icons/remove.png' />
+                  </span>
+                </div>
+              )}
             </div>
+
             <div className='flex flex-col gap-3 mt-2 pt-2 border-t-2 border-gray-100'>
               {dataUpdate.answerOptions?.options.map((option, index) => (
                 <div key={index} className='flex items-center flex-wrap gap-1'>
@@ -143,6 +206,7 @@ const QuestionContent = ({
               ))}
             </div>
             <div className='flex'>
+
               <div className='ml-[208px] flex gap-2'>
                 <Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
                   <img className='w-10' src='/icons/PlusIcon.png' />
@@ -152,15 +216,27 @@ const QuestionContent = ({
             </div>
           </>
         ) : (
-          question.answerOptions?.options.map((option, index) => (
-            <div key={index} className='flex items-center flex-wrap gap-2 min-h-[30px] font-coiny '>
-              <span className='w-[50px] inline-block'>{index + 1}.</span>
-              <span className='flex-1 text-start'>{option}</span>
-              <span className='w-[50px] inline-block'>
-                {question.answerOptions?.correctIndex === index && <img className='w-[25px]' src='/icons/icon-checked.png' />}
-              </span>
+          <div className='flex flex-col gap-2'>
+            {question.image && (
+              <div className='border-2 border-gray-100 rounded-md p-2 w-fit'>
+                <img src={question.image} className='w-auto h-[150px] object-cover rounded-md' />
+              </div>
+            )}
+
+            <div className='mt-2'>
+              {question.answerOptions?.options.map((option, index) => (
+                <div key={index} className='flex items-center flex-wrap gap-2 min-h-[30px] font-coiny'>
+                  <span className='w-[50px] inline-block'>{index + 1}.</span>
+                  <span className='flex-1 text-start'>{option}</span>
+                  <span className='w-[50px] inline-block'>
+                    {question.answerOptions?.correctIndex === index && (
+                      <img className='w-[25px]' src='/icons/icon-checked.png' />
+                    )}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))
+          </div>
         )}
       </div>
       {isEditing ? (

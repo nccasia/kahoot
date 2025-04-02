@@ -35,6 +35,8 @@ const ModalSaveGame = () => {
         return;
       }
       const gameId = createGameResponse.data.id;
+      console.log("gameId", gameId);
+
       const listQuestions: IAddQuestionToGameDTO[] = gameState.listQuestions?.map((question) => ({
         mode: question.mode,
         title: question.title,

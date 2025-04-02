@@ -20,10 +20,8 @@ const WaitingRoom = () => {
       try {
         const response = await roomServices.getRoomById(roomId);
         if (response.statusCode !== 200) {
-          console.log("error", response);
           return;
         }
-        console.log("response", response);
         // Do something with the room data
         roomDispatch(RoomActions.changeCurrentRoom(response.data));
       } catch (error) {
@@ -47,7 +45,6 @@ const WaitingRoom = () => {
   const handleStartGame = () => {
     if (!socket) return;
     if (!roomId) return;
-    console.log("emit event start game", roomId);
     socket.emit(SocketEvents.EMIT.OwnerStartGame, roomId);
   };
   return (
