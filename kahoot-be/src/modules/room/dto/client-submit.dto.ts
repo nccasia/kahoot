@@ -13,7 +13,14 @@ export class ClientSubmitDto {
   questionId: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsString()
+  answerText?: string;
+
+  @ApiProperty()
   @IsInt()
-  answerIndex: number;
+  answerIndex?: number;
+
+  @ApiProperty()
+  @IsInt({ each: true })
+  answerIndexes?: number[];
 }

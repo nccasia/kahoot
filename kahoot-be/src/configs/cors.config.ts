@@ -1,9 +1,7 @@
+const extendOrigin = process.env.EXTEND_CORS
+  ? process.env.EXTEND_CORS.split(';')
+  : [];
 export const corsConfig = {
-  origin: [
-    'http://localhost:5173',
-    'https://do-ban.nccsoft.vn',
-    'https://doban.vncsoft.com',
-    'https://doban.thindev.test',
-  ],
+origin: ['https://do-ban.nccsoft.vn', ...extendOrigin],
   credentials: true,
 };

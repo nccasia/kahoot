@@ -42,6 +42,7 @@ const QuestionBox = ({ questions, gameId }: QuestionItemProps) => {
       answerOptions: {
         options: ["", "", "", ""],
         correctIndex: null,
+        correctIndexes: null,
       },
     };
     gameDispatch(GameActions.addQuestion([newQuestion]));
