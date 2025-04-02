@@ -50,7 +50,7 @@ export class QuestionService {
     );
 
     const isTextQuestionInvalid = textQuestions.some(
-      (question) => !!question.answerText,
+      (question) => !!!question.answerText,
     );
 
     if (isSingleQuestionInvalid && singleChoiceQuestions.length > 0) {

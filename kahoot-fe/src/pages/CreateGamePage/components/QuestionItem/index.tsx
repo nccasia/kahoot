@@ -2,20 +2,12 @@ import Button from "@/components/Button";
 import Collapse from "@/components/Collapse";
 import Input from "@/components/Input";
 import SelectDropdown from "@/components/SelectDropdown";
+import { EQuestionTypes, questionTypeOptions } from "@/constants/QuestionTypes";
+import timeOptions from "@/constants/TimeOptions";
 import { IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import GameActions from "@/stores/gameStore/gameAction";
 import { useCallback, useContext, useRef, useState } from "react";
-
-const timeOptions: Array<{
-  label: string;
-  value: number;
-}> = [
-  { label: "15s", value: 15 },
-  { label: "30s", value: 30 },
-  { label: "45s", value: 45 },
-  { label: "60s", value: 60 },
-];
 
 interface IQuestionItemProps {
   question: IQuestion;
@@ -30,7 +22,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
 
   const handleFocus = (field: string | number) => {
     if (typeof field === "string") {
-      setTextValue(question.title);
+      setTextValue(question[field as keyof IQuestion] as string);
     } else {
       setTextValue(question.answerOptions?.options[field]);
     }
@@ -49,13 +41,14 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
       ...question,
     };
     if (typeof field === "string") {
-      newQuestion.title = textValue;
+      newQuestion[field as "title" | "answerText"] = textValue;
     } else {
       newQuestion.answerOptions.options[field] = textValue;
     }
     if (question.isError) {
       newQuestion.isError = !checkQuestionData(newQuestion);
     }
+    console.log("newQuestion", newQuestion);
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
   const handleChangeCorrectAnswer = (index: number) => {
@@ -68,10 +61,37 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
+
+  const handleToogleCorrectAnswerOfMultipleChoiceQuestion = (index: number) => {
+    const newQuestion = {
+      ...question,
+    };
+    if (newQuestion.answerOptions?.correctIndexes) {
+      if (newQuestion.answerOptions.correctIndexes?.includes(index)) {
+        newQuestion.answerOptions.correctIndexes = newQuestion.answerOptions.correctIndexes.filter((i) => i !== index);
+      } else {
+        newQuestion.answerOptions.correctIndexes.push(index);
+      }
+    } else {
+      newQuestion.answerOptions.correctIndexes = [index];
+    }
+    if (question.isError) {
+      newQuestion.isError = !checkQuestionData(newQuestion);
+    }
+    if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+  };
+
   const handleChangeTime = (option: { label: string; value: number | string }) => {
     const newQuestion = {
       ...question,
       time: option.value as number,
+    };
+    if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+  };
+  const handleChangeQuestionType = (option: { label: string; value: string | number }) => {
+    const newQuestion = {
+      ...question,
+      mode: option.value as string,
     };
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
@@ -152,6 +172,25 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
 
   return (
     <div className='body p-4 font-coiny text-white'>
+      <div className='flex justify-end mb-3'>
+        <div className='max-w-[100px] w-full mr-2'>
+          <SelectDropdown
+            dropdownPosition='bottom'
+            leftIcon={<img className='w-5' src='/icons/icon-clock.png' />}
+            selectedValue={question.time}
+            options={timeOptions}
+            onSelect={handleChangeTime}
+          />
+        </div>
+        <div className='max-w-[250px] w-full'>
+          <SelectDropdown
+            dropdownPosition='bottom'
+            selectedValue={question.time}
+            options={questionTypeOptions}
+            onSelect={handleChangeQuestionType}
+          />
+        </div>
+      </div>
       <div className='flex items-center flex-wrap'>
         <span className='inline-block min-w-[200px] text-start text-2xl'>Câu hỏi:</span>
         <Input
@@ -184,47 +223,78 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         )}
       </div>
       <div className='flex flex-col gap-3 mt-2 pt-2 border-t-2 border-gray-100'>
-        {question.answerOptions?.options.map((option, index) => (
-          <div key={index} className='flex items-center flex-wrap gap-1'>
-            <span className='inline-block min-w-[200px] text-start text-2xl'>Đáp án {index + 1}:</span>
+        {question.mode === EQuestionTypes.TEXT ? (
+          <div className='flex items-center flex-wrap gap-1'>
+            <span className='inline-block min-w-[195px] text-start text-2xl'>Đáp án :</span>
             <div className='input-box flex-1 min-w-[300px] relative'>
-              <div
-                onClick={() => handleChangeCorrectAnswer(index)}
-                className='absolute cursor-pointer left-0 top-1/2 -translate-y-1/2 flex w-[40px] rounded-lg h-full bg-[#1C0C8E] items-center justify-center'
-              >
-                <div className='absolute left-0 top-0 z-10 w-full h-full flex items-center justify-center'>
-                  <div className={`w-5 h-5 border-white border-2 rounded-full flex items-center justify-center`}>
-                    {question.answerOptions.correctIndex === index && (
-                      <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>
-                    )}
-                  </div>
-                </div>
-              </div>
               <Input
-                onFocus={() => handleFocus(index)}
-                onBlur={() => handleBlur(index)}
+                onFocus={() => handleFocus("answerText")}
+                onBlur={() => handleBlur("answerText")}
                 onChange={handleChange}
-                defaultValue={option}
-                className='rounded-lg w-full pl-11'
+                defaultValue={question.answerText}
+                className='rounded-lg w-full '
               />
             </div>
-            <div className='w-16 flex justify-end items-center'>
-              <span
-                onClick={() => handleDeleteAnswer(index)}
-                className='w-[40px] h-[40px] p-3 flex items-center justify-center bg-[#6B00E7] rounded-md cursor-pointer hover:bg-red-500 transition-all'
-              >
-                <img src='/icons/CloseIcon.png' />
-              </span>
-            </div>
           </div>
-        ))}
+        ) : (
+          <>
+            {question.answerOptions?.options.map((option, index) => (
+              <div key={index} className='flex items-center flex-wrap gap-1'>
+                <span className='inline-block min-w-[200px] text-start text-2xl'>Đáp án {index + 1}:</span>
+                <div className='input-box flex-1 min-w-[300px] relative'>
+                  {question.mode === EQuestionTypes.SINGLE_CHOICE ? (
+                    <div
+                      onClick={() => handleChangeCorrectAnswer(index)}
+                      className='absolute cursor-pointer left-0 top-1/2 -translate-y-1/2 flex w-[40px] rounded-lg h-full bg-[#1C0C8E] items-center justify-center'
+                    >
+                      <div className='absolute left-0 top-0 z-10 w-full h-full flex items-center justify-center'>
+                        <div className={`w-5 h-5 border-white border-2 rounded-full flex items-center justify-center`}>
+                          {question.answerOptions.correctIndex === index && (
+                            <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => handleToogleCorrectAnswerOfMultipleChoiceQuestion(index)}
+                      className='absolute cursor-pointer left-0 top-1/2 -translate-y-1/2 flex w-[40px] rounded-lg h-full bg-[#1C0C8E] items-center justify-center'
+                    >
+                      <div className='absolute left-0 top-0 z-10 w-full h-full flex items-center justify-center'>
+                        <div className={`w-5 h-5 border-white border-2 rounded-sm flex items-center justify-center`}>
+                          {question.answerOptions.correctIndexes?.includes(index) && (
+                            <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <Input
+                    onFocus={() => handleFocus(index)}
+                    onBlur={() => handleBlur(index)}
+                    onChange={handleChange}
+                    defaultValue={option}
+                    className='rounded-lg w-full pl-11'
+                  />
+                </div>
+                <div className='w-16 flex justify-end items-center'>
+                  <span
+                    onClick={() => handleDeleteAnswer(index)}
+                    className='w-[40px] h-[40px] p-3 flex items-center justify-center bg-[#6B00E7] rounded-md cursor-pointer hover:bg-red-500 transition-all'
+                  >
+                    <img src='/icons/CloseIcon.png' />
+                  </span>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
       <div className='flex justify-between mt-4'>
         <div className='ml-[208px] flex gap-2'>
           <Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
-            <img className='w-10' src='/icons/PlusIcon.png' />
+            <img className='w-5' src='/icons/PlusIcon.png' />
           </Button>
-          <SelectDropdown selectedValue={question.time} options={timeOptions} onSelect={handleChangeTime} />
         </div>
         {isShowDeleteButton && (
           <>
@@ -242,6 +312,7 @@ const QuestionItem = ({ question, index, isShowDeleteButton }: IQuestionItemProp
   const { gameState, gameDispatch } = useContext(GameContext);
   const handleUpdateQuestion = useCallback(
     (question: IQuestion) => {
+      console.log("question", question);
       gameDispatch(GameActions.changeQuestionValue(question));
     },
     [gameDispatch]

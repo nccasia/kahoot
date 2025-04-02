@@ -61,6 +61,7 @@ function convertArrayToJSON(inputArray: string[]) {
         answerOptions: {
           options: [],
           correctIndex: null,
+          correctIndexes: null,
         }, // This field is not used in the current version of the app
         isError: false,
         title: currentItem.replace(questionRegex, "").trim(), // Remove the question number e.g. 1. or Câu 1.
