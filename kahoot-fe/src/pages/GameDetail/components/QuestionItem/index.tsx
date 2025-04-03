@@ -41,9 +41,37 @@ const QuestionItem = ({
   };
 
   const checkQuestionData = (dataUpdate: IQuestion) => {
-    const checkAnswerOptions = dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "");
+    console.log('question', dataUpdate);
+
+    // Kiểm tra các tùy chọn trả lời có hợp lệ không (không rỗng và không chỉ chứa khoảng trắng)
+    const checkAnswerOptions = dataUpdate.answerOptions.options.every(
+      (option) => option && option.trim() !== ""
+    );
+
+    // Kiểm tra tiêu đề câu hỏi có hợp lệ không (không rỗng và không chỉ chứa khoảng trắng)
     const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
-    const checkCorrectIndex = dataUpdate.answerOptions.correctIndex !== null && dataUpdate.answerOptions.correctIndex >= 0;
+
+    // Kiểm tra correctIndex hoặc correctIndexes tùy theo loại câu hỏi
+    let checkCorrectIndex = false;
+
+    if (dataUpdate.mode === 'SingleChoice') {
+      // Nếu là SingleChoice, kiểm tra correctIndex không nhỏ hơn 0 và hợp lệ
+      checkCorrectIndex =
+        dataUpdate.answerOptions.correctIndex !== null &&
+        dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length;
+    } else if (dataUpdate.mode === 'MultipleChoice') {
+      checkCorrectIndex =
+        Array.isArray(dataUpdate.answerOptions.correctIndex) &&
+        dataUpdate.answerOptions.correctIndex.length > 0 && // ✅ Phải có ít nhất 1 giá trị
+        dataUpdate.answerOptions.correctIndex.every(
+          (index) => index >= 0 && index < dataUpdate.answerOptions.options.length
+        );
+    }
+    else {
+      checkCorrectIndex = true;
+    }
+
+    console.log(checkAnswerOptions, checkTitle, checkCorrectIndex);
     return checkAnswerOptions && checkTitle && checkCorrectIndex;
   };
 
@@ -51,7 +79,7 @@ const QuestionItem = ({
     gameDispatch(GameActions.changeIsSubmitting(true));
     try {
       if (!checkQuestionData(dataUpdate)) {
-        toast.warning("Vui lòng điền đầy đủ thông tin câu hỏi!");
+        toast.warning("Vui lòng điền đầy đủ thông tin câu hỏi !");
         return;
       }
       if (gameState.isCreateQuestionOfGame) {
