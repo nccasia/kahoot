@@ -159,7 +159,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     if (!question.image) return;
 
     try {
-      URL.revokeObjectURL(question.image); // Xóa URL cũ khỏi bộ nhớ trình duyệt
+      URL.revokeObjectURL(question.image);
 
       const newQuestion = {
         ...question,
@@ -169,7 +169,6 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
 
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
 
-      // Reset input file để chọn lại ảnh cũ cũng được trigger
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -210,12 +209,11 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         />
         <span
           onClick={handleAddImage}
-          className='ml-7 w-[40px] h-[40px] flex items-center justify-center cursor-pointer hover:bg-green-500 transition-all rounded-full'
+          className='ml-2 w-[50px] h-[50px] flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all rounded-full border border-white'
         >
-          <img className='w-[40px] h-[40px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
+          <img className='w-[30px] h-[30px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
+          <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
         </span>
-
-        <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
       </div>
       <div className='relative flex '>
         {question.image && (
