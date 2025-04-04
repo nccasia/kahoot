@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Collapse from "@/components/Collapse";
+import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { IAddQuestionToGameDTO, IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import questionServices from "@/services/questionServices";
@@ -15,6 +16,7 @@ interface IQuestionItemProps {
   onOpenModalConfirmDeleteQuestion?: (questionId: string) => void;
   isEditing?: boolean;
   gameId: string;
+
 }
 
 const QuestionItem = ({
@@ -26,7 +28,21 @@ const QuestionItem = ({
   handleUpdateQuestion,
 }: IQuestionItemProps) => {
   const { gameState, gameDispatch } = useContext(GameContext);
-  const [dataUpdate, setDataUpdate] = useState<IQuestion>(JSON.parse(JSON.stringify(question)));
+
+  const [dataUpdate, setDataUpdate] = useState<IQuestion>({
+    ...JSON.parse(JSON.stringify(question)),
+    answerOptions: {
+      options: question.answerOptions?.options || [],
+      correctIndex:
+        question.mode === EQuestionTypes.SINGLE_CHOICE
+          ? question.answerOptions?.correctIndex ?? null
+          : null,
+      correctIndexes:
+        question.mode === EQuestionTypes.MULTIPLE_CHOICE
+          ? question.answerOptions?.correctIndexes || []
+          : [],
+    },
+  });
 
   const handleChangeCollapse = (isOpen: boolean) => {
     if (gameState.isCreateQuestionOfGame) {
@@ -36,50 +52,56 @@ const QuestionItem = ({
     if (isOpen) {
       gameDispatch(GameActions.changeSelectedQuestion(question.id ?? ""));
       gameDispatch(GameActions.changeIsUpdateQuestionOfGame(false));
-      setDataUpdate(JSON.parse(JSON.stringify(question)));
+      setDataUpdate({
+        ...JSON.parse(JSON.stringify(question)),
+        answerOptions: {
+          options: question.answerOptions?.options || [],
+          correctIndex:
+            question.mode === EQuestionTypes.SINGLE_CHOICE
+              ? question.answerOptions?.correctIndex ?? null
+              : null,
+          correctIndexes:
+            question.mode === EQuestionTypes.MULTIPLE_CHOICE
+              ? question.answerOptions?.correctIndexes || []
+              : [],
+        },
+      });
     }
   };
 
   const checkQuestionData = (dataUpdate: IQuestion) => {
-    console.log('question', dataUpdate);
-
-    // Kiểm tra các tùy chọn trả lời có hợp lệ không (không rỗng và không chỉ chứa khoảng trắng)
-    const checkAnswerOptions = dataUpdate.answerOptions.options.every(
-      (option) => option && option.trim() !== ""
-    );
-
-    // Kiểm tra tiêu đề câu hỏi có hợp lệ không (không rỗng và không chỉ chứa khoảng trắng)
+    const checkAnswerOptions =
+      dataUpdate.mode !== EQuestionTypes.TEXT
+        ? dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "")
+        : true;
+    const checkAnswerIndexes =
+      dataUpdate.mode === EQuestionTypes.MULTIPLE_CHOICE
+        ? dataUpdate.answerOptions.correctIndexes && dataUpdate.answerOptions.correctIndexes.length > 0
+        : true;
     const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
+    const checkAnswerText =
+      dataUpdate.mode === EQuestionTypes.TEXT
+        ? dataUpdate?.answerText && dataUpdate.answerText?.trim() !== ""
+        : true;
+    const checkCorrectIndex =
+      dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
+        ? dataUpdate.answerOptions.correctIndex !== null &&
+        dataUpdate.answerOptions.correctIndex >= 0 &&
+        dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length
+        : true;
 
-    // Kiểm tra correctIndex hoặc correctIndexes tùy theo loại câu hỏi
-    let checkCorrectIndex = false;
-
-    if (dataUpdate.mode === 'SingleChoice') {
-      // Nếu là SingleChoice, kiểm tra correctIndex không nhỏ hơn 0 và hợp lệ
-      checkCorrectIndex =
-        dataUpdate.answerOptions.correctIndex !== null &&
-        dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length;
-    } else if (dataUpdate.mode === 'MultipleChoice') {
-      checkCorrectIndex =
-        Array.isArray(dataUpdate.answerOptions.correctIndex) &&
-        dataUpdate.answerOptions.correctIndex.length > 0 && // ✅ Phải có ít nhất 1 giá trị
-        dataUpdate.answerOptions.correctIndex.every(
-          (index) => index >= 0 && index < dataUpdate.answerOptions.options.length
-        );
-    }
-    else {
-      checkCorrectIndex = true;
-    }
-
-    console.log(checkAnswerOptions, checkTitle, checkCorrectIndex);
-    return checkAnswerOptions && checkTitle && checkCorrectIndex;
+    return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
   };
 
   const handleConfirmSaveChange = async () => {
     gameDispatch(GameActions.changeIsSubmitting(true));
     try {
       if (!checkQuestionData(dataUpdate)) {
-        toast.warning("Vui lòng điền đầy đủ thông tin câu hỏi !");
+        if (dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE && dataUpdate.answerOptions.correctIndex === null) {
+          toast.warning("Vui lòng chọn đáp án đúng!");
+        } else {
+          toast.warning("Vui lòng điền đầy đủ thông tin câu hỏi!");
+        }
         return;
       }
       if (gameState.isCreateQuestionOfGame) {
@@ -96,20 +118,19 @@ const QuestionItem = ({
           console.log("error", response);
           return;
         }
-        toast.success("Thêm câu hỏi thành công!")!;
+        toast.success("Thêm câu hỏi thành công!");
         gameDispatch(GameActions.changeIsCreateQuestionOfGame(false));
         gameDispatch(GameActions.changeIsUpdateQuestionOfGame(false));
         gameDispatch(GameActions.changeQuestionValue(dataUpdate));
         return;
       }
 
-      // update question
       const response = await questionServices.updateQuestion(dataUpdate);
       if (response.statusCode !== 200) {
         console.log("error", response);
         return;
       }
-      toast.success("Cập nhật câu hỏi thành công!")!;
+      toast.success("Cập nhật câu hỏi thành công!");
       gameDispatch(GameActions.changeIsUpdateQuestionOfGame(false));
       gameDispatch(GameActions.changeQuestionValue(dataUpdate));
     } catch (error) {
@@ -117,6 +138,9 @@ const QuestionItem = ({
     } finally {
       gameDispatch(GameActions.changeIsSubmitting(false));
     }
+    console.log("dataUpdate trước khi lưu:", dataUpdate);
+    console.log("Kết quả checkQuestionData:", checkQuestionData(dataUpdate));
+    console.log("State sau khi cập nhật:", gameState.listQuestions);
   };
 
   const handleCancelSaveChange = useCallback(() => {
@@ -127,7 +151,20 @@ const QuestionItem = ({
       return;
     }
     gameDispatch(GameActions.changeIsUpdateQuestionOfGame(false));
-    setDataUpdate(JSON.parse(JSON.stringify(question)));
+    setDataUpdate({
+      ...JSON.parse(JSON.stringify(question)),
+      answerOptions: {
+        options: question.answerOptions?.options || [],
+        correctIndex:
+          question.mode === EQuestionTypes.SINGLE_CHOICE
+            ? question.answerOptions?.correctIndex ?? null
+            : null,
+        correctIndexes:
+          question.mode === EQuestionTypes.MULTIPLE_CHOICE
+            ? question.answerOptions?.correctIndexes || []
+            : [],
+      },
+    });
   }, [dataUpdate.id, gameDispatch, gameState.isCreateQuestionOfGame, question]);
 
   return (
@@ -159,4 +196,5 @@ const QuestionItem = ({
     </div>
   );
 };
+
 export default QuestionItem;
