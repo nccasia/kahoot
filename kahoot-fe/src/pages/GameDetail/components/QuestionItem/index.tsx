@@ -115,7 +115,6 @@ const QuestionItem = ({
         ];
         const response = await questionServices.addQuestion(gameId, dataCreate);
         if (!(response.statusCode === 200 || response.statusCode === 201)) {
-          console.log("error", response);
           return;
         }
         toast.success("Thêm câu hỏi thành công!");
@@ -127,7 +126,6 @@ const QuestionItem = ({
 
       const response = await questionServices.updateQuestion(dataUpdate);
       if (response.statusCode !== 200) {
-        console.log("error", response);
         return;
       }
       toast.success("Cập nhật câu hỏi thành công!");
@@ -138,9 +136,7 @@ const QuestionItem = ({
     } finally {
       gameDispatch(GameActions.changeIsSubmitting(false));
     }
-    console.log("dataUpdate trước khi lưu:", dataUpdate);
-    console.log("Kết quả checkQuestionData:", checkQuestionData(dataUpdate));
-    console.log("State sau khi cập nhật:", gameState.listQuestions);
+
   };
 
   const handleCancelSaveChange = useCallback(() => {
