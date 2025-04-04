@@ -1,4 +1,4 @@
-import { Game } from '../entities/game.entity';
+import { BaseGameDto } from '../dto/base-game.dto';
 
-export class ResponseCreateGame extends Game {}
-export class ResponseGetGame extends Game {}
+export class ResponseCreateGame extends BaseGameDto {}
+export class ResponseGetGame extends BaseGameDto {}

@@ -1,5 +1,5 @@
-import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsNumberString, IsObject, IsOptional } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsObject, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsSortQuery } from '../pipes/is-sort-query';
 

@@ -1,25 +1,33 @@
-import { Game } from '@modules/game/entities/game.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { RoomStatus } from '../types/room.type';
-import { IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import { AbstractEntity } from '@base/entities/base.entity';
 import { Table } from '@constants';
-import { RoomUser } from './room-user.entity';
-import { RoomQuestion } from './room-question.entity';
+import { Game } from '@modules/game/entities/game.entity';
+import { User } from '@modules/user/entities/user.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { RoomStatus } from '../types/room.type';
 import { QuestionRoomUser } from './question-room-user.entity';
+import { RoomQuestion } from './room-question.entity';
+import { RoomUser } from './room-user.entity';
 
 @Entity(Table.Room)
 export class Room extends AbstractEntity {
-  @ApiProperty({ enum: () => RoomStatus })
+  @ApiProperty({ enum: RoomStatus, enumName: 'RoomStatus' })
   @IsNotEmpty()
-  @IsEnum(() => RoomStatus)
+  @IsEnum(RoomStatus)
   @Column({ enum: RoomStatus })
   status: RoomStatus;
 
   @ApiProperty()
-  @Column()
+  @IsString()
+  @Column({ unique: true })
   code: string;
+
+  @ApiProperty()
+  @IsUUID()
+  @IsNotEmpty()
+  @Column()
+  ownerId: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -28,6 +36,12 @@ export class Room extends AbstractEntity {
   gameId: string;
 
   // relations
+  @ManyToOne(() => User, (user) => user.games, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'owner_id' })
+  owner: User;
+
   @ManyToOne(() => Game, (game) => game.rooms, {
     nullable: false,
   })

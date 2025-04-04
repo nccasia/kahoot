@@ -1,7 +1,7 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '@base/entities/base.entity';
 import { Table } from '@constants';
 import { User } from '@modules/user/entities/user.entity';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { Room } from './room.entity';
 
 @Entity(Table.RoomUser)
@@ -9,6 +9,12 @@ import { Room } from './room.entity';
 export class RoomUser extends AbstractEntity {
   @Column({ nullable: false, name: 'user_id' })
   userId: string;
+
+  @Column({ nullable: false, default: false })
+  isOwner: boolean;
+
+  @Column({ nullable: true, default: false })
+  isLeave: boolean;
 
   @Column({ nullable: false, name: 'room_id' })
   roomId: string;

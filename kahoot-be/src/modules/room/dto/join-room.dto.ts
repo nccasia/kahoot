@@ -1,7 +1,6 @@
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class JoinRoomDto {
   @IsNotEmpty()
-  @IsUUID()
-  roomId: string;
+  roomCode: string;
 }

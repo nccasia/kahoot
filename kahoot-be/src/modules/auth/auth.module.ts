@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
 import { JwtStrategy } from '@base/passports/jwt.strategy';
-import { JwtModule } from '@nestjs/jwt';
+import { User } from '@modules/user/entities/user.entity';
+import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 
 @Module({
   imports: [
@@ -13,8 +15,9 @@ import { ConfigService } from '@nestjs/config';
         secret: configService.getOrThrow<string>('JWT_SECRET'),
       }),
     }),
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
-  providers: [JwtStrategy, AuthService],
+  providers: [JwtStrategy, AuthService, ConfigService],
 })
 export class AuthModule {}

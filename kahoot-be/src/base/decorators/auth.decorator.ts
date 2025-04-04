@@ -1,17 +1,16 @@
 import { UseGuards, applyDecorators } from '@nestjs/common';
-import { JwtAuthGuard } from '../guards/jwt.guard';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
-  ApiSecurity,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../guards/jwt.guard';
 
 export function Auth() {
   return applyDecorators(
     UseGuards(JwtAuthGuard),
     ApiBearerAuth(),
-    ApiUnauthorizedResponse({ description: 'Unauthorized' }),
-    ApiForbiddenResponse({ description: 'Forbidden' }),
+    ApiUnauthorizedResponse({ description: '401 - Unauthorized' }),
+    ApiForbiddenResponse({ description: '403 - Forbidden' }),
   );
 }

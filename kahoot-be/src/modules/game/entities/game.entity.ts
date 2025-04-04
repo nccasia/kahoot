@@ -1,12 +1,12 @@
 import { AbstractEntity } from '@base/entities/base.entity';
 import { Table } from '@constants';
 import { Question } from '@modules/question/entities/question.entity';
+import { Room } from '@modules/room/entities/room.entity';
 import { User } from '@modules/user/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { GameStatus } from '../types/game.type';
-import { Room } from '@modules/room/entities/room.entity';
 
 @Entity(Table.Game)
 export class Game extends AbstractEntity {
@@ -28,7 +28,7 @@ export class Game extends AbstractEntity {
   @Column()
   ownerId: string;
 
-  @ApiProperty({ enum: () => GameStatus })
+  @ApiProperty({ enum: GameStatus, enumName: 'GameStatus' })
   @IsNotEmpty()
   @IsEnum(GameStatus)
   @Column({ enum: GameStatus, default: GameStatus.Draft })

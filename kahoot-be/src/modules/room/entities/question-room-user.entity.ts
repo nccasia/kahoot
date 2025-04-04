@@ -1,9 +1,9 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { AbstractEntity } from '@base/entities/base.entity';
 import { Table } from '@constants';
-import { User } from '@modules/user/entities/user.entity';
-import { Room } from './room.entity';
 import { Question } from '@modules/question/entities/question.entity';
+import { User } from '@modules/user/entities/user.entity';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Room } from './room.entity';
 
 @Index(['room', 'user', 'question'], { unique: true })
 @Entity(Table.QuestionRoomUser)
@@ -13,6 +13,24 @@ export class QuestionRoomUser extends AbstractEntity {
 
   @Column({ nullable: false, name: 'question_id' })
   questionId: string;
+
+  @Column({ nullable: true })
+  answerIndex?: number;
+
+  @Column({ nullable: true })
+  answerText?: string;
+
+  @Column({ nullable: true, type: 'int', array: true })
+  answerIndexs?: number[];
+
+  @Column({ nullable: false })
+  isCorrect: boolean;
+
+  @Column({ nullable: true })
+  point: number;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  submittedAt: Date;
 
   @Column({ nullable: false, name: 'user_id' })
   userId: string;

@@ -1,0 +1,135 @@
+#root {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.fadeIn {
+  animation: fadeIn 0.7s forwards ease;
+  animation-delay: 7.5s;
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    scale: 0.9;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.fadeOut {
+  animation: fadeOut 0.1s forwards ease;
+  animation-delay: 8s;
+}
+
+@keyframes fadeOut {
+  0% {
+    display: block;
+  }
+  100% {
+    display: none;
+  }
+}
+
+h1#page-logo {
+  animation: clip-path-reveal-1 4s ease infinite alternate;
+  animation-timing-function: linear;
+}
+.logo-container::before {
+  content: "";
+  position: absolute;
+  top: calc(100% - 2px);
+  height: 4px;
+  background-color: #e91bc7;
+  transform-origin: center center;
+  transform: scaleX(0);
+  border-radius: 10px;
+
+  animation: line-animation 4s ease infinite alternate;
+  animation-timing-function: linear;
+}
+
+@keyframes waviy {
+  0%,
+  40%,
+  100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-20px);
+  }
+}
+.animate-waviy {
+  animation: waviy 1s infinite;
+}
+
+@keyframes line-animation {
+  0% {
+    transform: scaleX(0);
+  }
+  15% {
+    transform: scaleX(0);
+  }
+  20%,
+  25% {
+    transform: scaleX(1);
+    top: calc(100% - 2px);
+  }
+  50% {
+    transform: scaleX(1);
+    top: 0px;
+  }
+  70% {
+    transform: scaleX(0);
+    top: 0px;
+  }
+  80%,
+  100% {
+    transform: scaleX(0);
+    top: 0px;
+  }
+}
+
+@keyframes clip-path-reveal-1 {
+  0%,
+  25% {
+    clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0% 100%);
+  }
+  50% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+  }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input[type="range"]::-webkit-slider-thumb {
+    width: 10px;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    cursor: pointer;
+    background: white;
+    box-shadow: -405px 0 0 400px #605e5c;
+    border-radius: 50%;
+    transition: all 0.3s;
+  }
+}
+
+.spinner-3 {
+  width: 70px;
+  padding: 12px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #25b09b;
+  --_m: conic-gradient(#0000 10%, #000), linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+  mask: var(--_m);
+  -webkit-mask-composite: source-out;
+  mask-composite: subtract;
+  animation: s3 1s infinite linear;
+}
+@keyframes s3 {
+  to {
+    transform: rotate(1turn);
+  }
+}

@@ -1,38 +1,38 @@
+import { ApiQueryOptions } from '@base/decorators/api-query-options.decorator';
+import { Auth } from '@base/decorators/auth.decorator';
+import { QueryOptions } from '@base/decorators/query-options.decorator';
+import { ApiResponseType } from '@base/decorators/response-swagger.decorator';
+import { UserRequest } from '@base/decorators/user-request.decorator';
+import { QueryOptionsDto } from '@base/dtos/query-options.dto';
+import { AccessTokenPayload } from '@modules/auth/types';
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Post,
+  Put,
 } from '@nestjs/common';
-import { GameService } from './game.service';
+import { ApiTags } from '@nestjs/swagger';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { Auth } from '@base/decorators/auth.decorator';
-import { UserRequest } from '@base/decorators/user-request.decorator';
-import { AccessTokenPayload } from '@modules/auth/types';
-import { ApiResponseType } from '@base/decorators/response-swagger.decorator';
+import { GameService } from './game.service';
 import { ResponseCreateGame, ResponseGetGame } from './types/game.response';
-import { ApiQueryOptions } from '@base/decorators/api-query-options.decorator';
-import { QueryOptions } from '@base/decorators/query-options.decorator';
-import { QueryOptionsDto } from '@base/dtos/query-options.dto';
 
-@ApiTags('game')
+@ApiTags('games')
 @Auth()
-@Controller('game')
+@Controller('games')
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
   @ApiResponseType(ResponseCreateGame)
   @Post()
-  create(
+  createGame(
     @Body() createGameDto: CreateGameDto,
     @UserRequest() payload: AccessTokenPayload,
   ) {
-    return this.gameService.create(createGameDto, payload);
+    return this.gameService.createGameAsync(createGameDto, payload);
   }
 
   @ApiQueryOptions()
@@ -42,19 +42,30 @@ export class GameController {
     @UserRequest() payload: AccessTokenPayload,
     @QueryOptions() queryOptionsDto: QueryOptionsDto,
   ) {
-    return this.gameService.getGames(payload, queryOptionsDto);
+    return this.gameService.getGamesAsync(payload, queryOptionsDto);
   }
 
-  @Patch(':gameId')
-  update(
+  @ApiResponseType(ResponseGetGame, { isArray: true })
+  @Get(':gameId')
+  getGame(@Param('gameId') gameId: string) {
+    return this.gameService.getGameAsync(gameId);
+  }
+
+  @ApiResponseType(ResponseGetGame)
+  @Put(':gameId')
+  updateGame(
     @Param('gameId') gameId: string,
+    @UserRequest() payload: AccessTokenPayload,
     @Body() updateGameDto: UpdateGameDto,
   ) {
-    return this.gameService.update(gameId, updateGameDto);
+    return this.gameService.updateGameAsync(gameId, updateGameDto, payload);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.gameService.remove(+id);
+  @Delete(':gameId')
+  removeGame(
+    @Param('gameId') gameId: string,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.gameService.removeGameAsync(gameId, payload);
   }
 }
