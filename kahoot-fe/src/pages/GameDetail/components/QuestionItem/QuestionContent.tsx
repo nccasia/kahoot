@@ -242,7 +242,6 @@ const QuestionContent = ({
       setTextValue(dataUpdate.answerOptions?.options[field]);
     }
   };
-  /*************  ✨ Codeium Command 🌟  *************/
   const handleBlur = (field: string | number) => {
     if (!dataUpdate) return;
     if (typeof field === "string") {
@@ -270,7 +269,6 @@ const QuestionContent = ({
     }
   };
 
-  /******  ac12f5b7-2dce-49e3-8413-c297c325d75e  *******/
 
 
   // ======================================================================================================================
@@ -287,7 +285,7 @@ const QuestionContent = ({
                   value={dataUpdate.title}
                   className='flex-1 rounded-lg font-coiny'
                 />
-                <div className=' w-full flex justify-around   ' >
+                <div className=' w-full flex justify-between' >
                   <span
                     onClick={handleAddImage}
                     className='ml-2 w-[50px] h-[50px] flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all rounded-full border border-white'
@@ -395,10 +393,11 @@ const QuestionContent = ({
             <div className='flex'>
 
               <div className='ml-[208px] flex gap-2'>
-                <Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
+
+                {dataUpdate.mode !== EQuestionTypes.TEXT && (<Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
                   <img className='w-10' src='/icons/PlusIcon.png' />
-                </Button>
-                <SelectDropdown selectedValue={dataUpdate.time} options={timeOptions} onSelect={handleChangeTime} />
+                </Button>)}<SelectDropdown selectedValue={dataUpdate.time} options={timeOptions} onSelect={handleChangeTime} />
+
               </div>
             </div>
           </>
