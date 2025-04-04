@@ -31,11 +31,33 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     setTextValue(e.target.value);
   };
   const checkQuestionData = (question: IQuestion) => {
-    const checkAnswerOptions = question.answerOptions.options.every((option) => option && option.trim() !== "");
+    const checkAnswerOptions =
+      question.mode !== EQuestionTypes.TEXT
+        ? question.answerOptions.options.every((option) => option && option.trim() !== "")
+        : true;
+
+    const checkAnswerIndexes =
+      question.mode === EQuestionTypes.MULTIPLE_CHOICE
+        ? question.answerOptions.correctIndexes && question.answerOptions.correctIndexes.length > 0
+        : true;
+
     const checkTitle = question.title && question.title.trim() !== "";
-    const checkCorrectIndex = question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0;
-    return checkAnswerOptions && checkTitle && checkCorrectIndex;
+
+    const checkAnswerText =
+      question.mode === EQuestionTypes.TEXT.toString()
+        ? question?.answerText && question.answerText?.trim() !== ""
+        : true;
+
+    const checkCorrectIndex =
+      question.mode === EQuestionTypes.SINGLE_CHOICE
+        ? question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0
+        : true;
+
+    console.log(checkAnswerOptions, checkAnswerIndexes, checkTitle, checkAnswerText, checkCorrectIndex);
+
+    return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
   };
+
   const handleBlur = (field: string | number) => {
     const newQuestion = {
       ...question,
