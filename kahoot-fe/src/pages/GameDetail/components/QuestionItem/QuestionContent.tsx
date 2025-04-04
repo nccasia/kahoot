@@ -42,26 +42,27 @@ const QuestionContent = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, field: string | number) => {
-    const newQuestion = { ...dataUpdate };
-
-    // xử lý field tùy thuộc vào type
     if (typeof field === "string") {
-      newQuestion.title = e.target.value;
+      const newQuestion = { ...dataUpdate, [field]: e.target.value };
+      console.log("newQuestion", newQuestion);
+      changeDataUpdate(newQuestion);
     } else {
-      newQuestion.answerOptions.options[field] = e.target.value;
+      const newOptions = [...dataUpdate.answerOptions.options];
+      newOptions[field] = e.target.value;
+      const newQuestion = {
+        ...dataUpdate,
+        answerOptions: {
+          ...dataUpdate.answerOptions,
+          options: newOptions,
+        },
+      };
+      console.log("newQuestion", newQuestion);
+      changeDataUpdate(newQuestion);
     }
-    changeDataUpdate(newQuestion);
-  };
-  const handleChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleChange(e, 'title');
   };
 
-  // Sử dụng handleChange trong Input
-  <Input
-    onChange={(e) => handleChange(e, 'title')} // Thêm tham số field khi gọi handleChange
-    value={dataUpdate.title}
-    className='flex-1 rounded-lg font-coiny'
-  />
+
+
 
 
   const handleChangeCorrectAnswer = (index: number) => {
@@ -71,6 +72,7 @@ const QuestionContent = ({
     newQuestion.answerOptions.correctIndex = index;
     changeDataUpdate(newQuestion);
   };
+
 
   const handleChangeTime = (option: { label: string; value: number | string }) => {
     const newQuestion = {
@@ -93,16 +95,17 @@ const QuestionContent = ({
   };
 
   const handleDeleteAnswer = (index: number) => {
-    if (dataUpdate.answerOptions.options.length <= 2) return
+    if (dataUpdate.answerOptions.options.length <= 2) return;
 
-    const newOptions = dataUpdate.answerOptions.options.filter((_, i) => i !== index)
+    const newOptions = dataUpdate.answerOptions.options.filter((_, i) => i !== index);
+    let newCorrectIndex = dataUpdate.answerOptions.correctIndex;
+    if (newCorrectIndex !== null) {
+      if (newCorrectIndex === index) {
+        newCorrectIndex = 0;
+      } else if (newCorrectIndex > index) {
+        newCorrectIndex -= 1;
+      }
 
-    let newCorrectIndex = dataUpdate.answerOptions.correctIndex ?? 0 // Đảm bảo không bị null
-
-    if (newCorrectIndex === index) {
-      newCorrectIndex = 0 // Đặt về đáp án đầu tiên
-    } else if (newCorrectIndex > index) {
-      newCorrectIndex -= 1 // Điều chỉnh index cho đúng
     }
 
     const newQuestion = {
@@ -110,13 +113,11 @@ const QuestionContent = ({
       answerOptions: {
         ...dataUpdate.answerOptions,
         options: newOptions,
-        correctIndex: newCorrectIndex
-      }
-    }
-    changeDataUpdate(newQuestion)
-  }
-
-
+        correctIndex: newCorrectIndex,
+      },
+    };
+    changeDataUpdate(newQuestion);
+  };
   const handleDeleteImage = async () => {
     if (!dataUpdate.image) return;
 
@@ -159,16 +160,41 @@ const QuestionContent = ({
     fileInputRef.current?.click();
   };
   const handleChangeQuestionType = (option: { label: string; value: string | number }) => {
+    const newAnswerOptions = { ...dataUpdate.answerOptions };
+    let newAnswerText = dataUpdate.answerText;
+
+    if (option.value === EQuestionTypes.SINGLE_CHOICE) {
+      newAnswerOptions.correctIndex = newAnswerOptions.correctIndex ?? null;
+      newAnswerOptions.correctIndexes = []
+      newAnswerText = "";
+    } else if (option.value === EQuestionTypes.MULTIPLE_CHOICE) {
+      newAnswerOptions.correctIndexes = newAnswerOptions.correctIndexes || [];
+      newAnswerOptions.correctIndex = null
+      newAnswerText = "";
+    } else if (option.value === EQuestionTypes.TEXT) {
+      newAnswerText = dataUpdate.answerText || "";
+      newAnswerOptions.correctIndexes = []
+      newAnswerOptions.correctIndex = null
+    }
+
     const newQuestion = {
-      ...question,
+      ...dataUpdate,
       mode: option.value as string,
+      answerOptions: newAnswerOptions,
+      answerText: newAnswerText,
     };
+
+    changeDataUpdate(newQuestion);
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
-  // ======================================================================================================================
+
+
+
+
+
   const handleToogleCorrectAnswerOfMultipleChoiceQuestion = (index: number) => {
     const newQuestion = {
-      ...question,
+      ...dataUpdate,
     };
     if (newQuestion.answerOptions?.correctIndexes) {
       if (newQuestion.answerOptions.correctIndexes?.includes(index)) {
@@ -179,71 +205,71 @@ const QuestionContent = ({
     } else {
       newQuestion.answerOptions.correctIndexes = [index];
     }
-    if (question.isError) {
+    if (dataUpdate.isError) {
       newQuestion.isError = !checkQuestionData(newQuestion);
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
   const checkQuestionData = (dataUpdate: IQuestion) => {
-    console.log('question', dataUpdate);
-
-    // Kiểm tra các tùy chọn trả lời có hợp lệ không (không rỗng và không chỉ chứa khoảng trắng)
-    const checkAnswerOptions = dataUpdate.answerOptions.options.every(
-      (option) => option && option.trim() !== ""
-    );
-
-    // Kiểm tra tiêu đề câu hỏi có hợp lệ không (không rỗng và không chỉ chứa khoảng trắng)
+    const checkAnswerOptions =
+      dataUpdate.mode !== EQuestionTypes.TEXT
+        ? dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "")
+        : true;
+    const checkAnswerIndexes =
+      dataUpdate.mode === EQuestionTypes.MULTIPLE_CHOICE
+        ? dataUpdate.answerOptions.correctIndexes && dataUpdate.answerOptions.correctIndexes.length > 0
+        : true;
     const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
+    const checkAnswerText =
+      dataUpdate.mode === EQuestionTypes.TEXT
+        ? dataUpdate?.answerText && dataUpdate.answerText.trim() !== ""
+        : true;
+    const checkCorrectIndex =
+      dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
+        ? dataUpdate.answerOptions.correctIndex !== null && dataUpdate.answerOptions.correctIndex >= 0
+        : true;
+    console.log(checkAnswerOptions, checkAnswerIndexes, checkTitle, checkAnswerText, checkCorrectIndex);
 
-    // Kiểm tra correctIndex hoặc correctIndexes tùy theo loại câu hỏi
-    let checkCorrectIndex = false;
-
-    if (dataUpdate.mode === 'SingleChoice') {
-      // Nếu là SingleChoice, kiểm tra correctIndex không nhỏ hơn 0 và hợp lệ
-      checkCorrectIndex =
-        dataUpdate.answerOptions.correctIndex !== null &&
-        dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length;
-    } else if (dataUpdate.mode === 'MultipleChoice') {
-      // Nếu là MultipleChoice, kiểm tra correctIndexes là mảng hợp lệ và không rỗng
-      checkCorrectIndex =
-        Array.isArray(dataUpdate.answerOptions.correctIndexes) &&
-        dataUpdate.answerOptions.correctIndexes.length > 0 &&
-        dataUpdate.answerOptions.correctIndexes.every(
-          (index) => index >= 0 && index < dataUpdate.answerOptions.options.length
-        );
-
-      dataUpdate.answerOptions.correctIndex = null;
-    } else {
-      checkCorrectIndex = true;
-    }
-
-    console.log(checkAnswerOptions, checkTitle, checkCorrectIndex);
-    return checkAnswerOptions && checkTitle && checkCorrectIndex;
+    return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
   };
+
 
   const [textValue, setTextValue] = useState<string>("");
   const handleFocus = (field: string | number) => {
     if (typeof field === "string") {
-      setTextValue(question[field as keyof IQuestion] as string);
+      setTextValue(dataUpdate[field as keyof IQuestion] as string);
     } else {
-      setTextValue(question.answerOptions?.options[field]);
+      setTextValue(dataUpdate.answerOptions?.options[field]);
     }
   };
   const handleBlur = (field: string | number) => {
-    const newQuestion = {
-      ...question,
-    };
+    if (!dataUpdate) return;
     if (typeof field === "string") {
-      newQuestion[field as "title" | "answerText"] = textValue;
+      const newQuestion = { ...dataUpdate, [field]: textValue };
+      if (dataUpdate.isError) {
+        newQuestion.isError = !checkQuestionData(newQuestion);
+      }
+      console.log("newQuestion", newQuestion);
+      if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     } else {
-      newQuestion.answerOptions.options[field] = textValue;
+      const newOptions = [...dataUpdate.answerOptions.options];
+      newOptions[field] = textValue;
+      const newQuestion = {
+        ...dataUpdate,
+        answerOptions: {
+          ...dataUpdate.answerOptions,
+          options: newOptions,
+        },
+      };
+      if (dataUpdate.isError) {
+        newQuestion.isError = !checkQuestionData(newQuestion);
+      }
+      console.log("newQuestion", newQuestion);
+      if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     }
-    if (question.isError) {
-      newQuestion.isError = !checkQuestionData(newQuestion);
-    }
-    console.log("newQuestion", newQuestion);
-    if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
+
+
 
   // ======================================================================================================================
   return (
@@ -259,7 +285,7 @@ const QuestionContent = ({
                   value={dataUpdate.title}
                   className='flex-1 rounded-lg font-coiny'
                 />
-                <div className=' w-full flex justify-around   ' >
+                <div className=' w-full flex justify-between' >
                   <span
                     onClick={handleAddImage}
                     className='ml-2 w-[50px] h-[50px] flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all rounded-full border border-white'
@@ -270,10 +296,11 @@ const QuestionContent = ({
                   <div className="min-w-[300px]">
                     <SelectDropdown
                       dropdownPosition='bottom'
-                      selectedValue={question.time}
+                      selectedValue={dataUpdate.mode}
                       options={questionTypeOptions}
                       onSelect={handleChangeQuestionType}
                     />
+
                   </div>
 
                 </div>
@@ -301,8 +328,8 @@ const QuestionContent = ({
                       <Input
                         onFocus={() => handleFocus("answerText")}
                         onBlur={() => handleBlur("answerText")}
-                        onChange={handleAddAnswer}
-                        defaultValue={dataUpdate.answerText}
+                        onChange={(e) => handleChange(e, 'answerText')}
+                        value={dataUpdate.answerText}
                         className='rounded-lg w-full '
                       />
                     </div>
@@ -333,7 +360,7 @@ const QuestionContent = ({
                             >
                               <div className='absolute left-0 top-0 z-10 w-full h-full flex items-center justify-center'>
                                 <div className={`w-5 h-5 border-white border-2 rounded-sm flex items-center justify-center`}>
-                                  {question.answerOptions.correctIndexes?.includes(index) && (
+                                  {dataUpdate.answerOptions.correctIndexes?.includes(index) && (
                                     <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>
                                   )}
                                 </div>
@@ -343,8 +370,8 @@ const QuestionContent = ({
                           <Input
                             onFocus={() => handleFocus(index)}
                             onBlur={() => handleBlur(index)}
-                            onChange={handleChangeTitle}
-                            defaultValue={option}
+                            onChange={(e) => handleChange(e, index)}
+                            value={option}
                             className='rounded-lg w-full pl-11'
                           />
                         </div>
@@ -366,10 +393,11 @@ const QuestionContent = ({
             <div className='flex'>
 
               <div className='ml-[208px] flex gap-2'>
-                <Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
+
+                {dataUpdate.mode !== EQuestionTypes.TEXT && (<Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
                   <img className='w-10' src='/icons/PlusIcon.png' />
-                </Button>
-                <SelectDropdown selectedValue={dataUpdate.time} options={timeOptions} onSelect={handleChangeTime} />
+                </Button>)}<SelectDropdown selectedValue={dataUpdate.time} options={timeOptions} onSelect={handleChangeTime} />
+
               </div>
             </div>
           </>
@@ -394,12 +422,12 @@ const QuestionContent = ({
                   <span className='w-[50px] inline-block'>{index + 1}.</span>
                   <span className='flex-1 text-start'>{option}</span>
                   <span className='w-[50px] inline-block'>
-                    {dataUpdate.answerOptions?.correctIndexes ? (
-                      dataUpdate.answerOptions.correctIndexes.includes(index) && (
+                    {dataUpdate.mode === EQuestionTypes.MULTIPLE_CHOICE ? (
+                      dataUpdate.answerOptions.correctIndexes?.includes(index) && (
                         <img className='w-[25px]' src='/icons/icon-checked.png' alt='Checked' />
                       )
                     ) : (
-                      dataUpdate.answerOptions?.correctIndex === index && (
+                      dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE && dataUpdate.answerOptions.correctIndex === index && (
                         <img className='w-[25px]' src='/icons/icon-checked.png' alt='Checked' />
                       )
                     )}
@@ -407,6 +435,7 @@ const QuestionContent = ({
                 </div>
               ))
             )}
+
           </div>
 
         )}
