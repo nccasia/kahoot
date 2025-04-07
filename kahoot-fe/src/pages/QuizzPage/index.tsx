@@ -18,16 +18,22 @@ const QuizzPage = () => {
   const { roomState, roomDispatch } = useContext(RoomContext);
 
   const socket = useSocket();
-  const handleSendAnswer = (questionId: string, answerIndex: number) => {
+  const handleSendAnswer = (questionId: string) => {
     if (!socket || !roomId) return;
     if (!questionId) return;
     if (roomState.isSubmitAnswer || roomState.isOwner || roomState.isEndGame || roomState.isWaitingEndGame) return;
 
-    roomDispatch(RoomActions.changeSelectedAnswer(answerIndex));
+    const question = roomState.currentQuestion;
+    if (!question) return;
+
+    const selectedAnswers = roomState.multipleChoiceSelectedAnswers;
+    roomDispatch(RoomActions.changeSelectedAnswers(selectedAnswers as number[]));
     const emitData: ISendAnswerDTO = {
       roomId,
-      answerIndex: answerIndex,
+      answerIndex: selectedAnswers?.[0] as number,
       questionId,
+      answerIndexes: selectedAnswers,
+      answerText: roomState.textAnswer ?? "",
     };
     socket.emit(SocketEvents.EMIT.ClientEmitSubmitQuestion, emitData);
   };
@@ -57,8 +63,8 @@ const QuizzPage = () => {
             </div>
             <div className='w-3/5'>
               <QuestionBox
-                correctAnswer={roomState.correctAnswerOfCurrentQuestion}
-                selectedAnswer={roomState.selectedAnswer}
+                correctAnswers={roomState.correctAnswerOfCurrentQuestions}
+                selectedAnswers={roomState.selectedAnswers}
                 isOwner={roomState.isOwner}
                 isSubmitAnswer={roomState.isSubmitAnswer}
                 onSendAnswer={handleSendAnswer}

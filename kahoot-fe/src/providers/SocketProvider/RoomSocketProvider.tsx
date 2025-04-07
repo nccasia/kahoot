@@ -1,3 +1,4 @@
+import { EQuestionTypes } from "@/constants/QuestionTypes";
 import SocketEvents from "@/constants/SocketEvents";
 import { ICurrentUser } from "@/interfaces/authTypes";
 import { IQuestionGame } from "@/interfaces/questionTypes";
@@ -61,11 +62,11 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsReconnecting(false));
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
-      roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
+      roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
 
       if (data.submitedAnswer) {
-        roomDispatch(RoomActions.changeSelectedAnswer(data.submitedAnswer.answerIndex));
+        roomDispatch(RoomActions.changeSelectedAnswers([data.submitedAnswer.answerIndex]));
         roomDispatch(RoomActions.changeIsSubmitAnswer(true));
       }
       const lastTotalPoint = data?.lastTotalPoint;
@@ -78,10 +79,10 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsWaiting(true));
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
-      roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
+      roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
       roomDispatch(RoomActions.changeSubmitedUser(0));
-      roomDispatch(RoomActions.changeSelectedAnswer(undefined));
+      roomDispatch(RoomActions.changeSelectedAnswers([]));
       roomDispatch(RoomActions.changeUserPoint(undefined));
       roomDispatch(RoomActions.changeUserRanking([]));
       roomDispatch(RoomActions.changeCurrentQuestion(undefined));
@@ -93,14 +94,15 @@ const RoomSocketProvider: React.FC = () => {
     });
 
     socket.on(SocketEvents.ON.ServerEmitQuestion, (data: { question: IQuestionGame; questionNumber: number }) => {
+      console.log("Server emit question", data);
       roomDispatch(RoomActions.changeIsWaiting(false));
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
       roomDispatch(RoomActions.changeIsReconnecting(false));
-      roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
+      roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
       roomDispatch(RoomActions.changeSubmitedUser(0));
-      roomDispatch(RoomActions.changeSelectedAnswer(undefined));
+      roomDispatch(RoomActions.changeSelectedAnswers([]));
       roomDispatch(RoomActions.changeCurrentQuestionPoint(0));
 
       const currentQuestion: IQuestionGame = {
@@ -112,7 +114,22 @@ const RoomSocketProvider: React.FC = () => {
 
     socket.on(SocketEvents.ON.ServerEmitCorrectAnswer, (data) => {
       console.log("Server emit correct answer", data);
-      roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(data?.correctIndex));
+      /*{
+        questionMode,
+        totalOptions,
+        questionAnalysis,
+        correctIndex,
+        questionId,
+        correctIndexes,
+        correctText,
+      }*/
+      if (data?.questionMode === EQuestionTypes.SINGLE_CHOICE) {
+        roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([data?.correctIndex]));
+      } else if (data?.questionMode === EQuestionTypes.MULTIPLE_CHOICE) {
+        roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([...((data?.correctIndexes as number[]) ?? [])]));
+      } else if (data?.questionMode === EQuestionTypes.TEXT) {
+        roomDispatch(RoomActions.changeCorrectTextAnswer(data?.correctText));
+      }
       roomDispatch(
         RoomActions.changeListQuestionAnalysis({
           totalOptions: data?.totalOptions,

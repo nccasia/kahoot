@@ -19,11 +19,11 @@ const timeOptions: Array<{
   label: string;
   value: number;
 }> = [
-    { label: "15s", value: 15 },
-    { label: "30s", value: 30 },
-    { label: "45s", value: 45 },
-    { label: "60s", value: 60 },
-  ];
+  { label: "15s", value: 15 },
+  { label: "30s", value: 30 },
+  { label: "45s", value: 45 },
+  { label: "60s", value: 60 },
+];
 const QuestionContent = ({
   question,
   onOpenModalConfirmDeleteQuestion,
@@ -48,6 +48,7 @@ const QuestionContent = ({
     } else {
       newQuestion.answerOptions.options[field] = e.target.value;
     }
+    console.log("newQuestion", newQuestion);
     changeDataUpdate(newQuestion);
   };
 
@@ -105,17 +106,17 @@ const QuestionContent = ({
       const newQuestion = {
         ...dataUpdate,
         image: undefined,
-        imageFile: undefined
+        imageFile: undefined,
       };
 
       changeDataUpdate(newQuestion);
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
 
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     } catch (error) {
-      console.error('Lỗi xóa ảnh:', error);
+      console.error("Lỗi xóa ảnh:", error);
     }
   };
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,7 +127,8 @@ const QuestionContent = ({
           ...dataUpdate,
           image: URL.createObjectURL(file),
           imageFile: file,
-        }; changeDataUpdate(newQuestion);
+        };
+        changeDataUpdate(newQuestion);
         if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
       } catch (error) {
         console.error("Lỗi upload ảnh:", error);
@@ -146,7 +148,7 @@ const QuestionContent = ({
               <div className='flex items-center w-full'>
                 <span className='inline-block font-coiny min-w-[200px] text-start text-2xl'>Câu hỏi:</span>
                 <Input
-                  onChange={(e) => handleChange(e, 'title')}
+                  onChange={(e) => handleChange(e, "title")}
                   value={dataUpdate.title}
                   className='flex-1 rounded-lg font-coiny'
                 />
@@ -206,7 +208,6 @@ const QuestionContent = ({
               ))}
             </div>
             <div className='flex'>
-
               <div className='ml-[208px] flex gap-2'>
                 <Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
                   <img className='w-10' src='/icons/PlusIcon.png' />
@@ -229,9 +230,7 @@ const QuestionContent = ({
                   <span className='w-[50px] inline-block'>{index + 1}.</span>
                   <span className='flex-1 text-start'>{option}</span>
                   <span className='w-[50px] inline-block'>
-                    {question.answerOptions?.correctIndex === index && (
-                      <img className='w-[25px]' src='/icons/icon-checked.png' />
-                    )}
+                    {question.answerOptions?.correctIndex === index && <img className='w-[25px]' src='/icons/icon-checked.png' />}
                   </span>
                 </div>
               ))}

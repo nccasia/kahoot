@@ -6,8 +6,11 @@ import { ROOM_TYPE } from "./roomAction";
 
 export interface RoomState {
   listMemberOfRoom?: ICurrentUser[];
-  correctAnswerOfCurrentQuestion: number;
-  selectedAnswer?: number;
+  correctAnswerOfCurrentQuestions: number[];
+  selectedAnswers: number[];
+  multipleChoiceSelectedAnswers?: number[];
+  textAnswer?: string;
+  correctTextAnswer?: string;
   userRanking: IUserRanking[];
   submitedUser: number;
   loading: boolean;
@@ -28,9 +31,10 @@ export interface RoomState {
 
 export const initRoomState: RoomState = {
   listMemberOfRoom: [],
-  correctAnswerOfCurrentQuestion: 0,
+  correctAnswerOfCurrentQuestions: [],
   userRanking: [],
   listQuestionAnalyst: [],
+  selectedAnswers: [],
   submitedUser: 0,
   loading: false,
   currentRoom: undefined,
@@ -114,7 +118,7 @@ const RoomReducer = (state = initRoomState, action: AppActionType<ROOM_TYPE>): R
     case ROOM_TYPE.CHANGE_CORRECT_ANSWER_OF_CURRENT_QUESTION:
       return {
         ...state,
-        correctAnswerOfCurrentQuestion: action.payload,
+        correctAnswerOfCurrentQuestions: action.payload,
       };
 
     case ROOM_TYPE.CHANGE_LIST_QUESTION_ANALYSIS: {
@@ -149,7 +153,7 @@ const RoomReducer = (state = initRoomState, action: AppActionType<ROOM_TYPE>): R
     case ROOM_TYPE.CHANGE_SELECTED_ANSWER:
       return {
         ...state,
-        selectedAnswer: action.payload,
+        selectedAnswers: action.payload,
       };
 
     case ROOM_TYPE.CHANGE_USER_POINT:
@@ -208,6 +212,38 @@ const RoomReducer = (state = initRoomState, action: AppActionType<ROOM_TYPE>): R
       return {
         ...state,
         openMdoalConfirmEndGame: action.payload,
+      };
+
+    case ROOM_TYPE.CHANGE_MULTIPLE_CHOICE_SELECTED_ANSWERS:
+      return {
+        ...state,
+        multipleChoiceSelectedAnswers: action.payload,
+      };
+
+    case ROOM_TYPE.TOOGLE_MULTIPLE_CHOICE_SELECTED_ANSWERS: {
+      const checkInSelectedAnswers = state.multipleChoiceSelectedAnswers?.find((item) => item === action.payload);
+      let newSelectedAnswers: number[] = state.multipleChoiceSelectedAnswers || [];
+      if (checkInSelectedAnswers || checkInSelectedAnswers === 0) {
+        newSelectedAnswers = newSelectedAnswers.filter((item) => item !== action.payload);
+      } else {
+        newSelectedAnswers = [...newSelectedAnswers, action.payload];
+      }
+      return {
+        ...state,
+        multipleChoiceSelectedAnswers: newSelectedAnswers,
+      };
+    }
+
+    case ROOM_TYPE.CHANGE_TEXT_ANSWER:
+      return {
+        ...state,
+        textAnswer: action.payload,
+      };
+
+    case ROOM_TYPE.CHANGE_CORRECT_TEXT_ANSWER:
+      return {
+        ...state,
+        correctTextAnswer: action.payload,
       };
 
     default:

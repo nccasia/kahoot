@@ -316,14 +316,14 @@ export class RoomGateway
 
       case QuestionMode.MultipleChoice:
         isCorrect =
-          currentGameQuestion.correctIndexs &&
-          currentGameQuestion.correctIndexs.length > 0 &&
-          currentGameQuestion.correctIndexs.every((index) => {
+          currentGameQuestion.correctIndexes &&
+          currentGameQuestion.correctIndexes.length > 0 &&
+          currentGameQuestion.correctIndexes.every((index) => {
             return submitDto.answerIndexes?.includes(index);
           });
         break;
 
-      case QuestionMode.Text:
+      case 'text':
         isCorrect =
           currentGameQuestion.answerText?.toLowerCase() ===
           submitDto.answerText?.toLowerCase();
@@ -392,6 +392,8 @@ export class RoomGateway
           answerText: submitDto.answerText,
           submittedAt: submitTime.toISOString(),
         });
+        break;
+
       default:
         client.emit(ClientConnectionEvent.ClientError, {
           message: 'Invalid question mode',
@@ -593,7 +595,7 @@ export class RoomGateway
       correctIndex:
         question.mode === QuestionMode.SingleChoice &&
         (question.answerOptions as SingleChoiceAnswerOptionsDto)?.correctIndex,
-      correctIndexs:
+      correctIndexes:
         question.mode === QuestionMode.MultipleChoice &&
         (question.answerOptions as MultipleChoiceAnswerOptionsDto)
           ?.correctIndexes,
@@ -738,7 +740,7 @@ export class RoomGateway
                 questionId: currentGameQuestion.id,
                 totalOptions:
                   currentGameQuestion?.answerOptions?.options?.length,
-                correctIndexs: currentGameQuestion?.correctIndexs,
+                correctIndexes: currentGameQuestion?.correctIndexes,
                 questionAnalysis: questionAnalysis,
               });
             break;
@@ -850,7 +852,7 @@ export class RoomGateway
           questionMode: rawGameQuestion.mode,
           questionId: rawGameQuestion.id,
           totalOptions: rawGameQuestion?.answerOptions?.options?.length,
-          correctIndexs: rawGameQuestion?.correctIndexs,
+          correctIndexes: rawGameQuestion?.correctIndexes,
           questionAnalysis: questionAnalysis,
         });
         break;
