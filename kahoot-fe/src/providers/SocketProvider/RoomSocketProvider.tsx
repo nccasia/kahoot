@@ -34,7 +34,7 @@ const RoomSocketProvider: React.FC = () => {
         {
           roomId: data.roomId,
         },
-        () => {}
+        () => { }
       );
     });
 
@@ -48,7 +48,7 @@ const RoomSocketProvider: React.FC = () => {
         {
           roomId: data?.roomId,
         },
-        () => {}
+        () => { }
       );
     });
 
@@ -150,14 +150,12 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeUserRanking(data?.userRanking));
     });
 
-    socket.on(SocketEvents.ON.ServerEmitUserSubmited, (data) => {
-      console.log("Server emit user submited", data);
+    socket.on(SocketEvents.ON.ServerEmitUserSubmited, () => {
       roomDispatch(RoomActions.changeIsSubmitAnswer(true));
     });
 
     socket.on(SocketEvents.ON.ServerEmitNewUserSubmited, (data) => {
       roomDispatch(RoomActions.changeSubmitedUser(data.submitedUser));
-      console.log("Server emit new user submited", data);
     });
 
     socket.on(SocketEvents.ON.ServerEmitQuestionFinished, (data: IUserPoint) => {
@@ -167,11 +165,9 @@ const RoomSocketProvider: React.FC = () => {
       } else {
         appDispatch(AppActions.changeIsPlayErrorSound(true));
       }
-      console.log("Server emit question finished", data);
     });
 
     socket.on(SocketEvents.ON.ServerEmitGameFinished, (data) => {
-      console.log("Server emit game finished", data);
       roomDispatch(RoomActions.changeIsEndGame(true));
       roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
       // roomDispatch(RoomActions.changeIsWaitingEndGame(false));
@@ -179,8 +175,7 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeTotalQuestion(data?.totalQuestions ?? 1));
     });
 
-    socket.on(SocketEvents.ON.ServerEmitWaitGameFinished, (data) => {
-      console.log("Server emit wait game finished", data);
+    socket.on(SocketEvents.ON.ServerEmitWaitGameFinished, () => {
       roomDispatch(RoomActions.changeIsWaitingEndGame(true));
       roomDispatch(RoomActions.changeIsEndAnQuestion(true));
       roomDispatch(RoomActions.changeIsSubmitAnswer(true));
