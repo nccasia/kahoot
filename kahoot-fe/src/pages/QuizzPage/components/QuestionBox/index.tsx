@@ -74,9 +74,11 @@ const QuestionBox = ({
         </div>
       )}
       {!isOwner && (
-        <div onClick={() => onSendAnswer(question?.id ?? "")} className='flex items-center justify-between w-full'>
+        <div className='flex items-center justify-between w-full'>
           <span>{question?.mode && submitLabel[question?.mode as EQuestionTypes]}</span>
-          <Button className='bg-[#6B00E7] rounded-md min-w-[50px]'>Submit</Button>
+          <Button onClick={() => onSendAnswer(question?.id ?? "")} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
+            Submit
+          </Button>
         </div>
       )}
       {question?.mode === EQuestionTypes.TEXT ? (

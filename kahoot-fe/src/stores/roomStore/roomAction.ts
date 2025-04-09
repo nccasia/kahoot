@@ -1,6 +1,6 @@
 import { AppActionType } from "@/interfaces/appTypes";
 import { ICurrentUser } from "@/interfaces/authTypes";
-import { IQuestionAnalyst, IQuestionGame } from "@/interfaces/questionTypes";
+import { IQuestionAnalyst, IQuestionGame, ITextQuestionAnalyst } from "@/interfaces/questionTypes";
 import { IRoom, IUserPoint, IUserRanking } from "@/interfaces/roomTypes";
 
 export enum ROOM_TYPE {
@@ -22,6 +22,7 @@ export enum ROOM_TYPE {
   CHANGE_MULTIPLE_CHOICE_SELECTED_ANSWERS = "CHANGE_MULTIPLE_CHOICE_SELECTED_ANSWERS",
   TOOGLE_MULTIPLE_CHOICE_SELECTED_ANSWERS = "TOOGLE_MULTIPLE_CHOICE_SELECTED_ANSWERS",
   CHANGE_LIST_QUESTION_ANALYSIS = "CHANGE_LIST_QUESTION_ANALYSIS",
+  CHANGE_TEXT_QUESTION_ANALYSIS = "CHANGE_TEXT_QUESTION_ANALYSIS",
   CHANGE_LIST_USER_RANKING = "CHANGE_LIST_USER_RANKING",
   CHANGE_SUBMITED_USER = "CHANGE_SUBMITED_USER",
   CHANGE_USER_POINT = "CHANGE_USER_POINT",
@@ -117,6 +118,16 @@ const changeListQuestionAnalysis = (data: {
 }): AppActionType<ROOM_TYPE> => {
   return {
     type: ROOM_TYPE.CHANGE_LIST_QUESTION_ANALYSIS,
+    payload: data,
+  };
+};
+
+const changeTextQuestionAnalysis = (data: {
+  correctText: string;
+  listQuestionAnalysis: ITextQuestionAnalyst[];
+}): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_TEXT_QUESTION_ANALYSIS,
     payload: data,
   };
 };
@@ -247,6 +258,7 @@ const RoomActions = {
   changeCorrectTextAnswer,
   changeTextAnswer,
   changeListQuestionAnalysis,
+  changeTextQuestionAnalysis,
   changeUserRanking,
   changeSubmitedUser,
   changeSelectedAnswers,
