@@ -31,11 +31,33 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     setTextValue(e.target.value);
   };
   const checkQuestionData = (question: IQuestion) => {
-    const checkAnswerOptions = question.answerOptions.options.every((option) => option && option.trim() !== "");
+    const checkAnswerOptions =
+      question.mode !== EQuestionTypes.TEXT
+        ? question.answerOptions.options.every((option) => option && option.trim() !== "")
+        : true;
+
+    const checkAnswerIndexes =
+      question.mode === EQuestionTypes.MULTIPLE_CHOICE
+        ? question.answerOptions.correctIndexes && question.answerOptions.correctIndexes.length > 0
+        : true;
+
     const checkTitle = question.title && question.title.trim() !== "";
-    const checkCorrectIndex = question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0;
-    return checkAnswerOptions && checkTitle && checkCorrectIndex;
+
+    const checkAnswerText =
+      question.mode === EQuestionTypes.TEXT.toString()
+        ? question?.answerText && question.answerText?.trim() !== ""
+        : true;
+
+    const checkCorrectIndex =
+      question.mode === EQuestionTypes.SINGLE_CHOICE
+        ? question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0
+        : true;
+
+    console.log(checkAnswerOptions, checkAnswerIndexes, checkTitle, checkAnswerText, checkCorrectIndex);
+
+    return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
   };
+
   const handleBlur = (field: string | number) => {
     const newQuestion = {
       ...question,
@@ -159,7 +181,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     if (!question.image) return;
 
     try {
-      URL.revokeObjectURL(question.image); // Xóa URL cũ khỏi bộ nhớ trình duyệt
+      URL.revokeObjectURL(question.image);
 
       const newQuestion = {
         ...question,
@@ -169,7 +191,6 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
 
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
 
-      // Reset input file để chọn lại ảnh cũ cũng được trigger
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -210,12 +231,11 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         />
         <span
           onClick={handleAddImage}
-          className='ml-7 w-[40px] h-[40px] flex items-center justify-center cursor-pointer hover:bg-green-500 transition-all rounded-full'
+          className='ml-2 w-[50px] h-[50px] flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all rounded-full border border-white'
         >
-          <img className='w-[40px] h-[40px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
+          <img className='w-[30px] h-[30px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
+          <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
         </span>
-
-        <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
       </div>
       <div className='relative flex '>
         {question.image && (

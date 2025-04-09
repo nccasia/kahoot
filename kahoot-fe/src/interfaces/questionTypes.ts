@@ -2,6 +2,7 @@ export interface IAnswerOption {
   options: string[];
   correctIndex: number | null;
   correctIndexes: number[] | null;
+  // answerText?: string;
 }
 export interface IQuestion {
   id?: string;
