@@ -93,9 +93,9 @@ const InfoBox = () => {
           </div>
         ) : (
           <div className='font-coiny text-white'>
-            {/* {roomState.isEndAnQuestion ? (
+            {roomState.isEndAnQuestion ? (
               <>
-                {roomState.correctAnswerOfCurrentQuestion === roomState.selectedAnswer ? (
+                {roomState.isCorrect ? (
                   <div className='text-lg'>
                     <h5>{congratulationText}</h5>
                     <h5>{correctText}</h5>
@@ -119,7 +119,7 @@ const InfoBox = () => {
                   </div>
                 )}
               </>
-            )} */}
+            )}
           </div>
         )}
       </div>
