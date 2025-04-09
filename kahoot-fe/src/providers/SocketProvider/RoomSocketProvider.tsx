@@ -96,6 +96,7 @@ const RoomSocketProvider: React.FC = () => {
     socket.on(SocketEvents.ON.ServerEmitQuestion, (data: { question: IQuestionGame; questionNumber: number }) => {
       console.log("Server emit question", data);
       roomDispatch(RoomActions.changeIsWaiting(false));
+      roomDispatch(RoomActions.changeIsShowAnswer(false));
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
       roomDispatch(RoomActions.changeIsReconnecting(false));
@@ -104,7 +105,9 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeSubmitedUser(0));
       roomDispatch(RoomActions.changeSelectedAnswers([]));
       roomDispatch(RoomActions.changeCurrentQuestionPoint(0));
-
+      roomDispatch(RoomActions.changeTextAnswer(""));
+      roomDispatch(RoomActions.changeCorrectTextAnswer(""));
+      roomDispatch(RoomActions.changeMultipleChoiceSelectedAnswers([]));
       const currentQuestion: IQuestionGame = {
         ...data.question,
         order: data?.questionNumber,
@@ -130,6 +133,7 @@ const RoomSocketProvider: React.FC = () => {
       } else if (data?.questionMode === EQuestionTypes.TEXT) {
         roomDispatch(RoomActions.changeCorrectTextAnswer(data?.correctText));
       }
+      roomDispatch(RoomActions.changeIsShowAnswer(true));
       roomDispatch(
         RoomActions.changeListQuestionAnalysis({
           totalOptions: data?.totalOptions,
@@ -167,6 +171,7 @@ const RoomSocketProvider: React.FC = () => {
       } else {
         appDispatch(AppActions.changeIsPlayErrorSound(true));
       }
+      roomDispatch(RoomActions.changeIsCorrect(data?.isCorrect));
       console.log("Server emit question finished", data);
     });
 

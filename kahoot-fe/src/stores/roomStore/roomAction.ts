@@ -17,6 +17,8 @@ export enum ROOM_TYPE {
   CHANGE_SELECTED_ANSWER = "CHANGE_SELECTED_ANSWER",
   CHANGE_TEXT_ANSWER = "CHANGE_TEXT_ANSWER",
   CHANGE_CORRECT_TEXT_ANSWER = "CHANGE_CORRECT_TEXT_ANSWER",
+  CHANGE_IS_CORRECT = "CHANGE_IS_CORRECT",
+  CHANGE_IS_SHOW_ANSWER = "CHANGE_IS_SHOW_ANSWER",
   CHANGE_MULTIPLE_CHOICE_SELECTED_ANSWERS = "CHANGE_MULTIPLE_CHOICE_SELECTED_ANSWERS",
   TOOGLE_MULTIPLE_CHOICE_SELECTED_ANSWERS = "TOOGLE_MULTIPLE_CHOICE_SELECTED_ANSWERS",
   CHANGE_LIST_QUESTION_ANALYSIS = "CHANGE_LIST_QUESTION_ANALYSIS",
@@ -217,6 +219,20 @@ const changeOpenModalConfirmEndGame = (isOpen: boolean): AppActionType<ROOM_TYPE
   };
 };
 
+const changeIsShowAnswer = (isShowAnswer: boolean): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_IS_SHOW_ANSWER,
+    payload: isShowAnswer,
+  };
+};
+
+const changeIsCorrect = (isCorrect: boolean): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_IS_CORRECT,
+    payload: isCorrect,
+  };
+};
+
 const RoomActions = {
   changeCurrentRoom,
   changeListMemberOfRoom,
@@ -244,5 +260,7 @@ const RoomActions = {
   changeIsReconnecting,
   changeTotalQuestion,
   changeOpenModalConfirmEndGame,
+  changeIsShowAnswer,
+  changeIsCorrect,
 };
 export default RoomActions;

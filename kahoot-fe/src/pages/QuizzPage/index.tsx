@@ -63,6 +63,8 @@ const QuizzPage = () => {
             </div>
             <div className='w-3/5'>
               <QuestionBox
+                isShowAnswer={roomState.isShowAnswer}
+                correctAnswerText={roomState.correctTextAnswer}
                 correctAnswers={roomState.correctAnswerOfCurrentQuestions}
                 selectedAnswers={roomState.selectedAnswers}
                 isOwner={roomState.isOwner}
