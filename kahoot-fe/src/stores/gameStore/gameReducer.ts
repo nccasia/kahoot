@@ -1,9 +1,11 @@
 import { AppActionType } from "@/interfaces/appTypes";
 import { IGame } from "@/interfaces/gameTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
+import { IRoom } from "@/interfaces/roomTypes";
 import { GAME_TYPE } from "./gameAction";
 
 export interface GameState {
+  listRooms: IRoom[];
   listQuestions: IQuestion[];
   listGames: IGame[];
   filterGames: IGame[];
@@ -21,9 +23,11 @@ export interface GameState {
   currentGameId?: string;
   isSubmitting: boolean;
   isDeleting: boolean;
+
 }
 
 export const initGameState: GameState = {
+  listRooms: [],
   listQuestions: [],
   listGames: [],
   filterGames: [],
@@ -186,7 +190,12 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
         isDeleting: action.payload,
       };
     }
-
+    case GAME_TYPE.CHANGE_LIST_ROOMS: {
+      return {
+        ...state,
+        listRooms: action.payload,
+      };
+    }
     default:
       return state;
   }
