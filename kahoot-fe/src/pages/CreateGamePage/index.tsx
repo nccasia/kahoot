@@ -51,7 +51,6 @@ const CreateGamePage = () => {
 
   const checkQuestionData = useCallback(() => {
     const listQuestions = gameState.listQuestions as IQuestion[];
-    console.log("listQuestions", listQuestions);
     if (!listQuestions || listQuestions.length === 0) {
       toast.error("Bạn chưa thêm câu hỏi nào!")!;
       return false;

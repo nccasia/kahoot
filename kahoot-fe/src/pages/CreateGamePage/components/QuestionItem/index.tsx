@@ -53,7 +53,6 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         ? question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0
         : true;
 
-    console.log(checkAnswerOptions, checkAnswerIndexes, checkTitle, checkAnswerText, checkCorrectIndex);
 
     return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
   };
@@ -70,7 +69,6 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     if (question.isError) {
       newQuestion.isError = !checkQuestionData(newQuestion);
     }
-    console.log("newQuestion", newQuestion);
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
   const handleChangeCorrectAnswer = (index: number) => {
@@ -340,7 +338,6 @@ const QuestionItem = ({ question, index, isShowDeleteButton }: IQuestionItemProp
   const { gameState, gameDispatch } = useContext(GameContext);
   const handleUpdateQuestion = useCallback(
     (question: IQuestion) => {
-      console.log("question", question);
       gameDispatch(GameActions.changeQuestionValue(question));
     },
     [gameDispatch]
