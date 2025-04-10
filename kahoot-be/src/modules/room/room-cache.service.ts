@@ -1,6 +1,7 @@
 import { BaseCacheService } from '@base/modules/cache/redis.cache.service';
 import { CACHES, RANKED_TOP } from '@constants';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
+import { QuestionMode } from '@modules/question/types';
 import { SocketUser } from '@modules/user/dto/socket-user.dto';
 import { plainToInstance } from 'class-transformer';
 import * as _ from 'lodash';
@@ -260,19 +261,55 @@ export class RoomCacheService extends BaseCacheService {
     const allAnswersByQuestion = data
       .filter((item) => item.questionId === questionId)
       .map((item) => plainToInstance(UserAnswerDto, item));
-    const groupByIndex = _.groupBy(
-      allAnswersByQuestion,
-      (item) => item.answerIndex,
-    );
 
-    const groupAswers = Object.entries(groupByIndex).map(([index, answers]) => {
-      const totalSeleted = answers?.length ?? 0;
-      return {
-        answerIndex: index,
-        totalSeleted: totalSeleted,
-      };
+    const questionMode = _.first(allAnswersByQuestion)?.questionMode;
+    let groupBy: _.Dictionary<UserAnswerDto[]>;
+
+    switch (questionMode) {
+      case QuestionMode.MultipleChoice:
+        const flatAnswersByIndex = allAnswersByQuestion.flatMap((item) =>
+          item.answerIndexs?.map((index) => ({
+            ...item,
+            answerIndex: index,
+          })),
+        );
+        groupBy = _.groupBy(flatAnswersByIndex, (item) => item.answerIndex);
+        break;
+      case QuestionMode.Text:
+        groupBy = _.groupBy(allAnswersByQuestion, (item) => item.answerText);
+        break;
+      default:
+        groupBy = _.groupBy(allAnswersByQuestion, (item) => item.answerIndex);
+        break;
+    }
+
+    const groupAswers = Object.entries(groupBy).map(([key, answers]) => {
+      switch (questionMode) {
+        case QuestionMode.MultipleChoice:
+          return {
+            answerIndex: key,
+            totalSeleted: answers.length,
+          };
+        case QuestionMode.Text:
+          return {
+            answerText: key,
+            totalMatched: answers.length,
+          };
+        default:
+          return {
+            answerIndex: key,
+            totalSeleted: answers.length,
+          };
+      }
     });
-    return groupAswers;
+    return groupAswers?.length > 2
+      ? groupAswers.sort((a, b) => {
+          if (questionMode === QuestionMode.Text) {
+            return b.totalMatched - a.totalMatched;
+          }
+          return b.totalSeleted - a.totalSeleted;
+        })
+      : groupAswers;
   }
 
   async countSubmitedUser(roomId: string, questionId: string) {

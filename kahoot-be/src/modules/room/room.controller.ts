@@ -5,11 +5,27 @@ import { ApiResponseType } from '@base/decorators/response-swagger.decorator';
 import { UserRequest } from '@base/decorators/user-request.decorator';
 import { QueryOptionsDto } from '@base/dtos/query-options.dto';
 import { AccessTokenPayload } from '@modules/auth/types';
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateRoomDto } from './dto/create-room.dto';
+import {
+  CreateRoomDto,
+  CreateScheduleRoomDto,
+  UpdateScheduleRoomDto,
+} from './dto/create-room.dto';
 import { RoomService } from './room.service';
-import { ResponseCreateRoom, ResponseGetRoom } from './types/room.response';
+import {
+  ResponseCreateRoom,
+  ResponseGetRoom,
+  ResponseGetScheduledRoom,
+} from './types/room.response';
 
 @ApiTags('Rooms')
 @Auth()
@@ -24,6 +40,48 @@ export class RoomController {
     @UserRequest() payload: AccessTokenPayload,
   ) {
     return this.roomService.createRoomAsync(createRoomDto, payload);
+  }
+
+  @ApiResponseType(ResponseGetScheduledRoom)
+  @Get('scheduled-rooms/:roomId')
+  getScheduledRoom(
+    @Param('roomId') roomId: string,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.getScheduledRoomAsync(roomId, payload);
+  }
+
+  @ApiResponseType(ResponseGetScheduledRoom)
+  @Post('create-schedule')
+  createScheduleRoom(
+    @Body() createScheduleRoomDto: CreateScheduleRoomDto,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.createScheduleRoomAsync(
+      createScheduleRoomDto,
+      payload,
+    );
+  }
+  @ApiResponseType(ResponseGetScheduledRoom)
+  @Put('update-schedule/:roomId')
+  updateScheduleRoom(
+    @Param('roomId') roomId: string,
+    @Body() updateScheduleRoomDto: UpdateScheduleRoomDto,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.updateScheduledRoomAsync(
+      roomId,
+      updateScheduleRoomDto,
+      payload,
+    );
+  }
+  @ApiResponseType(ResponseGetScheduledRoom)
+  @Put('cancel-schedule/:roomId')
+  cancelScheduleRoom(
+    @Param('roomId') roomId: string,
+    @UserRequest() payload: AccessTokenPayload,
+  ) {
+    return this.roomService.canncelScheduledRoomAsync(roomId, payload);
   }
 
   @ApiQueryOptions()

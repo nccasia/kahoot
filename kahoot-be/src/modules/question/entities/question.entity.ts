@@ -10,6 +10,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsPositive,
+  IsUrl,
   IsUUID,
   ValidateIf,
 } from 'class-validator';
@@ -43,8 +44,12 @@ export class Question extends AbstractEntity {
   @Column()
   title: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ required: false, nullable: true })
   @Expose()
+  @ValidateIf((o) => {
+    return o?.image !== undefined && o?.image !== null;
+  })
+  @IsUrl()
   @Column({ nullable: true })
   image: string;
 
