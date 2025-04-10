@@ -136,7 +136,6 @@ const QuestionItem = ({
     } finally {
       gameDispatch(GameActions.changeIsSubmitting(false));
     }
-
   };
 
   const handleCancelSaveChange = useCallback(() => {

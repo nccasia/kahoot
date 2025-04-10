@@ -1,6 +1,7 @@
 import { AppActionType } from "@/interfaces/appTypes";
 import { IGame } from "@/interfaces/gameTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
+import { IRoom } from "@/interfaces/roomTypes";
 
 export enum GAME_TYPE {
   ADD_QUESTION = "ADD_QUESTION",
@@ -22,6 +23,7 @@ export enum GAME_TYPE {
   CHANGE_IS_CREATE_QUESTION_OF_GAME = "CHANGE_IS_CREATE_QUESTION_OF_GAME",
   CHANGE_OLD_QUESTION_DATA = "CHANGE_OLD_QUESTION_DATA",
   CHANGE_IS_DELETING_QUESTION = "CHANGE_IS_DELETING_QUESTION",
+  CHANGE_LIST_ROOMS = "CHANGE_LIST_ROOMS",
 }
 
 const addQuestion = (question: IQuestion[]): AppActionType<GAME_TYPE> => {
@@ -156,8 +158,15 @@ const changeIsDeleting = (isDeleting: boolean): AppActionType<GAME_TYPE> => {
     payload: isDeleting,
   };
 };
+const changeListRooms = (listRooms: IRoom[]): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_LIST_ROOMS,
+    payload: listRooms,
+  };
+};
 
 const GameActions = {
+  changeListRooms,
   addQuestion,
   deleteQuestion,
   changeListQuestion,

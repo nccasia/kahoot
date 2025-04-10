@@ -8,8 +8,8 @@ const createRoom = async (gameId: string): Promise<IAppResponseBase<IRoom>> => {
   return response;
 };
 
-const getRoomOfGame = async (gameId: string, page: number, limit: number, search: string): Promise<IAppResponseBase<IRoom>> => {
-  const response: IAppResponseBase<IRoom> = await axiosConfig.get(
+const getRoomOfGame = async (gameId: string, page: number, limit: number, search: string): Promise<IAppResponseBase<IRoom[]>> => {
+  const response: IAppResponseBase<IRoom[]> = await axiosConfig.get(
     `/rooms/game-rooms/${gameId}?page=${page}&limit=${limit}&search=${search}`
   );
   return response;
