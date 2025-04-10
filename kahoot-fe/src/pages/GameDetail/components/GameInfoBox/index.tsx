@@ -14,10 +14,10 @@ interface GameInfoBoxProps {
   owner?: string;
   onDeleteRoom: (roomId: string) => void;
 }
-const GameInfoBox = ({ gameInfo, totalQuestion, owner, onDeleteRoom }: GameInfoBoxProps) => {
+const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
   const navigate = useNavigate();
   const socket = useSocket();
-  const { gameDispatch, gameState } = useContext(GameContext);
+  const { gameDispatch } = useContext(GameContext);
   const handleBackToListGame = () => {
     if (window.history.length > 2) {
       navigate(-1);
@@ -57,6 +57,9 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner, onDeleteRoom }: GameInfoB
   const handlecreateGameTimer = () => {
     setOpenModalGameTimer(true);
   };
+  const handleGoToLastRoom = () => {
+    joinRoom(gameInfo?.lastRoom?.code ?? "");
+  };
   const handleDeleteGame = () => {
     gameDispatch(GameActions.changeSelectedGameId(gameInfo?.id ?? ""));
     gameDispatch(GameActions.changeOpenModalConfirmDeleteGame(true));
@@ -75,12 +78,17 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner, onDeleteRoom }: GameInfoB
             Xoá game
           </Button>
         </div>
-        <div className="flex gap-3 w-full">
+        <div className='flex gap-3 w-full'>
           <Button onClick={createNewGame} className='text-center bg-[#6BB3E0] font-coiny text-lg w-full'>
-            Game mới
+            Bắt đầu game mới
           </Button>
           {openModalGameTimer && (
-            <ModalGameTimer isOpen={openModalGameTimer} onClose={() => setOpenModalGameTimer(false)} title="Hẹn Giờ Chơi" onConfirm={handlecreateGameTimer}></ModalGameTimer>
+            <ModalGameTimer
+              isOpen={openModalGameTimer}
+              onClose={() => setOpenModalGameTimer(false)}
+              title='Hẹn Giờ Chơi'
+              onConfirm={handlecreateGameTimer}
+            ></ModalGameTimer>
           )}
         </div>
       </div>
@@ -93,7 +101,22 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner, onDeleteRoom }: GameInfoB
           <span className='mr-2'>Chủ phòng:</span>
           <span>{owner}</span>
         </div>
-        <div className="mt-6">
+        <div className='flex justify-between items-center mt-3'>
+          <span className='mr-2'>Mật khẩu phòng:</span>
+          <span>******</span>
+        </div>
+        <div className='flex justify-between items-center mt-3'>
+          <span className='mr-2'>Phòng hiện tại:</span>
+          {gameInfo?.lastRoom && gameInfo.lastRoom.status === "waiting" ? (
+            <span className='cursor-pointer animate-pulse hover:text-[#dcd02b]' onClick={handleGoToLastRoom}>
+              {gameInfo?.lastRoom.code}
+            </span>
+          ) : (
+            <span>Chưa bắt đầu</span>
+          )}
+        </div>
+      </div>
+      {/* <div className="mt-6">
           <span className='mr-2'>Các phòng đã tạo</span>
           <div className="mt-2 flex flex-col  ">
             <div className="overflow-y-auto w-full h-[calc(100vh-320px)] sm:h-[calc(100vh-260px)] 
@@ -147,8 +170,7 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner, onDeleteRoom }: GameInfoB
               )}
             </div>
           </div>
-        </div>
-      </div>
+        </div> */}
     </div>
   );
 };
