@@ -19,19 +19,16 @@ const Button = ({ children, className, onClick, isLoading = false, style, size =
         active:shadow-[-0px_0px_0_0_#fff,-0px_0px_0_0px_#fff] active:translate-x-[-2px] active:translate-y-[2px]
         flex items-center justify-center gap-2
         filter brightness-100 hover:brightness-110
-        ${
-          size === "large" &&
-          `shadow-[-4px_4px_0_0_#fff,-4px_4px_0_0px_#fff] border-none hover:no-underline 
+        ${size === "large" &&
+        `shadow-[-4px_4px_0_0_#fff,-4px_4px_0_0px_#fff] border-none hover:no-underline 
               hover:shadow-[-3px_3px_0_0_#fff,-3px_3px_0_0px_#fff] hover:translate-x-[-1px] hover:translate-y-[1px] 
               active:shadow-[-0px_0px_0_0_#fff,-0px_0px_0_0px_#fff] active:translate-x-[-4px] active:translate-y-[4px]`
         }
-        ${
-          disabled &&
-          `cursor-not-allowed ${
-            size === "large" &&
-            `hover:shadow-[-4px_4px_0_0_#fff,-4px_4px_0_0px_#fff] hover:translate-x-[0px] hover:translate-y-[0px]  hover:brightness-100
+        ${disabled &&
+        `cursor-not-allowed ${size === "large" &&
+        `hover:shadow-[-4px_4px_0_0_#fff,-4px_4px_0_0px_#fff] hover:translate-x-[0px] hover:translate-y-[0px]  hover:brightness-100
             active:shadow-[-4px_4px_0_0_#fff,-4px_4px_0_0px_#fff] active:translate-x-[-0px] active:translate-y-[0px]`
-          }`
+        }`
         }
         
         ${isLoading ? "cursor-not-allowed opacity-60" : "cursor-pointer"}

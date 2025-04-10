@@ -7,7 +7,7 @@ type GameDispatch = Dispatch<AppActionType<GAME_TYPE>>;
 
 export const GameContext = createContext<{ gameState: GameState; gameDispatch: GameDispatch }>({
   gameState: initGameState,
-  gameDispatch: () => {}, // Provide a default function to avoid TypeScript errors
+  gameDispatch: () => { }, // Provide a default function to avoid TypeScript errors
 });
 
 const GameProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {

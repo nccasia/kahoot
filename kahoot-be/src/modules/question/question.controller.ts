@@ -70,11 +70,12 @@ export class QuestionController {
   }
 
   @ApiResponseType(ResponseGetQuestion)
+  @ApiBody({ type: UpdateQuestionDto })
   @Put(':questionId')
   updateQuestion(
     @Param('questionId') questionId: string,
-    @Body() updateQuestionDto: UpdateQuestionDto,
     @UserRequest() payload: AccessTokenPayload,
+    @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
     return this.questionService.updateQuestionAsync(
       questionId,

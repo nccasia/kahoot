@@ -7,6 +7,9 @@ export interface IRoom {
   gameId: string;
   status: string;
   isOwner: boolean;
+  scheduledAt?: Date
+  clanId?: string;
+  channelIds?: string[];
   createdAt: string;
   updatedAt: string;
 }

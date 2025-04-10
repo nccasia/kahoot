@@ -35,6 +35,19 @@ export class Room extends AbstractEntity {
   @Column()
   gameId: string;
 
+  @ApiProperty()
+  @Column({ type: 'timestamptz', nullable: true })
+  scheduledAt?: Date;
+
+  @ApiProperty()
+  @IsString()
+  @Column({ nullable: true })
+  clanId?: string;
+
+  @ApiProperty()
+  @Column('varchar', { array: true, nullable: true })
+  channelIds?: string[];
+
   // relations
   @ManyToOne(() => User, (user) => user.games, {
     nullable: false,

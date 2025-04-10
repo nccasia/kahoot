@@ -40,11 +40,9 @@ const QuestionContent = ({
   const handleOpenModalConfirmDeleteQuestion = () => {
     if (onOpenModalConfirmDeleteQuestion) onOpenModalConfirmDeleteQuestion(question.id ?? "");
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, field: string | number) => {
     if (typeof field === "string") {
       const newQuestion = { ...dataUpdate, [field]: e.target.value };
-      console.log("newQuestion", newQuestion);
       changeDataUpdate(newQuestion);
     } else {
       const newOptions = [...dataUpdate.answerOptions.options];
@@ -56,11 +54,9 @@ const QuestionContent = ({
           options: newOptions,
         },
       };
-      console.log("newQuestion", newQuestion);
       changeDataUpdate(newQuestion);
     }
   };
-  
   const handleChangeCorrectAnswer = (index: number) => {
     const newQuestion = {
       ...dataUpdate,
@@ -68,8 +64,6 @@ const QuestionContent = ({
     newQuestion.answerOptions.correctIndex = index;
     changeDataUpdate(newQuestion);
   };
-
-
   const handleChangeTime = (option: { label: string; value: number | string }) => {
     const newQuestion = {
       ...dataUpdate,
@@ -103,7 +97,6 @@ const QuestionContent = ({
       }
 
     }
-
     const newQuestion = {
       ...dataUpdate,
       answerOptions: {
@@ -147,6 +140,7 @@ const QuestionContent = ({
         };
         changeDataUpdate(newQuestion);
         if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
+        console.log("newQuestion", newQuestion);
       } catch (error) {
         console.error("Lỗi upload ảnh:", error);
       }
@@ -157,24 +151,35 @@ const QuestionContent = ({
     fileInputRef.current?.click();
   };
   const handleChangeQuestionType = (option: { label: string; value: string | number }) => {
-    const newAnswerOptions = { ...dataUpdate.answerOptions };
-    let newAnswerText = dataUpdate.answerText;
+    let newAnswerText = "";
+    let newAnswerOptions;
 
     if (option.value === EQuestionTypes.SINGLE_CHOICE) {
-      newAnswerOptions.correctIndex = newAnswerOptions.correctIndex ?? null;
-      newAnswerOptions.correctIndexes = []
-      newAnswerText = "";
+      newAnswerOptions = {
+        options: dataUpdate.answerOptions.options.length
+          ? dataUpdate.answerOptions.options
+          : ["", "", "", ""],
+        correctIndex: null,
+        correctIndexes: []
+      };
     } else if (option.value === EQuestionTypes.MULTIPLE_CHOICE) {
-      newAnswerOptions.correctIndexes = newAnswerOptions.correctIndexes || [];
-      newAnswerOptions.correctIndex = null
-      newAnswerText = "";
-    } else if (option.value === EQuestionTypes.TEXT) {
+      newAnswerOptions = {
+        options: dataUpdate.answerOptions.options.length
+          ? dataUpdate.answerOptions.options
+          : ["", "", "", ""],
+        correctIndexes: [],
+        correctIndex: null
+      };
+    } else {
+      newAnswerOptions = {
+        options: [],
+        correctIndexes: [],
+        correctIndex: null
+      };
       newAnswerText = dataUpdate.answerText || "";
-      newAnswerOptions.correctIndexes = []
-      newAnswerOptions.correctIndex = null
     }
 
-    const newQuestion = {
+    const newQuestion: IQuestion = {
       ...dataUpdate,
       mode: option.value as string,
       answerOptions: newAnswerOptions,
@@ -184,9 +189,6 @@ const QuestionContent = ({
     changeDataUpdate(newQuestion);
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
-
-
-
 
 
   const handleToogleCorrectAnswerOfMultipleChoiceQuestion = (index: number) => {
@@ -210,27 +212,21 @@ const QuestionContent = ({
   const checkQuestionData = (dataUpdate: IQuestion) => {
     const checkAnswerOptions =
       dataUpdate.mode !== EQuestionTypes.TEXT
-        ? dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "")
-        : true;
+      && dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "")
     const checkAnswerIndexes =
       dataUpdate.mode === EQuestionTypes.MULTIPLE_CHOICE
-        ? dataUpdate.answerOptions.correctIndexes && dataUpdate.answerOptions.correctIndexes.length > 0
-        : true;
+      && dataUpdate.answerOptions.correctIndexes && dataUpdate.answerOptions.correctIndexes.length > 0
     const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
     const checkAnswerText =
       dataUpdate.mode === EQuestionTypes.TEXT
-        ? dataUpdate?.answerText && dataUpdate.answerText.trim() !== ""
-        : true;
+      && dataUpdate?.answerText && dataUpdate.answerText.trim() !== ""
     const checkCorrectIndex =
       dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
-        ? dataUpdate.answerOptions.correctIndex !== null && dataUpdate.answerOptions.correctIndex >= 0
-        : true;
-    console.log(checkAnswerOptions, checkAnswerIndexes, checkTitle, checkAnswerText, checkCorrectIndex);
+      && dataUpdate.answerOptions.correctIndex !== null && dataUpdate.answerOptions.correctIndex >= 0
+
 
     return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
   };
-
-
   const [textValue, setTextValue] = useState<string>("");
   const handleFocus = (field: string | number) => {
     if (typeof field === "string") {
@@ -246,7 +242,6 @@ const QuestionContent = ({
       if (dataUpdate.isError) {
         newQuestion.isError = !checkQuestionData(newQuestion);
       }
-      console.log("newQuestion", newQuestion);
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     } else {
       const newOptions = [...dataUpdate.answerOptions.options];
@@ -261,14 +256,9 @@ const QuestionContent = ({
       if (dataUpdate.isError) {
         newQuestion.isError = !checkQuestionData(newQuestion);
       }
-      console.log("newQuestion", newQuestion);
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     }
   };
-
-
-
-  // ======================================================================================================================
   return (
     <div className='body p-2 font-coiny text-white'>
       <div className='flex flex-col gap-3'>

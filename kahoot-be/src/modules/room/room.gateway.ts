@@ -30,7 +30,9 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import { plainToInstance } from 'class-transformer';
+import dayjs from 'dayjs';
 import * as _ from 'lodash';
+import schedule from 'node-schedule';
 import { Namespace, Socket } from 'socket.io';
 import { corsConfig } from 'src/configs/cors.config';
 import { calculatePoint } from 'src/utils';
@@ -86,7 +88,19 @@ export class RoomGateway
       { status: RoomStatus.InProgress },
       { status: RoomStatus.Finished },
     );
+    await this.rescheduleRooms();
   }
+
+  private async rescheduleRooms() {
+    const rooms = await this.roomsRepository.find({
+      where: { status: RoomStatus.Scheduled },
+      select: ['id', 'code', 'scheduledAt', 'channelIds'],
+    });
+    rooms.forEach((room) => {
+      schedule.scheduleJob(room.id, new Date(room.scheduledAt), async () => {});
+    });
+  }
+
   // Owner events listeners
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(RoomClientEvent.OwnerStartGame)
@@ -177,7 +191,10 @@ export class RoomGateway
     const { roomCode } = joinRoomDto;
     const { userId } = user;
 
-    const room: Pick<Room, 'id' | 'status' | 'ownerId' | 'gameId'> & {
+    const room: Pick<
+      Room,
+      'id' | 'status' | 'ownerId' | 'gameId' | 'scheduledAt'
+    > & {
       roomUsers: Pick<RoomUser, 'id' | 'userId'>[];
     } = await this.roomsRepository.findOne({
       where: { code: String(roomCode) },
@@ -191,6 +208,13 @@ export class RoomGateway
       return;
     }
 
+    if (room.status === RoomStatus.Scheduled) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        message: `Room is scheduled to start at ${dayjs(room.scheduledAt).format('HH:mm DD/MM/YYYY')}`,
+      });
+      return;
+    }
+
     const memberIds = room.roomUsers.map((ru) => ru.userId);
     const joined = memberIds.some((member) => member === userId);
     const isOwner = room.ownerId === userId;
@@ -200,7 +224,6 @@ export class RoomGateway
         client.emit(ClientConnectionEvent.ClientError, {
           message: `Room code ${roomCode} cannot be join because it in progess or finished`,
         });
-
         return;
       }
       await this.roomUsersRepository.insert({
@@ -316,17 +339,25 @@ export class RoomGateway
 
       case QuestionMode.MultipleChoice:
         isCorrect =
-          currentGameQuestion.correctIndexes &&
-          currentGameQuestion.correctIndexes.length > 0 &&
+          submitDto?.answerIndexes &&
+          submitDto?.answerIndexes?.length > 0 &&
           currentGameQuestion.correctIndexes.every((index) => {
-            return submitDto.answerIndexes?.includes(index);
-          });
+            return submitDto?.answerIndexes?.includes(index);
+          }) &&
+          submitDto?.answerIndexes?.length ===
+            currentGameQuestion?.correctIndexes?.length;
         break;
 
-      case 'text':
+      case QuestionMode.Text:
+        if (!submitDto.answerText || submitDto?.answerText?.length === 0) {
+          client.emit(ClientConnectionEvent.ClientError, {
+            message: 'Please provide answer for text question',
+          });
+          return;
+        }
         isCorrect =
           currentGameQuestion.answerText?.toLowerCase() ===
-          submitDto.answerText?.toLowerCase();
+          submitDto?.answerText?.toLowerCase();
         break;
 
       default:
@@ -403,6 +434,7 @@ export class RoomGateway
 
     await this.roomCacheService.setUserAnswer(submitDto.roomId, {
       ...newSubmitResult,
+      questionMode: currentGameQuestion.mode,
       userName: client.user.userName,
       avatar: client.user.avatar,
     });
