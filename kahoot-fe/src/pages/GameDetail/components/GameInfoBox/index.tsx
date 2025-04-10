@@ -4,6 +4,7 @@ import SocketEvents from "@/constants/SocketEvents";
 import { IGame } from "@/interfaces/gameTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import { useSocket } from "@/providers/SocketProvider";
+import { ROUTES } from "@/routes/routePath";
 import roomServices from "@/services/roomServices";
 import GameActions from "@/stores/gameStore/gameAction";
 import { useContext, useEffect, useState } from "react";
@@ -60,6 +61,9 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
   const handleGoToLastRoom = () => {
     joinRoom(gameInfo?.lastRoom?.code ?? "");
   };
+  const simulateGame = async () => {
+    navigate(ROUTES.SIMULATE_GAME.replace(":gameId", gameInfo?.id ?? ""));
+  };
   const handleDeleteGame = () => {
     gameDispatch(GameActions.changeSelectedGameId(gameInfo?.id ?? ""));
     gameDispatch(GameActions.changeOpenModalConfirmDeleteGame(true));
@@ -81,6 +85,19 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
         <div className='flex gap-3 w-full'>
           <Button onClick={createNewGame} className='text-center bg-[#6BB3E0] font-coiny text-lg w-full'>
             Bắt đầu game mới
+          </Button>
+          {openModalGameTimer && (
+            <ModalGameTimer
+              isOpen={openModalGameTimer}
+              onClose={() => setOpenModalGameTimer(false)}
+              title='Hẹn Giờ Chơi'
+              onConfirm={handlecreateGameTimer}
+            ></ModalGameTimer>
+          )}
+        </div>
+        <div className='flex gap-3 w-full'>
+          <Button onClick={simulateGame} className='text-center bg-[#6BB3E0] font-coiny text-lg w-full'>
+            Chơi thử
           </Button>
           {openModalGameTimer && (
             <ModalGameTimer
