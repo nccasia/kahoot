@@ -10,8 +10,10 @@ interface InputProps {
   maxLength?: number;
   max?: number;
   min?: number;
+  disabled?: boolean;
 }
 const Input = ({
+  disabled = false,
   type = "text",
   placeholder,
   className,
@@ -26,6 +28,8 @@ const Input = ({
 }: InputProps) => {
   return (
     <input
+      disabled={disabled}
+      autoComplete='off'
       type={type}
       placeholder={placeholder}
       value={value}

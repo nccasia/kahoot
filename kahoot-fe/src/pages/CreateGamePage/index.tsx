@@ -124,7 +124,9 @@ const CreateGamePage = () => {
             toast.error("Lỗi khi tải ảnh lên!");
             return;
           }
+
           const imageUrl = uploadImageResponse.data.secure_url;
+
           listQuestions.push({
             mode: question.mode,
             title: question.title,

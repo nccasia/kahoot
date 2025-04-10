@@ -27,6 +27,8 @@ export interface RoomState {
   isWaitingEndGame: boolean;
   openMdoalConfirmEndGame: boolean;
   isReconecting?: boolean;
+  isShowAnswer: boolean;
+  isCorrect: boolean;
 }
 
 export const initRoomState: RoomState = {
@@ -47,6 +49,8 @@ export const initRoomState: RoomState = {
   isWaitingEndGame: false,
   openMdoalConfirmEndGame: false,
   isReconecting: false,
+  isShowAnswer: false,
+  isCorrect: false,
 };
 
 const RoomReducer = (state = initRoomState, action: AppActionType<ROOM_TYPE>): RoomState => {
@@ -244,6 +248,18 @@ const RoomReducer = (state = initRoomState, action: AppActionType<ROOM_TYPE>): R
       return {
         ...state,
         correctTextAnswer: action.payload,
+      };
+
+    case ROOM_TYPE.CHANGE_IS_SHOW_ANSWER:
+      return {
+        ...state,
+        isShowAnswer: action.payload,
+      };
+
+    case ROOM_TYPE.CHANGE_IS_CORRECT:
+      return {
+        ...state,
+        isCorrect: action.payload,
       };
 
     default:
