@@ -1,6 +1,8 @@
 import { JwtStrategy } from '@base/passports/jwt.strategy';
 import { Game } from '@modules/game/entities/game.entity';
 import { Question } from '@modules/question/entities/question.entity';
+import { MezonClientService } from '@modules/shared/mezon/mezon-client.service';
+import { SharedModule } from '@modules/shared/shared.module';
 import { User } from '@modules/user/entities/user.entity';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -23,6 +25,7 @@ import { RoomService } from './room.service';
         secret: configService.getOrThrow<string>('JWT_SECRET'),
       }),
     }),
+    SharedModule,
     TypeOrmModule.forFeature([
       User,
       Room,
@@ -34,6 +37,12 @@ import { RoomService } from './room.service';
     ]),
   ],
   controllers: [RoomController],
-  providers: [RoomService, RoomGateway, RoomCacheService, JwtStrategy],
+  providers: [
+    MezonClientService,
+    RoomService,
+    RoomGateway,
+    RoomCacheService,
+    JwtStrategy,
+  ],
 })
 export class RoomModule {}

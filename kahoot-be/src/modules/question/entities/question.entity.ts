@@ -10,9 +10,9 @@ import {
   IsEnum,
   IsNotEmpty,
   IsPositive,
+  IsUrl,
   IsUUID,
   ValidateIf,
-  ValidateNested,
 } from 'class-validator';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import {
@@ -44,8 +44,12 @@ export class Question extends AbstractEntity {
   @Column()
   title: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ required: false, nullable: true })
   @Expose()
+  @ValidateIf((o) => {
+    return o?.image !== undefined && o?.image !== null;
+  })
+  @IsUrl()
   @Column({ nullable: true })
   image: string;
 
@@ -53,10 +57,16 @@ export class Question extends AbstractEntity {
     type: () => SingleChoiceAnswerOptionsDto,
     nullable: true,
   })
-  @ValidateNested({ each: true })
-  // more type. like multiple choice ...
-  @Type(() => SingleChoiceAnswerOptionsDto)
-  @Type(() => MultipleChoiceAnswerOptionsDto)
+  @ValidateIf(
+    (o) =>
+      o.mode === QuestionMode.SingleChoice ||
+      o.mode === QuestionMode.MultipleChoice,
+  )
+  @Type((o) => {
+    return o?.object?.mode === QuestionMode.SingleChoice
+      ? SingleChoiceAnswerOptionsDto
+      : MultipleChoiceAnswerOptionsDto;
+  })
   @Column({ type: 'json', nullable: true })
   answerOptions?: AnswerOptionsDto;
 

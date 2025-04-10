@@ -1,3 +1,4 @@
+import { EQuestionTypes } from "@/constants/QuestionTypes";
 import SocketEvents from "@/constants/SocketEvents";
 import { ICurrentUser } from "@/interfaces/authTypes";
 import { IQuestionGame } from "@/interfaces/questionTypes";
@@ -33,7 +34,7 @@ const RoomSocketProvider: React.FC = () => {
         {
           roomId: data.roomId,
         },
-        () => { }
+        () => {}
       );
     });
 
@@ -47,7 +48,7 @@ const RoomSocketProvider: React.FC = () => {
         {
           roomId: data?.roomId,
         },
-        () => { }
+        () => {}
       );
     });
 
@@ -61,11 +62,12 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsReconnecting(false));
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
-      roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
+      roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
+      roomDispatch(RoomActions.changeTextQuestionAnalysis({ correctText: "", listQuestionAnalysis: [] }));
 
       if (data.submitedAnswer) {
-        roomDispatch(RoomActions.changeSelectedAnswer(data.submitedAnswer.answerIndex));
+        roomDispatch(RoomActions.changeSelectedAnswers([data.submitedAnswer.answerIndex]));
         roomDispatch(RoomActions.changeIsSubmitAnswer(true));
       }
       const lastTotalPoint = data?.lastTotalPoint;
@@ -78,10 +80,11 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsWaiting(true));
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
-      roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
+      roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
+      roomDispatch(RoomActions.changeTextQuestionAnalysis({ correctText: "", listQuestionAnalysis: [] }));
       roomDispatch(RoomActions.changeSubmitedUser(0));
-      roomDispatch(RoomActions.changeSelectedAnswer(undefined));
+      roomDispatch(RoomActions.changeSelectedAnswers([]));
       roomDispatch(RoomActions.changeUserPoint(undefined));
       roomDispatch(RoomActions.changeUserRanking([]));
       roomDispatch(RoomActions.changeCurrentQuestion(undefined));
@@ -93,16 +96,21 @@ const RoomSocketProvider: React.FC = () => {
     });
 
     socket.on(SocketEvents.ON.ServerEmitQuestion, (data: { question: IQuestionGame; questionNumber: number }) => {
+      console.log("Server emit question", data);
       roomDispatch(RoomActions.changeIsWaiting(false));
+      roomDispatch(RoomActions.changeIsShowAnswer(false));
       roomDispatch(RoomActions.changeIsEndAnQuestion(false));
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
       roomDispatch(RoomActions.changeIsReconnecting(false));
-      roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(-1));
+      roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
+      roomDispatch(RoomActions.changeTextQuestionAnalysis({ correctText: "", listQuestionAnalysis: [] }));
       roomDispatch(RoomActions.changeSubmitedUser(0));
-      roomDispatch(RoomActions.changeSelectedAnswer(undefined));
+      roomDispatch(RoomActions.changeSelectedAnswers([]));
       roomDispatch(RoomActions.changeCurrentQuestionPoint(0));
-
+      roomDispatch(RoomActions.changeTextAnswer(""));
+      roomDispatch(RoomActions.changeCorrectTextAnswer(""));
+      roomDispatch(RoomActions.changeMultipleChoiceSelectedAnswers([]));
       const currentQuestion: IQuestionGame = {
         ...data.question,
         order: data?.questionNumber,
@@ -112,13 +120,41 @@ const RoomSocketProvider: React.FC = () => {
 
     socket.on(SocketEvents.ON.ServerEmitCorrectAnswer, (data) => {
       console.log("Server emit correct answer", data);
-      roomDispatch(RoomActions.changeCorrectAnswerOfCurrentQuestion(data?.correctIndex));
-      roomDispatch(
-        RoomActions.changeListQuestionAnalysis({
-          totalOptions: data?.totalOptions,
-          listQuestionAnalysis: data?.questionAnalysis,
-        })
-      );
+      /*{
+        questionMode,
+        totalOptions,
+        questionAnalysis,
+        correctIndex,
+        questionId,
+        correctIndexes,
+        correctText,
+      }*/
+      if (data?.questionMode === EQuestionTypes.SINGLE_CHOICE) {
+        roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([data?.correctIndex]));
+        roomDispatch(
+          RoomActions.changeListQuestionAnalysis({
+            totalOptions: data?.totalOptions,
+            listQuestionAnalysis: data?.questionAnalysis,
+          })
+        );
+      } else if (data?.questionMode === EQuestionTypes.MULTIPLE_CHOICE) {
+        roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([...((data?.correctIndexes as number[]) ?? [])]));
+        roomDispatch(
+          RoomActions.changeListQuestionAnalysis({
+            totalOptions: data?.totalOptions,
+            listQuestionAnalysis: data?.questionAnalysis,
+          })
+        );
+      } else if (data?.questionMode === EQuestionTypes.TEXT) {
+        roomDispatch(RoomActions.changeCorrectTextAnswer(data?.correctText));
+        roomDispatch(
+          RoomActions.changeTextQuestionAnalysis({
+            correctText: data?.correctText,
+            listQuestionAnalysis: data?.questionAnalysis,
+          })
+        );
+      }
+      roomDispatch(RoomActions.changeIsShowAnswer(true));
     });
 
     socket.on(SocketEvents.ON.ServerEmitWaitNextQuestion, (data) => {
@@ -148,6 +184,8 @@ const RoomSocketProvider: React.FC = () => {
       } else {
         appDispatch(AppActions.changeIsPlayErrorSound(true));
       }
+      roomDispatch(RoomActions.changeIsCorrect(data?.isCorrect));
+      console.log("Server emit question finished", data);
     });
 
     socket.on(SocketEvents.ON.ServerEmitGameFinished, (data) => {

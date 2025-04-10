@@ -1,5 +1,6 @@
 import LoadingOverlay from "@/components/LoadingOverlay";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
+import { EQuestionTypes } from "@/constants/QuestionTypes";
 import SocketEvents from "@/constants/SocketEvents";
 import { ISendAnswerDTO } from "@/interfaces/questionTypes";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
@@ -18,16 +19,32 @@ const QuizzPage = () => {
   const { roomState, roomDispatch } = useContext(RoomContext);
 
   const socket = useSocket();
-  const handleSendAnswer = (questionId: string, answerIndex: number) => {
+  const handleSendAnswer = (questionId: string) => {
     if (!socket || !roomId) return;
     if (!questionId) return;
     if (roomState.isSubmitAnswer || roomState.isOwner || roomState.isEndGame || roomState.isWaitingEndGame) return;
+    if (
+      (!roomState.textAnswer || roomState.textAnswer?.trim() === "") &&
+      roomState.currentQuestion?.mode === EQuestionTypes.TEXT
+    ) {
+      toast.warning("Bạn chưa nhập đáp án cho câu hỏi này!");
+      return;
+    }
+    if (roomState.currentQuestion?.mode !== EQuestionTypes.TEXT && roomState.multipleChoiceSelectedAnswers?.length === 0) {
+      toast.warning("Bạn chưa chọn đáp án cho câu hỏi này!");
+      return;
+    }
+    const question = roomState.currentQuestion;
+    if (!question) return;
 
-    roomDispatch(RoomActions.changeSelectedAnswer(answerIndex));
+    const selectedAnswers = roomState.multipleChoiceSelectedAnswers;
+    roomDispatch(RoomActions.changeSelectedAnswers(selectedAnswers as number[]));
     const emitData: ISendAnswerDTO = {
       roomId,
-      answerIndex: answerIndex,
+      answerIndex: selectedAnswers?.[0] as number,
       questionId,
+      answerIndexes: selectedAnswers,
+      answerText: roomState.textAnswer ?? "",
     };
     socket.emit(SocketEvents.EMIT.ClientEmitSubmitQuestion, emitData);
   };
@@ -57,8 +74,10 @@ const QuizzPage = () => {
             </div>
             <div className='w-3/5'>
               <QuestionBox
-                correctAnswer={roomState.correctAnswerOfCurrentQuestion}
-                selectedAnswer={roomState.selectedAnswer}
+                isShowAnswer={roomState.isShowAnswer}
+                correctAnswerText={roomState.correctTextAnswer}
+                correctAnswers={roomState.correctAnswerOfCurrentQuestions}
+                selectedAnswers={roomState.selectedAnswers}
                 isOwner={roomState.isOwner}
                 isSubmitAnswer={roomState.isSubmitAnswer}
                 onSendAnswer={handleSendAnswer}

@@ -26,9 +26,11 @@ const CreateGameTypePage = () => {
       </div>
       <div className='w-full h-[calc(100%-80px)] flex justify-center items-center flex-col'>
         <div className='text-white text-2xl text-center font-coiny mb-8'>
-          <span>Bạn muốn thêm câu hỏi bằng cách nào?</span>
+          <span>
+            Bạn muốn thêm câu hỏi <br /> bằng cách nào?
+          </span>
         </div>
-        <div className='flex gap-4 justify-center items-center'>
+        <div className='flex gap-4 flex-wrap justify-center items-center'>
           <Button
             onClick={handleAddQuestionHandmade}
             size='large'

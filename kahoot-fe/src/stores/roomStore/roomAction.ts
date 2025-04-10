@@ -1,6 +1,6 @@
 import { AppActionType } from "@/interfaces/appTypes";
 import { ICurrentUser } from "@/interfaces/authTypes";
-import { IQuestionAnalyst, IQuestionGame } from "@/interfaces/questionTypes";
+import { IQuestionAnalyst, IQuestionGame, ITextQuestionAnalyst } from "@/interfaces/questionTypes";
 import { IRoom, IUserPoint, IUserRanking } from "@/interfaces/roomTypes";
 
 export enum ROOM_TYPE {
@@ -15,7 +15,14 @@ export enum ROOM_TYPE {
   CHANGE_IS_END_AN_QUESTION = "CHANGE_IS_END_AN_QUESTION",
   CHANGE_CORRECT_ANSWER_OF_CURRENT_QUESTION = "CHANGE_CORRECT_ANSWER_OF_CURRENT_QUESTION",
   CHANGE_SELECTED_ANSWER = "CHANGE_SELECTED_ANSWER",
+  CHANGE_TEXT_ANSWER = "CHANGE_TEXT_ANSWER",
+  CHANGE_CORRECT_TEXT_ANSWER = "CHANGE_CORRECT_TEXT_ANSWER",
+  CHANGE_IS_CORRECT = "CHANGE_IS_CORRECT",
+  CHANGE_IS_SHOW_ANSWER = "CHANGE_IS_SHOW_ANSWER",
+  CHANGE_MULTIPLE_CHOICE_SELECTED_ANSWERS = "CHANGE_MULTIPLE_CHOICE_SELECTED_ANSWERS",
+  TOOGLE_MULTIPLE_CHOICE_SELECTED_ANSWERS = "TOOGLE_MULTIPLE_CHOICE_SELECTED_ANSWERS",
   CHANGE_LIST_QUESTION_ANALYSIS = "CHANGE_LIST_QUESTION_ANALYSIS",
+  CHANGE_TEXT_QUESTION_ANALYSIS = "CHANGE_TEXT_QUESTION_ANALYSIS",
   CHANGE_LIST_USER_RANKING = "CHANGE_LIST_USER_RANKING",
   CHANGE_SUBMITED_USER = "CHANGE_SUBMITED_USER",
   CHANGE_USER_POINT = "CHANGE_USER_POINT",
@@ -91,10 +98,17 @@ const changeIsEndAnQuestion = (isEndAnQuestion: boolean): AppActionType<ROOM_TYP
   };
 };
 
-const changeCorrectAnswerOfCurrentQuestion = (correctAnswer: number): AppActionType<ROOM_TYPE> => {
+const changeCorrectAnswersOfCurrentQuestion = (correctAnswers: number[]): AppActionType<ROOM_TYPE> => {
   return {
     type: ROOM_TYPE.CHANGE_CORRECT_ANSWER_OF_CURRENT_QUESTION,
-    payload: correctAnswer,
+    payload: correctAnswers,
+  };
+};
+
+const changeCorrectTextAnswer = (correctTextAnswer: string): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_CORRECT_TEXT_ANSWER,
+    payload: correctTextAnswer,
   };
 };
 
@@ -104,6 +118,16 @@ const changeListQuestionAnalysis = (data: {
 }): AppActionType<ROOM_TYPE> => {
   return {
     type: ROOM_TYPE.CHANGE_LIST_QUESTION_ANALYSIS,
+    payload: data,
+  };
+};
+
+const changeTextQuestionAnalysis = (data: {
+  correctText: string;
+  listQuestionAnalysis: ITextQuestionAnalyst[];
+}): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_TEXT_QUESTION_ANALYSIS,
     payload: data,
   };
 };
@@ -122,10 +146,31 @@ const changeSubmitedUser = (submitedUser: number): AppActionType<ROOM_TYPE> => {
   };
 };
 
-const changeSelectedAnswer = (selectedAnswer?: number): AppActionType<ROOM_TYPE> => {
+const changeSelectedAnswers = (selectedAnswer: number[]): AppActionType<ROOM_TYPE> => {
   return {
     type: ROOM_TYPE.CHANGE_SELECTED_ANSWER,
     payload: selectedAnswer,
+  };
+};
+
+const changeMultipleChoiceSelectedAnswers = (selectedAnswers: number[]): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_MULTIPLE_CHOICE_SELECTED_ANSWERS,
+    payload: selectedAnswers,
+  };
+};
+
+const toogleMultipleChoiceSelectedAnswer = (selectedAnswer: number): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.TOOGLE_MULTIPLE_CHOICE_SELECTED_ANSWERS,
+    payload: selectedAnswer,
+  };
+};
+
+const changeTextAnswer = (textAnswer: string): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_TEXT_ANSWER,
+    payload: textAnswer,
   };
 };
 
@@ -185,6 +230,20 @@ const changeOpenModalConfirmEndGame = (isOpen: boolean): AppActionType<ROOM_TYPE
   };
 };
 
+const changeIsShowAnswer = (isShowAnswer: boolean): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_IS_SHOW_ANSWER,
+    payload: isShowAnswer,
+  };
+};
+
+const changeIsCorrect = (isCorrect: boolean): AppActionType<ROOM_TYPE> => {
+  return {
+    type: ROOM_TYPE.CHANGE_IS_CORRECT,
+    payload: isCorrect,
+  };
+};
+
 const RoomActions = {
   changeCurrentRoom,
   changeListMemberOfRoom,
@@ -195,11 +254,16 @@ const RoomActions = {
   changeCurrentQuestion,
   changeIsSubmitAnswer,
   changeIsEndAnQuestion,
-  changeCorrectAnswerOfCurrentQuestion,
+  changeCorrectAnswersOfCurrentQuestion,
+  changeCorrectTextAnswer,
+  changeTextAnswer,
   changeListQuestionAnalysis,
+  changeTextQuestionAnalysis,
   changeUserRanking,
   changeSubmitedUser,
-  changeSelectedAnswer,
+  changeSelectedAnswers,
+  changeMultipleChoiceSelectedAnswers,
+  toogleMultipleChoiceSelectedAnswer,
   changeUserPoint,
   changeCurrentQuestionPoint,
   changeTotalPoint,
@@ -208,5 +272,7 @@ const RoomActions = {
   changeIsReconnecting,
   changeTotalQuestion,
   changeOpenModalConfirmEndGame,
+  changeIsShowAnswer,
+  changeIsCorrect,
 };
 export default RoomActions;

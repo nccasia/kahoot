@@ -45,11 +45,18 @@ export interface ISendAnswerDTO {
   roomId: string;
   questionId: string;
   answerIndex: number;
+  answerIndexes?: number[];
+  answerText?: string;
 }
 
 export interface IQuestionAnalyst {
   answerIndex: number;
   totalSeleted: number;
+}
+
+export interface ITextQuestionAnalyst {
+  answerText: string;
+  totalMatched: number;
 }
 
 export interface IGetCorrectAnswerResponse {
