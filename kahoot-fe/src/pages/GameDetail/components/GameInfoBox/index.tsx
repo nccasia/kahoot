@@ -103,7 +103,10 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner, onDeleteRoom }: GameInfoB
             [&::-webkit-scrollbar-track]:bg-transparent">
 
               {gameState.listRooms.length === 0 ? (
-                <Button onClick={createNewGame} className="bg-[#054e7a]">Chưa có phòng nào được tạo<br /> Tạo Phòng Ngay?</Button>
+                <div className="flex flex-col items-center  h-full">
+                  <Button onClick={createNewGame} className="bg-[#054e7a]">Chưa có phòng nào được tạo<br /> Tạo Phòng Ngay?</Button>
+                </div>
+
               ) : (
                 gameState.listRooms.map(room => (
                   <div className="flex justify-between gap-2 items-center mt-3" key={room.id}>
