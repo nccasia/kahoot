@@ -9,7 +9,11 @@ import { Repository } from 'typeorm';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Question } from './entities/question.entity';
-import { QuestionMode } from './types';
+import {
+  MultipleChoiceAnswerOptionsDto,
+  QuestionMode,
+  SingleChoiceAnswerOptionsDto,
+} from './types';
 
 @Injectable()
 export class QuestionService {
@@ -38,15 +42,15 @@ export class QuestionService {
 
     const isSingleQuestionInvalid = singleChoiceQuestions.some((question) => {
       return (
-        question.answerOptions.options.length < 2 ||
-        question.answerOptions.options.length > MAX_QUESTION_OPTIONS
+        question?.answerOptions?.options?.length < 2 ||
+        question?.answerOptions?.options?.length > MAX_QUESTION_OPTIONS
       );
     });
 
     const isMultipleQuestionInvalid = multipleChoiceQuestions.some(
       (question) =>
-        question.answerOptions.options.length < 3 ||
-        question.answerOptions.options.length > MAX_QUESTION_OPTIONS,
+        question?.answerOptions?.options?.length < 3 ||
+        question?.answerOptions?.options?.length > MAX_QUESTION_OPTIONS,
     );
 
     const isTextQuestionInvalid = textQuestions.some(
@@ -154,38 +158,47 @@ export class QuestionService {
       });
     }
 
-    switch (question.mode) {
+    switch (updateQuestionDto.mode) {
       case QuestionMode.SingleChoice:
         if (
-          updateQuestionDto.answerOptions &&
-          updateQuestionDto.answerOptions.options.length < 2
+          updateQuestionDto?.answerOptions &&
+          updateQuestionDto?.answerOptions?.options?.length < 2
         ) {
           throw new BadRequestException({
             message: `Single choice question options must be between 2 and ${MAX_QUESTION_OPTIONS}`,
             errorCode: ERROR_CODES.QUESTION.QUESTION_LIMIT_EXCEEDED,
           });
         }
+        updateQuestionDto.answerText = null;
+        const singleChoiceAnswerOptions =
+          updateQuestionDto.answerOptions as SingleChoiceAnswerOptionsDto;
+        updateQuestionDto.answerOptions = singleChoiceAnswerOptions;
         break;
 
       case QuestionMode.MultipleChoice:
         if (
-          updateQuestionDto.answerOptions &&
-          updateQuestionDto.answerOptions.options.length < 3
+          updateQuestionDto?.answerOptions &&
+          updateQuestionDto?.answerOptions?.options?.length < 3
         ) {
           throw new BadRequestException({
             message: `Multiple choice question options must be between 3 and ${MAX_QUESTION_OPTIONS}`,
             errorCode: ERROR_CODES.QUESTION.QUESTION_LIMIT_EXCEEDED,
           });
         }
+        updateQuestionDto.answerText = null;
+        const answerOptions =
+          updateQuestionDto.answerOptions as MultipleChoiceAnswerOptionsDto;
+        updateQuestionDto.answerOptions = answerOptions;
         break;
 
       case QuestionMode.Text:
-        if (updateQuestionDto.answerText) {
+        if (!updateQuestionDto?.answerText) {
           throw new BadRequestException({
             message: `Text question must not have an answer text`,
             errorCode: ERROR_CODES.QUESTION.QUESTION_TEXT_ANSWER_REQUIRED,
           });
         }
+        updateQuestionDto.answerOptions = null;
         break;
 
       default:

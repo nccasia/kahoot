@@ -33,3 +33,17 @@ export class BaseRoomDto {
   @Expose()
   updatedAt: Date;
 }
+
+export class BaseScheduledRoomDto extends BaseRoomDto {
+  @ApiProperty()
+  @Expose()
+  scheduledAt: Date;
+
+  @ApiProperty({ type: String })
+  @Expose()
+  clanId: string;
+
+  @ApiProperty()
+  @Expose()
+  channelIds?: string[];
+}

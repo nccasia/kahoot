@@ -31,7 +31,7 @@ export class RawGameQuestionDto extends PickType(Question, [
   correctIndex?: number;
   @ApiProperty()
   @Expose()
-  correctIndexs?: number[];
+  correctIndexes?: number[];
   @ApiProperty()
   @Expose()
   answerText?: string;

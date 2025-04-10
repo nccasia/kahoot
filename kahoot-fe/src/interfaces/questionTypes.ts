@@ -45,6 +45,8 @@ export interface ISendAnswerDTO {
   roomId: string;
   questionId: string;
   answerIndex: number;
+  answerIndexes?: number[];
+  answerText?: string;
 }
 
 export interface IQuestionAnalyst {

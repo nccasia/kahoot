@@ -19,7 +19,7 @@ interface IQuestionItemProps {
 
 const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion, isShowDeleteButton }: IQuestionItemProps) => {
   const [textValue, setTextValue] = useState<string>("");
-
+  console.log("question", question);
   const handleFocus = (field: string | number) => {
     if (typeof field === "string") {
       setTextValue(question[field as keyof IQuestion] as string);
@@ -184,16 +184,16 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
       const newQuestion = {
         ...question,
         image: undefined,
-        imageFile: undefined
+        imageFile: undefined,
       };
 
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
 
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     } catch (error) {
-      console.error('Lỗi xóa ảnh:', error);
+      console.error("Lỗi xóa ảnh:", error);
     }
   };
 
@@ -212,7 +212,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         <div className='max-w-[250px] w-full'>
           <SelectDropdown
             dropdownPosition='bottom'
-            selectedValue={question.time}
+            selectedValue={question.mode}
             options={questionTypeOptions}
             onSelect={handleChangeQuestionType}
           />

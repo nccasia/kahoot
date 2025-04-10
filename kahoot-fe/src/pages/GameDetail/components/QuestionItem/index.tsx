@@ -4,6 +4,7 @@ import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { IAddQuestionToGameDTO, IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import questionServices from "@/services/questionServices";
+import uploadService from "@/services/uploadService";
 import GameActions from "@/stores/gameStore/gameAction";
 import { useCallback, useContext, useState } from "react";
 import { toast } from "react-toastify";
@@ -16,7 +17,6 @@ interface IQuestionItemProps {
   onOpenModalConfirmDeleteQuestion?: (questionId: string) => void;
   isEditing?: boolean;
   gameId: string;
-
 }
 
 const QuestionItem = ({
@@ -33,14 +33,8 @@ const QuestionItem = ({
     ...JSON.parse(JSON.stringify(question)),
     answerOptions: {
       options: question.answerOptions?.options || [],
-      correctIndex:
-        question.mode === EQuestionTypes.SINGLE_CHOICE
-          ? question.answerOptions?.correctIndex ?? null
-          : null,
-      correctIndexes:
-        question.mode === EQuestionTypes.MULTIPLE_CHOICE
-          ? question.answerOptions?.correctIndexes || []
-          : [],
+      correctIndex: question.mode === EQuestionTypes.SINGLE_CHOICE ? question.answerOptions?.correctIndex ?? null : null,
+      correctIndexes: question.mode === EQuestionTypes.MULTIPLE_CHOICE ? question.answerOptions?.correctIndexes || [] : [],
     },
   });
 
@@ -56,14 +50,8 @@ const QuestionItem = ({
         ...JSON.parse(JSON.stringify(question)),
         answerOptions: {
           options: question.answerOptions?.options || [],
-          correctIndex:
-            question.mode === EQuestionTypes.SINGLE_CHOICE
-              ? question.answerOptions?.correctIndex ?? null
-              : null,
-          correctIndexes:
-            question.mode === EQuestionTypes.MULTIPLE_CHOICE
-              ? question.answerOptions?.correctIndexes || []
-              : [],
+          correctIndex: question.mode === EQuestionTypes.SINGLE_CHOICE ? question.answerOptions?.correctIndex ?? null : null,
+          correctIndexes: question.mode === EQuestionTypes.MULTIPLE_CHOICE ? question.answerOptions?.correctIndexes || [] : [],
         },
       });
     }
@@ -80,14 +68,12 @@ const QuestionItem = ({
         : true;
     const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
     const checkAnswerText =
-      dataUpdate.mode === EQuestionTypes.TEXT
-        ? dataUpdate?.answerText && dataUpdate.answerText?.trim() !== ""
-        : true;
+      dataUpdate.mode === EQuestionTypes.TEXT ? dataUpdate?.answerText && dataUpdate.answerText?.trim() !== "" : true;
     const checkCorrectIndex =
       dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
         ? dataUpdate.answerOptions.correctIndex !== null &&
-        dataUpdate.answerOptions.correctIndex >= 0 &&
-        dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length
+          dataUpdate.answerOptions.correctIndex >= 0 &&
+          dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length
         : true;
 
     return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
@@ -104,6 +90,16 @@ const QuestionItem = ({
         }
         return;
       }
+
+      if (dataUpdate.imageFile) {
+        const uploadImageResponse = await uploadService.uploadAnImage(dataUpdate.imageFile);
+        if (uploadImageResponse.statusCode !== 200) {
+          toast.error("Lỗi khi tải ảnh lên!");
+          return;
+        }
+        dataUpdate.image = uploadImageResponse.data.secure_url;
+      }
+
       if (gameState.isCreateQuestionOfGame) {
         const dataCreate: IAddQuestionToGameDTO[] = [
           {
@@ -150,14 +146,8 @@ const QuestionItem = ({
       ...JSON.parse(JSON.stringify(question)),
       answerOptions: {
         options: question.answerOptions?.options || [],
-        correctIndex:
-          question.mode === EQuestionTypes.SINGLE_CHOICE
-            ? question.answerOptions?.correctIndex ?? null
-            : null,
-        correctIndexes:
-          question.mode === EQuestionTypes.MULTIPLE_CHOICE
-            ? question.answerOptions?.correctIndexes || []
-            : [],
+        correctIndex: question.mode === EQuestionTypes.SINGLE_CHOICE ? question.answerOptions?.correctIndex ?? null : null,
+        correctIndexes: question.mode === EQuestionTypes.MULTIPLE_CHOICE ? question.answerOptions?.correctIndexes || [] : [],
       },
     });
   }, [dataUpdate.id, gameDispatch, gameState.isCreateQuestionOfGame, question]);

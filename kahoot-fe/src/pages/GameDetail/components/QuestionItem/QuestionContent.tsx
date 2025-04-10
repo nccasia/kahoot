@@ -21,11 +21,11 @@ const timeOptions: Array<{
   label: string;
   value: number;
 }> = [
-    { label: "15s", value: 15 },
-    { label: "30s", value: 30 },
-    { label: "45s", value: 45 },
-    { label: "60s", value: 60 },
-  ];
+  { label: "15s", value: 15 },
+  { label: "30s", value: 30 },
+  { label: "45s", value: 45 },
+  { label: "60s", value: 60 },
+];
 const QuestionContent = ({
   question,
   onOpenModalConfirmDeleteQuestion,
@@ -116,17 +116,17 @@ const QuestionContent = ({
       const newQuestion = {
         ...dataUpdate,
         image: undefined,
-        imageFile: undefined
+        imageFile: undefined,
       };
 
       changeDataUpdate(newQuestion);
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
 
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     } catch (error) {
-      console.error('Lỗi xóa ảnh:', error);
+      console.error("Lỗi xóa ảnh:", error);
     }
   };
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,7 +137,8 @@ const QuestionContent = ({
           ...dataUpdate,
           image: URL.createObjectURL(file),
           imageFile: file,
-        }; changeDataUpdate(newQuestion);
+        };
+        changeDataUpdate(newQuestion);
         if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
         console.log("newQuestion", newQuestion);
       } catch (error) {
@@ -267,7 +268,7 @@ const QuestionContent = ({
               <div className='flex flex-col gap-2 w-full '>
                 <span className='inline-block font-coiny min-w-[200px] text-start text-2xl'>Câu hỏi:</span>
                 <Input
-                  onChange={(e) => handleChange(e, 'title')}
+                  onChange={(e) => handleChange(e, "title")}
                   value={dataUpdate.title}
                   className='flex-1 rounded-lg font-coiny'
                 />
@@ -377,7 +378,6 @@ const QuestionContent = ({
 
             </div>
             <div className='flex'>
-
               <div className='ml-[208px] flex gap-2'>
 
                 {dataUpdate.mode !== EQuestionTypes.TEXT && (<Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
