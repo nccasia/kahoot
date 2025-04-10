@@ -1,8 +1,10 @@
+import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import { useContext } from "react";
 import QuestionAnalyst from "./QuestionAnalyst";
 import QuestionResult from "./QuestionResult";
 import ScoreRank from "./ScoreRank";
+import TextQuestionAnalyst from "./TextQuestionAnalyst";
 
 const ShowResult = () => {
   const { roomState } = useContext(RoomContext);
@@ -20,13 +22,21 @@ const ShowResult = () => {
             <div className='w-1/3 border-r-2 border-white p-2 flex justify-center flex-col items-center'>
               <ScoreRank userRanks={roomState.userRanking} />
             </div>
-            <div className='w-2/3 p-2 flex justify-center flex-col items-center'>
-              <QuestionAnalyst
-                correctAnswer={roomState.correctAnswerOfCurrentQuestion}
-                questionAnalyst={roomState.listQuestionAnalyst}
+            {roomState.currentQuestion && roomState.currentQuestion?.mode === EQuestionTypes.TEXT ? (
+              <TextQuestionAnalyst
+                currentQuestion={roomState.currentQuestion}
+                correctAnswers={roomState.correctTextAnswer ?? ""}
+                questionAnalyst={roomState.textQuestionAnalyst}
               />
-              <QuestionResult question={roomState.currentQuestion} correctAnswer={roomState.correctAnswerOfCurrentQuestion} />
-            </div>
+            ) : (
+              <div className='w-2/3 p-2 flex justify-center flex-col items-center'>
+                <QuestionAnalyst
+                  correctAnswers={roomState.correctAnswerOfCurrentQuestions}
+                  questionAnalyst={roomState.listQuestionAnalyst}
+                />
+                <QuestionResult question={roomState.currentQuestion} correctAnswers={roomState.correctAnswerOfCurrentQuestions} />
+              </div>
+            )}
           </div>
         </div>
       </div>

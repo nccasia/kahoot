@@ -54,6 +54,11 @@ export interface IQuestionAnalyst {
   totalSeleted: number;
 }
 
+export interface ITextQuestionAnalyst {
+  answerText: string;
+  totalMatched: number;
+}
+
 export interface IGetCorrectAnswerResponse {
   questionId: string;
   correctIndex: number;

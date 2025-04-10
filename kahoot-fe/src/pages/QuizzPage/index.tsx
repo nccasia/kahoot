@@ -1,5 +1,6 @@
 import LoadingOverlay from "@/components/LoadingOverlay";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
+import { EQuestionTypes } from "@/constants/QuestionTypes";
 import SocketEvents from "@/constants/SocketEvents";
 import { ISendAnswerDTO } from "@/interfaces/questionTypes";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
@@ -22,7 +23,17 @@ const QuizzPage = () => {
     if (!socket || !roomId) return;
     if (!questionId) return;
     if (roomState.isSubmitAnswer || roomState.isOwner || roomState.isEndGame || roomState.isWaitingEndGame) return;
-
+    if (
+      (!roomState.textAnswer || roomState.textAnswer?.trim() === "") &&
+      roomState.currentQuestion?.mode === EQuestionTypes.TEXT
+    ) {
+      toast.warning("Bạn chưa nhập đáp án cho câu hỏi này!");
+      return;
+    }
+    if (roomState.currentQuestion?.mode !== EQuestionTypes.TEXT && roomState.multipleChoiceSelectedAnswers?.length === 0) {
+      toast.warning("Bạn chưa chọn đáp án cho câu hỏi này!");
+      return;
+    }
     const question = roomState.currentQuestion;
     if (!question) return;
 

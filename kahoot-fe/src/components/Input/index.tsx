@@ -40,7 +40,7 @@ const Input = ({
       max={max}
       min={min}
       onChange={onChange}
-      className={`p-1 bg-[#6B00E7CC] text-white font-coiny outline-none rounded-full min-h-[50px] border-[0.2rem] border-[#1C0C8E] px-4 text-xl ${className}`}
+      className={`p-1 min-w-0 bg-[#6B00E7CC] text-white font-coiny outline-none rounded-full min-h-[50px] border-[0.2rem] border-[#1C0C8E] px-4 text-xl ${className}`}
     />
   );
 };

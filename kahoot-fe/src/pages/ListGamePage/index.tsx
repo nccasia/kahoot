@@ -62,9 +62,9 @@ const ListGamePage = () => {
           value={searchText}
           onChange={(e) => handleChangeSearchText(e.target.value)}
           placeholder='Tìm kiếm...'
-          className='text-center w-[200px] placeholder-white'
+          className='text-center w-[150px] md:w-[200px] placeholder-white'
         />
-        <Button onClick={handleGoToCreateGame} className='text-center bg-[#6B00E7] font-coiny min-w-[100px] md:min-w-[150px]'>
+        <Button onClick={handleGoToCreateGame} className='text-center bg-[#6B00E7] font-coiny min-w-[80px] md:min-w-[150px]'>
           Tạo game
         </Button>
       </div>

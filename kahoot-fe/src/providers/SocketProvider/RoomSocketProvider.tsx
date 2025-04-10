@@ -64,6 +64,7 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
       roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
+      roomDispatch(RoomActions.changeTextQuestionAnalysis({ correctText: "", listQuestionAnalysis: [] }));
 
       if (data.submitedAnswer) {
         roomDispatch(RoomActions.changeSelectedAnswers([data.submitedAnswer.answerIndex]));
@@ -81,6 +82,7 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsSubmitAnswer(false));
       roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
+      roomDispatch(RoomActions.changeTextQuestionAnalysis({ correctText: "", listQuestionAnalysis: [] }));
       roomDispatch(RoomActions.changeSubmitedUser(0));
       roomDispatch(RoomActions.changeSelectedAnswers([]));
       roomDispatch(RoomActions.changeUserPoint(undefined));
@@ -102,6 +104,7 @@ const RoomSocketProvider: React.FC = () => {
       roomDispatch(RoomActions.changeIsReconnecting(false));
       roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([]));
       roomDispatch(RoomActions.changeListQuestionAnalysis({ totalOptions: 0, listQuestionAnalysis: [] }));
+      roomDispatch(RoomActions.changeTextQuestionAnalysis({ correctText: "", listQuestionAnalysis: [] }));
       roomDispatch(RoomActions.changeSubmitedUser(0));
       roomDispatch(RoomActions.changeSelectedAnswers([]));
       roomDispatch(RoomActions.changeCurrentQuestionPoint(0));
@@ -128,18 +131,30 @@ const RoomSocketProvider: React.FC = () => {
       }*/
       if (data?.questionMode === EQuestionTypes.SINGLE_CHOICE) {
         roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([data?.correctIndex]));
+        roomDispatch(
+          RoomActions.changeListQuestionAnalysis({
+            totalOptions: data?.totalOptions,
+            listQuestionAnalysis: data?.questionAnalysis,
+          })
+        );
       } else if (data?.questionMode === EQuestionTypes.MULTIPLE_CHOICE) {
         roomDispatch(RoomActions.changeCorrectAnswersOfCurrentQuestion([...((data?.correctIndexes as number[]) ?? [])]));
+        roomDispatch(
+          RoomActions.changeListQuestionAnalysis({
+            totalOptions: data?.totalOptions,
+            listQuestionAnalysis: data?.questionAnalysis,
+          })
+        );
       } else if (data?.questionMode === EQuestionTypes.TEXT) {
         roomDispatch(RoomActions.changeCorrectTextAnswer(data?.correctText));
+        roomDispatch(
+          RoomActions.changeTextQuestionAnalysis({
+            correctText: data?.correctText,
+            listQuestionAnalysis: data?.questionAnalysis,
+          })
+        );
       }
       roomDispatch(RoomActions.changeIsShowAnswer(true));
-      roomDispatch(
-        RoomActions.changeListQuestionAnalysis({
-          totalOptions: data?.totalOptions,
-          listQuestionAnalysis: data?.questionAnalysis,
-        })
-      );
     });
 
     socket.on(SocketEvents.ON.ServerEmitWaitNextQuestion, (data) => {

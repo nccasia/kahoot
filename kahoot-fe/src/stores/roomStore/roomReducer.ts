@@ -1,6 +1,6 @@
 import { AppActionType } from "@/interfaces/appTypes";
 import { ICurrentUser } from "@/interfaces/authTypes";
-import { IQuestionAnalyst, IQuestionGame } from "@/interfaces/questionTypes";
+import { IQuestionAnalyst, IQuestionGame, ITextQuestionAnalyst } from "@/interfaces/questionTypes";
 import { IRoom, IUserPoint, IUserRanking } from "@/interfaces/roomTypes";
 import { ROOM_TYPE } from "./roomAction";
 
@@ -19,6 +19,7 @@ export interface RoomState {
   totalQuestion?: number;
   currentQuestion?: IQuestionGame;
   listQuestionAnalyst: IQuestionAnalyst[];
+  textQuestionAnalyst: ITextQuestionAnalyst[];
   userPoint?: IUserPoint;
   isWaiting: boolean;
   isSubmitAnswer: boolean;
@@ -36,6 +37,7 @@ export const initRoomState: RoomState = {
   correctAnswerOfCurrentQuestions: [],
   userRanking: [],
   listQuestionAnalyst: [],
+  textQuestionAnalyst: [],
   selectedAnswers: [],
   submitedUser: 0,
   loading: false,
@@ -139,6 +141,25 @@ const RoomReducer = (state = initRoomState, action: AppActionType<ROOM_TYPE>): R
       return {
         ...state,
         listQuestionAnalyst: listQuestionAnalysis,
+      };
+    }
+
+    case ROOM_TYPE.CHANGE_TEXT_QUESTION_ANALYSIS: {
+      const correctText = action.payload?.correctText || "";
+      const correctOption = action.payload?.listQuestionAnalysis?.find(
+        (item: ITextQuestionAnalyst) => item.answerText?.trim()?.toUpperCase() === correctText?.trim()?.toUpperCase()
+      );
+      const listQuestionAnalysis: ITextQuestionAnalyst[] =
+        action.payload?.listQuestionAnalysis?.filter(
+          (item: ITextQuestionAnalyst) => item.answerText?.trim()?.toUpperCase() !== correctText?.trim()?.toUpperCase()
+        ) || [];
+      const newListQuestionAnalysis: ITextQuestionAnalyst[] = [
+        ...(correctOption ? [correctOption] : []),
+        ...listQuestionAnalysis,
+      ];
+      return {
+        ...state,
+        textQuestionAnalyst: newListQuestionAnalysis,
       };
     }
 

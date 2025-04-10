@@ -6,8 +6,23 @@ interface ListRankProps {
 }
 const ListRank = ({ userRankings, totalQuestion }: ListRankProps) => {
   return (
-    <div className='w-full max-w-[800px] mt-3'>
-      {userRankings?.map((userRanking, index) => (
+    <div className='w-full max-w-[800px] mt-3 px-4 py-2'>
+      {[
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+        ...userRankings,
+      ]?.map((userRanking, index) => (
         <div
           key={index}
           className='flex font-coiny w-full bg-[#00020dad] rounded-sm p-2 mb-2 min-h-[50px] items-center cursor-pointer filter hover:brightness-125 hover:bg-[#00020d]'
