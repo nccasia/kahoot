@@ -69,31 +69,32 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
     gameDispatch(GameActions.changeOpenModalConfirmDeleteGame(true));
   };
   return (
-    <div className='left-box max-w-[350px] p-2 w-full border-r-2 border-[#1C0C8E] bg-[#6b00e78a]'>
+    <div className='left-box w-full lg:max-w-[350px] p-2 border-r-2 lg:border-r-[#1C0C8E] bg-[#6b00e78a]'>
       <div className='flex justify-center font-coiny text-xl items-center min-h-[60px] border-b-2 border-[#1C0C8E] py-2'>
         <span>{gameInfo?.name}</span>
       </div>
       <div className='flex flex-col gap-3 p-2 justify-center items-center'>
         <div className='flex gap-3 w-full'>
-          <Button onClick={handleBackToListGame} className='text-center bg-[#e93d3d] font-coiny text-lg w-full max-w-[270px]'>
+          <Button
+            onClick={handleBackToListGame}
+            className='text-center bg-[#e93d3d] font-coiny text-lg w-full'
+          >
             Quay lại
           </Button>
-          <Button onClick={handleDeleteGame} className='text-center bg-[#ded525] font-coiny text-lg w-full max-w-[270px]'>
+          <Button
+            onClick={handleDeleteGame}
+            className='text-center bg-[#ded525] font-coiny text-lg w-full'
+          >
             Xoá game
           </Button>
         </div>
         <div className='flex gap-3 w-full'>
-          <Button onClick={createNewGame} className='text-center bg-[#6BB3E0] font-coiny text-lg w-full'>
+          <Button
+            onClick={createNewGame}
+            className='text-center bg-[#6BB3E0] font-coiny text-lg w-full'
+          >
             Bắt đầu game mới
           </Button>
-          {openModalGameTimer && (
-            <ModalGameTimer
-              isOpen={openModalGameTimer}
-              onClose={() => setOpenModalGameTimer(false)}
-              title='Hẹn Giờ Chơi'
-              onConfirm={handlecreateGameTimer}
-            ></ModalGameTimer>
-          )}
         </div>
         <div className='flex gap-3 w-full'>
           <Button onClick={simulateGame} className='text-center bg-[#6BB3E0] font-coiny text-lg w-full'>
