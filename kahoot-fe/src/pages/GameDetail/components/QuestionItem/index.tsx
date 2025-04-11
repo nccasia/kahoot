@@ -72,8 +72,8 @@ const QuestionItem = ({
     const checkCorrectIndex =
       dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
         ? dataUpdate.answerOptions.correctIndex !== null &&
-          dataUpdate.answerOptions.correctIndex >= 0 &&
-          dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length
+        dataUpdate.answerOptions.correctIndex >= 0 &&
+        dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length
         : true;
 
     return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;

@@ -8,6 +8,7 @@ import { IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import GameActions from "@/stores/gameStore/gameAction";
 import { useCallback, useContext, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 interface IQuestionItemProps {
   question: IQuestion;
@@ -119,7 +120,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
   };
 
   const handleDeleteAnswer = (index: number) => {
-    if (question.answerOptions.options.length <= 2) return;
+    if (question.answerOptions.options.length <= 2) return toast.warning("Tối thiểu 2 đáp án cho mỗi câu hỏi lựa chọn");
     const newQuestion = {
       ...question,
       answerOptions: {
@@ -140,7 +141,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
   };
 
   const handleAddAnswer = () => {
-    if (question.answerOptions.options.length >= 4) return;
+    if (question.answerOptions.options.length >= 4) return toast.warning("Tối đa 4 đáp án cho mỗi câu hỏi lựa chọn");
     const newQuestion = {
       ...question,
       answerOptions: {
