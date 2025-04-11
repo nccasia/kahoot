@@ -5,7 +5,6 @@ import { IQuestionGame } from "@/interfaces/questionTypes";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import RoomActions from "@/stores/roomStore/roomAction";
 import { useContext } from "react";
-import ImagePreview from "../../ShowImage/ImagePreview";
 
 interface QuestionBoxProps {
   question?: IQuestionGame;
@@ -18,22 +17,26 @@ interface QuestionBoxProps {
   isShowAnswer: boolean;
 }
 const answerColor = ["#6f9366c4", "#ef5184c4", "#d451efc4", "#a78910b8"];
-
 const submitLabel = {
   [EQuestionTypes.SINGLE_CHOICE]: (
-    <span>
-      Bạn hãy chọn <span className='text-[#a50909]'>một đáp án</span> cho câu hỏi này!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span>Bạn hãy chọn</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>một đáp án</span>
+      <span> cho câu hỏi này!</span>
+    </div>
   ),
   [EQuestionTypes.MULTIPLE_CHOICE]: (
-    <span>
-      Bạn có thể chọn <span className='text-[#a50909]'>nhiều đáp án</span> cho câu hỏi này!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span>Bạn có thể chọn</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>nhiều đáp án</span>
+      <span> cho câu hỏi này!</span>
+    </div>
   ),
   [EQuestionTypes.TEXT]: (
-    <span>
-      <span className='text-[#a50909]'>Nhập đáp án</span> và nhấn submit để trả lời!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>Nhập đáp án</span>
+      <span> Và nhấn submit để trả lời!</span>
+    </div>
   ),
 };
 const QuestionBox = ({
@@ -46,7 +49,6 @@ const QuestionBox = ({
   correctAnswerText,
   isShowAnswer = false,
 }: QuestionBoxProps) => {
-
   const { roomDispatch, roomState } = useContext(RoomContext);
   const handleClickAnswer = (index: number) => {
     if (question?.mode === EQuestionTypes.MULTIPLE_CHOICE) {
@@ -62,26 +64,22 @@ const QuestionBox = ({
   };
 
   return (
-    <div className='p-4 mt-2 flex flex-col gap-4 w-full h-full font-coiny'>
+    <div className='p-2 md:p-4 flex flex-col gap-4 w-full h-full font-coiny  md:overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
       {question?.order && <div className='p-2 font-coiny text-center text-white'>QUESTION {question?.order}</div>}
       {question?.title && (
-        <div className=' flex-1 flex-col flex items-center justify-center text-xl bg-[#5d017e] text-white w-full rounded-xl p-2 select-none '>
+        <div className=' flex-1 flex-col flex items-center justify-center text-xl bg-[#5d017e] text-white w-full rounded-xl p-2 select-none min-h-[100px]'>
           <div className='flex flex-col gap-2 items-center justify-center w-full'>
             <p>{question?.title}</p>
           </div>
           {question?.image && (
             <div className='flex-1 max-w-full max-h-[250px]'>
-              <ImagePreview
-                src={question.image}
-                classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
-                classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[90vh] object-contain p-4"
-              />
+              <img src={question.image} className=' object-contain rounded-md mb-1 w-full h-full' />
             </div>
           )}
         </div>
       )}
       {!isOwner && (
-        <div className='flex items-center justify-between w-full'>
+        <div className='flex items-center justify-between w-full flex-wrap'>
           <span>{question?.mode && submitLabel[question?.mode as EQuestionTypes]}</span>
           <Button onClick={() => onSendAnswer(question?.id ?? "")} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
             Submit
@@ -105,7 +103,7 @@ const QuestionBox = ({
           )}
         </div>
       ) : (
-        <div className='grid grid-cols-2 gap-4  w-full min-h-[50%]'>
+        <div className='grid md:grid-cols-1 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4  w-full min-h-[50%]'>
           {question?.answerOptions?.options?.map((option, index) => (
             <Button
               onClick={() => handleClickAnswer(index)}
@@ -117,20 +115,23 @@ const QuestionBox = ({
               size='large'
               disabled={isSubmitAnswer || isOwner}
               className={`relative flex items-center justify-center rounded-xl min-h-[130px] max-h-[200px] p-2 transition-all filter  text-white text-xl 
-               ${!isSubmitAnswer && !isOwner
-                  ? "hover:brightness-110 active:brightness-100 select-none cursor-pointer"
-                  : "hover:brightness-100 active:brightness-100 cursor-default"
-                } ${isSubmitAnswer
+               ${
+                 !isSubmitAnswer && !isOwner
+                   ? "hover:brightness-110 active:brightness-100 select-none cursor-pointer"
+                   : "hover:brightness-100 active:brightness-100 cursor-default"
+               } ${
+                isSubmitAnswer
                   ? selectedAnswers?.includes(index)
                     ? "brightness-50 hover:brightness-50 active:brightness-50"
                     : ""
                   : ""
-                } ${correctAnswers?.includes(index) && "animate-pulse duration-200"}`}
+              } ${correctAnswers?.includes(index) && "animate-pulse duration-200"}`}
             >
               {!isOwner && (
                 <div
-                  className={`w-5 h-5 border-white border-2 flex items-center justify-center absolute top-2 left-2 ${question.mode === EQuestionTypes.SINGLE_CHOICE ? "rounded-full" : "rounded-md"
-                    }`}
+                  className={`w-5 h-5 border-white border-2 flex items-center justify-center absolute top-2 left-2 ${
+                    question.mode === EQuestionTypes.SINGLE_CHOICE ? "rounded-full" : "rounded-md"
+                  }`}
                 >
                   {roomState.multipleChoiceSelectedAnswers?.includes(index) && (
                     <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>

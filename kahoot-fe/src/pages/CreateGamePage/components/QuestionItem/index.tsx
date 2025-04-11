@@ -141,7 +141,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
   };
 
   const handleAddAnswer = () => {
-    if (question.answerOptions.options.length >= 4) return;
+    if (question.answerOptions.options.length >= 4) return toast.warning("Tối đa 4 đáp án cho mỗi câu hỏi lựa chọn");
     const newQuestion = {
       ...question,
       answerOptions: {

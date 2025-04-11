@@ -10,6 +10,7 @@ export interface GameState {
   listGames: IGame[];
   filterGames: IGame[];
   selectedQuestion?: IQuestion;
+  selectedQuestionIndex: number;
   oldQuestionData?: IQuestion;
   selectedGame?: IGame | null;
   loading: boolean;
@@ -23,7 +24,6 @@ export interface GameState {
   currentGameId?: string;
   isSubmitting: boolean;
   isDeleting: boolean;
-
 }
 
 export const initGameState: GameState = {
@@ -43,6 +43,7 @@ export const initGameState: GameState = {
   isDeleting: false,
   selectedGameId: "",
   selectedGame: null,
+  selectedQuestionIndex: 0,
 };
 
 const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): GameState => {
@@ -70,6 +71,13 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
       return {
         ...state,
         selectedQuestion: quesiton,
+      };
+    }
+
+    case GAME_TYPE.CHANGE_SELECTED_QUESTION_INDEX: {
+      return {
+        ...state,
+        selectedQuestionIndex: action.payload,
       };
     }
 

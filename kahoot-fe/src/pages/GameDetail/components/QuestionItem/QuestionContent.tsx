@@ -3,7 +3,7 @@ import Input from "@/components/Input";
 import SelectDropdown from "@/components/SelectDropdown";
 import { EQuestionTypes, questionTypeOptions } from "@/constants/QuestionTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
-import ImagePreview from "@/pages/QuizzPage/ImagePreview/ImagePreview";
+import ImagePreview from "@/pages/QuizzPage/ShowImage/ImagePreview";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 interface IQuestionContentProps {
@@ -77,6 +77,8 @@ const QuestionContent = ({
   const handleAddAnswer = () => {
     if (dataUpdate.answerOptions.options.length >= 4)
       return;
+
+
 
     const newQuestion = {
       ...dataUpdate,
@@ -296,6 +298,8 @@ const QuestionContent = ({
                       onSelect={handleChangeQuestionType}
                     />
                   </div>
+
+
                 </div>
               </div>
               {dataUpdate.image && (
@@ -392,7 +396,9 @@ const QuestionContent = ({
             </div>
             <div className="w-full flex md:justify-start justify-start items-center gap-2 mt-2">
               <div className="md:mr-[208px]  flex gap-2">
+
                 {dataUpdate.mode !== EQuestionTypes.TEXT && dataUpdate.answerOptions.options.length <= 3 && (
+
                   <Button
                     onClick={handleAddAnswer}
                     className="bg-[#6B00E7] rounded-md p-1 min-w-[40px] h-8 flex items-center justify-center"
