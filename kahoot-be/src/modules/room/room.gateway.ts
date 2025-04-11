@@ -357,7 +357,7 @@ export class RoomGateway
         }
         isCorrect =
           currentGameQuestion.answerText?.toLowerCase() ===
-          submitDto?.answerText?.toLowerCase();
+          submitDto?.answerText?.trim().toLowerCase();
         break;
 
       default:
@@ -420,7 +420,7 @@ export class RoomGateway
           questionId: currentGameQuestion.id,
           isCorrect,
           point: questionPoint,
-          answerText: submitDto.answerText,
+          answerText: submitDto.answerText?.trim(),
           submittedAt: submitTime.toISOString(),
         });
         break;
