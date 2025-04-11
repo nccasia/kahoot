@@ -3,6 +3,7 @@ import Input from "@/components/Input";
 import SelectDropdown from "@/components/SelectDropdown";
 import { EQuestionTypes, questionTypeOptions } from "@/constants/QuestionTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
+import ImagePreview from "@/pages/QuizzPage/ImagePreview/ImagePreview";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 interface IQuestionContentProps {
@@ -75,7 +76,7 @@ const QuestionContent = ({
 
   const handleAddAnswer = () => {
     if (dataUpdate.answerOptions.options.length >= 4)
-      return toast.warning("Tối đa 4 đáp án cho mỗi câu hỏi lựa chọn");
+      return;
 
     const newQuestion = {
       ...dataUpdate,
@@ -226,8 +227,6 @@ const QuestionContent = ({
     const checkCorrectIndex =
       dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
       && dataUpdate.answerOptions.correctIndex !== null && dataUpdate.answerOptions.correctIndex >= 0
-
-
     return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
   };
   const [textValue, setTextValue] = useState<string>("");
@@ -297,14 +296,15 @@ const QuestionContent = ({
                       onSelect={handleChangeQuestionType}
                     />
                   </div>
-
-
                 </div>
-
               </div>
               {dataUpdate.image && (
                 <div className='relative mt-2 border-2 border-gray-100 rounded-md p-2 self-start'>
-                  <img src={dataUpdate.image} className='w-auto h-[150px] object-cover rounded-md' />
+                  <ImagePreview
+                    src={dataUpdate.image}
+                    classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
+                    classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[90vh] object-contain p-4"
+                  />
                   <span
                     onClick={handleDeleteImage}
                     className='absolute top-[-5px] right-[-5px] w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-red-600 transition-all'
@@ -392,7 +392,7 @@ const QuestionContent = ({
             </div>
             <div className="w-full flex md:justify-start justify-start items-center gap-2 mt-2">
               <div className="md:mr-[208px]  flex gap-2">
-                {dataUpdate.mode !== EQuestionTypes.TEXT && (
+                {dataUpdate.mode !== EQuestionTypes.TEXT && dataUpdate.answerOptions.options.length <= 3 && (
                   <Button
                     onClick={handleAddAnswer}
                     className="bg-[#6B00E7] rounded-md p-1 min-w-[40px] h-8 flex items-center justify-center"
@@ -406,12 +406,21 @@ const QuestionContent = ({
           </>
         ) : (
           <div className='mt-2'>
-            <div>
+            <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
               {dataUpdate.image && (
-                <div className='border-2 border-gray-100 rounded-md p-2 w-fit'>
-                  <img src={dataUpdate.image} className='w-auto h-[150px] object-cover rounded-md' />
+                <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
+                  <div className="border-2 border-gray-100 rounded-md p-2 w-fit">
+                    <div className="flex-1 max-w-full max-h-[250px]">
+                      <ImagePreview
+                        src={dataUpdate.image}
+                        classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
+                        classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[90vh] object-contain p-4"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
+
 
             </div>
 

@@ -141,7 +141,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
   };
 
   const handleAddAnswer = () => {
-    if (question.answerOptions.options.length >= 4) return toast.warning("Tối đa 4 đáp án cho mỗi câu hỏi lựa chọn");
+    if (question.answerOptions.options.length >= 4) return;
     const newQuestion = {
       ...question,
       answerOptions: {
@@ -174,7 +174,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     }
   };
 
-  const handleDeleteImage = async () => {
+  const handleDeleteImage = () => {
     if (!question.image) return;
 
     try {
@@ -195,7 +195,6 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
       console.error("Lỗi xóa ảnh:", error);
     }
   };
-
   return (
     <div className='body p-1 sm:p-2 md:p-4 font-coiny text-white'>
       <div className='flex justify-end mb-3'>
@@ -320,11 +319,15 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         )}
       </div>
       <div className='flex justify-between mt-4'>
-        <div className='ml-0 md:ml-[208px] flex gap-2'>
-          <Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
-            <img className='w-5' src='/icons/PlusIcon.png' />
-          </Button>
-        </div>
+        {question.answerOptions.options.length <= 3 ? (
+          <div className='ml-0 md:ml-[208px] flex gap-2'>
+            <Button onClick={handleAddAnswer} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
+              <img className='w-5' src='/icons/PlusIcon.png' />
+            </Button>
+          </div>
+        ) : null}
+
+
         {isShowDeleteButton && (
           <>
             <Button onClick={deleteQuestion} className='bg-red-500'>
