@@ -8,6 +8,7 @@ export enum GAME_TYPE {
   DELETE_QUESTION = "DELETE_QUESTION",
   CHANGE_LIST_QUESTION = "CHANGE_LIST_QUESTION",
   CHANGE_SELECTED_QUESTION = "CHANGE_SELECTED_QUESTION",
+  CHANGE_SELECTED_QUESTION_INDEX = "CHANGE_SELECTED_QUESTION_INDEX",
   CHANGE_QUESTION_VALUE = "CHANGE_QUESTION_VALUE",
   CHANGE_OPEN_MODAL_SAVE_GAME = "CHANGE_OPEN_MODAL_SAVE_GAME",
   CHANGE_LIST_GAME = "CHANGE_LIST_GAME",
@@ -51,6 +52,13 @@ const changeSelectedQuestion = (questionId: string): AppActionType<GAME_TYPE> =>
   return {
     type: GAME_TYPE.CHANGE_SELECTED_QUESTION,
     payload: questionId,
+  };
+};
+
+const changeSelectedQuestionIndex = (questionIndex: number): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_SELECTED_QUESTION_INDEX,
+    payload: questionIndex,
   };
 };
 
@@ -171,6 +179,7 @@ const GameActions = {
   deleteQuestion,
   changeListQuestion,
   changeSelectedQuestion,
+  changeSelectedQuestionIndex,
   changeQuestionValue,
   changeOpenModalSaveGame,
   changeListGame,

@@ -19,19 +19,24 @@ interface QuestionBoxProps {
 const answerColor = ["#6f9366c4", "#ef5184c4", "#d451efc4", "#a78910b8"];
 const submitLabel = {
   [EQuestionTypes.SINGLE_CHOICE]: (
-    <span>
-      Bạn hãy chọn <span className='text-[#a50909]'>một đáp án</span> cho câu hỏi này!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span>Bạn hãy chọn</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>một đáp án</span>
+      <span> cho câu hỏi này!</span>
+    </div>
   ),
   [EQuestionTypes.MULTIPLE_CHOICE]: (
-    <span>
-      Bạn có thể chọn <span className='text-[#a50909]'>nhiều đáp án</span> cho câu hỏi này!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span>Bạn có thể chọn</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>nhiều đáp án</span>
+      <span> cho câu hỏi này!</span>
+    </div>
   ),
   [EQuestionTypes.TEXT]: (
-    <span>
-      <span className='text-[#a50909]'>Nhập đáp án</span> và nhấn submit để trả lời!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>Nhập đáp án</span>
+      <span> Và nhấn submit để trả lời!</span>
+    </div>
   ),
 };
 const QuestionBox = ({
@@ -59,10 +64,10 @@ const QuestionBox = ({
   };
 
   return (
-    <div className='p-4 mt-2 flex flex-col gap-4 w-full h-full font-coiny'>
+    <div className='p-2 md:p-4 flex flex-col gap-4 w-full h-full font-coiny  md:overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
       {question?.order && <div className='p-2 font-coiny text-center text-white'>QUESTION {question?.order}</div>}
       {question?.title && (
-        <div className=' flex-1 flex-col flex items-center justify-center text-xl bg-[#5d017e] text-white w-full rounded-xl p-2 select-none '>
+        <div className=' flex-1 flex-col flex items-center justify-center text-xl bg-[#5d017e] text-white w-full rounded-xl p-2 select-none min-h-[100px]'>
           <div className='flex flex-col gap-2 items-center justify-center w-full'>
             <p>{question?.title}</p>
           </div>
@@ -74,7 +79,7 @@ const QuestionBox = ({
         </div>
       )}
       {!isOwner && (
-        <div className='flex items-center justify-between w-full'>
+        <div className='flex items-center justify-between w-full flex-wrap'>
           <span>{question?.mode && submitLabel[question?.mode as EQuestionTypes]}</span>
           <Button onClick={() => onSendAnswer(question?.id ?? "")} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
             Submit
@@ -98,7 +103,7 @@ const QuestionBox = ({
           )}
         </div>
       ) : (
-        <div className='grid grid-cols-2 gap-4  w-full min-h-[50%]'>
+        <div className='grid md:grid-cols-1 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4  w-full min-h-[50%]'>
           {question?.answerOptions?.options?.map((option, index) => (
             <Button
               onClick={() => handleClickAnswer(index)}

@@ -108,6 +108,7 @@ const QuestionItem = ({
             title: dataUpdate.title,
             answerOptions: dataUpdate.answerOptions,
             image: dataUpdate.image,
+            answerText: dataUpdate.answerText,
           },
         ];
         const response = await questionServices.addQuestion(gameId, dataCreate);
