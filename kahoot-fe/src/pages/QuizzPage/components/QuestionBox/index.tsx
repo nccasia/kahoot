@@ -19,19 +19,24 @@ interface QuestionBoxProps {
 const answerColor = ["#6f9366c4", "#ef5184c4", "#d451efc4", "#a78910b8"];
 const submitLabel = {
   [EQuestionTypes.SINGLE_CHOICE]: (
-    <span>
-      Bạn hãy chọn <span className='text-[#a50909]'>một đáp án</span> cho câu hỏi này!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span>Bạn hãy chọn</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>một đáp án</span>
+      <span> cho câu hỏi này!</span>
+    </div>
   ),
   [EQuestionTypes.MULTIPLE_CHOICE]: (
-    <span>
-      Bạn có thể chọn <span className='text-[#a50909]'>nhiều đáp án</span> cho câu hỏi này!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span>Bạn có thể chọn</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>nhiều đáp án</span>
+      <span> cho câu hỏi này!</span>
+    </div>
   ),
   [EQuestionTypes.TEXT]: (
-    <span>
-      <span className='text-[#a50909]'>Nhập đáp án</span> và nhấn submit để trả lời!
-    </span>
+    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>Nhập đáp án</span>
+      <span> Và nhấn submit để trả lời!</span>
+    </div>
   ),
 };
 const QuestionBox = ({
@@ -59,7 +64,7 @@ const QuestionBox = ({
   };
 
   return (
-    <div className='p-4 mt-2 flex flex-col gap-4 w-full h-full font-coiny'>
+    <div className='p-4 flex flex-col gap-4 w-full h-full font-coiny'>
       {question?.order && <div className='p-2 font-coiny text-center text-white'>QUESTION {question?.order}</div>}
       {question?.title && (
         <div className=' flex-1 flex-col flex items-center justify-center text-xl bg-[#5d017e] text-white w-full rounded-xl p-2 select-none '>
