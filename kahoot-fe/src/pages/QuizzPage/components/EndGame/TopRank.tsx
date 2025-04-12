@@ -5,7 +5,7 @@ interface TopRankProps {
 }
 const TopRank = ({ top3 }: TopRankProps) => {
   return (
-    <div className='flex items-end w-full max-w-[800px]'>
+    <div className='flex items-end w-full max-w-[800px] px-4 py-2'>
       <div className='w-1/3'>
         {top3[1] && (
           <div className='font-coiny text-lg flex flex-col justify-center items-center'>

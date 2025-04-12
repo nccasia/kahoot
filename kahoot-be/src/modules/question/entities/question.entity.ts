@@ -5,14 +5,14 @@ import { QuestionRoomUser } from '@modules/room/entities/question-room-user.enti
 import { RoomQuestion } from '@modules/room/entities/room-question.entity';
 import { User } from '@modules/user/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
   IsPositive,
+  IsUrl,
   IsUUID,
   ValidateIf,
-  ValidateNested,
 } from 'class-validator';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import {
@@ -44,8 +44,12 @@ export class Question extends AbstractEntity {
   @Column()
   title: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ required: false, nullable: true })
   @Expose()
+  @ValidateIf((o) => {
+    return o?.image !== undefined && o?.image !== null;
+  })
+  @IsUrl()
   @Column({ nullable: true })
   image: string;
 
@@ -53,15 +57,27 @@ export class Question extends AbstractEntity {
     type: () => SingleChoiceAnswerOptionsDto,
     nullable: true,
   })
-  @ValidateNested({ each: true })
-  // more type. like multiple choice ...
-  @Type(() => SingleChoiceAnswerOptionsDto)
-  @Type(() => MultipleChoiceAnswerOptionsDto)
+  @ValidateIf(
+    (o) =>
+      o?.mode === QuestionMode.SingleChoice ||
+      o?.mode === QuestionMode.MultipleChoice,
+  )
+  @Type((o) => {
+    return o?.object?.mode === QuestionMode.SingleChoice
+      ? SingleChoiceAnswerOptionsDto
+      : MultipleChoiceAnswerOptionsDto;
+  })
   @Column({ type: 'json', nullable: true })
   answerOptions?: AnswerOptionsDto;
 
   @ApiProperty({ nullable: true })
-  @ValidateIf((o) => o.mode === QuestionMode.Text)
+  @ValidateIf((o) => o?.mode === QuestionMode.Text)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+    return value;
+  })
   @Expose()
   @Column({ nullable: true })
   answerText?: string;

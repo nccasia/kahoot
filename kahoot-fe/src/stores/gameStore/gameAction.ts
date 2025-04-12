@@ -1,12 +1,14 @@
 import { AppActionType } from "@/interfaces/appTypes";
 import { IGame } from "@/interfaces/gameTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
+import { IRoom } from "@/interfaces/roomTypes";
 
 export enum GAME_TYPE {
   ADD_QUESTION = "ADD_QUESTION",
   DELETE_QUESTION = "DELETE_QUESTION",
   CHANGE_LIST_QUESTION = "CHANGE_LIST_QUESTION",
   CHANGE_SELECTED_QUESTION = "CHANGE_SELECTED_QUESTION",
+  CHANGE_SELECTED_QUESTION_INDEX = "CHANGE_SELECTED_QUESTION_INDEX",
   CHANGE_QUESTION_VALUE = "CHANGE_QUESTION_VALUE",
   CHANGE_OPEN_MODAL_SAVE_GAME = "CHANGE_OPEN_MODAL_SAVE_GAME",
   CHANGE_LIST_GAME = "CHANGE_LIST_GAME",
@@ -22,6 +24,7 @@ export enum GAME_TYPE {
   CHANGE_IS_CREATE_QUESTION_OF_GAME = "CHANGE_IS_CREATE_QUESTION_OF_GAME",
   CHANGE_OLD_QUESTION_DATA = "CHANGE_OLD_QUESTION_DATA",
   CHANGE_IS_DELETING_QUESTION = "CHANGE_IS_DELETING_QUESTION",
+  CHANGE_LIST_ROOMS = "CHANGE_LIST_ROOMS",
 }
 
 const addQuestion = (question: IQuestion[]): AppActionType<GAME_TYPE> => {
@@ -49,6 +52,13 @@ const changeSelectedQuestion = (questionId: string): AppActionType<GAME_TYPE> =>
   return {
     type: GAME_TYPE.CHANGE_SELECTED_QUESTION,
     payload: questionId,
+  };
+};
+
+const changeSelectedQuestionIndex = (questionIndex: number): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_SELECTED_QUESTION_INDEX,
+    payload: questionIndex,
   };
 };
 
@@ -156,12 +166,20 @@ const changeIsDeleting = (isDeleting: boolean): AppActionType<GAME_TYPE> => {
     payload: isDeleting,
   };
 };
+const changeListRooms = (listRooms: IRoom[]): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.CHANGE_LIST_ROOMS,
+    payload: listRooms,
+  };
+};
 
 const GameActions = {
+  changeListRooms,
   addQuestion,
   deleteQuestion,
   changeListQuestion,
   changeSelectedQuestion,
+  changeSelectedQuestionIndex,
   changeQuestionValue,
   changeOpenModalSaveGame,
   changeListGame,

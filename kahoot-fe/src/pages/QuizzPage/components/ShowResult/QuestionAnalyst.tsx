@@ -4,18 +4,19 @@ import { useMemo } from "react";
 
 interface IQuestionAnalystProps {
   questionAnalyst: IQuestionAnalyst[];
-  correctAnswer: number;
+  correctAnswers: number[];
 }
-const QuestionAnalyst = ({ questionAnalyst, correctAnswer }: IQuestionAnalystProps) => {
+const QuestionAnalyst = ({ questionAnalyst, correctAnswers }: IQuestionAnalystProps) => {
   const stepHeight = useMemo(() => {
     const getMaxSelected = Math.max(...questionAnalyst.map((analyst) => analyst.totalSeleted));
     return 150 / getMaxSelected;
   }, [questionAnalyst]);
+  console.log(questionAnalyst);
   return (
     <div className='flex items-end justify-around w-full h-full max-w-[700px] max-h-[180px] border-b-4 pb-1 border-b-red-500'>
       {questionAnalyst.map((analyst, index) => (
         <div
-          className={`font-coiny rounded-sm text-white  ${correctAnswer === index && "animate-pulse"}`}
+          className={`font-coiny rounded-sm text-white  ${correctAnswers.includes(index) && "animate-pulse"}`}
           style={{ backgroundColor: AnswerColors[index], animationDuration: "0.5s" }}
           key={index}
         >

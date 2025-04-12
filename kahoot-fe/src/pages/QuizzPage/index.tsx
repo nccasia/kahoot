@@ -1,5 +1,6 @@
 import LoadingOverlay from "@/components/LoadingOverlay";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
+import { EQuestionTypes } from "@/constants/QuestionTypes";
 import SocketEvents from "@/constants/SocketEvents";
 import { ISendAnswerDTO } from "@/interfaces/questionTypes";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
@@ -16,49 +17,73 @@ import ShowResult from "./components/ShowResult";
 const QuizzPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const { roomState, roomDispatch } = useContext(RoomContext);
-
   const socket = useSocket();
-  const handleSendAnswer = (questionId: string, answerIndex: number) => {
-    if (!socket || !roomId) return;
-    if (!questionId) return;
-    if (roomState.isSubmitAnswer || roomState.isOwner || roomState.isEndGame || roomState.isWaitingEndGame) return;
 
-    roomDispatch(RoomActions.changeSelectedAnswer(answerIndex));
+  const handleSendAnswer = (questionId: string) => {
+    if (!socket || !roomId || !questionId) return;
+
+    const { isSubmitAnswer, isOwner, isEndGame, isWaitingEndGame, textAnswer, currentQuestion, multipleChoiceSelectedAnswers } = roomState;
+
+    if (isSubmitAnswer || isOwner || isEndGame || isWaitingEndGame) return;
+
+    if (
+      (!textAnswer?.trim() && currentQuestion?.mode === EQuestionTypes.TEXT) ||
+      (currentQuestion?.mode !== EQuestionTypes.TEXT && !multipleChoiceSelectedAnswers?.length)
+    ) {
+      toast.warning("Bạn chưa nhập hoặc chọn đáp án cho câu hỏi này!");
+      return;
+    }
+
+    roomDispatch(RoomActions.changeSelectedAnswers(multipleChoiceSelectedAnswers as number[]));
+
     const emitData: ISendAnswerDTO = {
       roomId,
-      answerIndex: answerIndex,
       questionId,
+      answerIndex: multipleChoiceSelectedAnswers?.[0] as number,
+      answerIndexes: multipleChoiceSelectedAnswers,
+      answerText: textAnswer ?? "",
     };
+
     socket.emit(SocketEvents.EMIT.ClientEmitSubmitQuestion, emitData);
   };
-  const handleConfirmFinishGame = async () => {
-    // Finish game
-    if (!socket) return;
-    if (!roomState.isOwner) {
+
+  const handleConfirmFinishGame = () => {
+    if (!socket || !roomState.isOwner) {
       toast.warning("Chỉ chủ phòng mới có thể kết thúc trò chơi");
       return;
     }
+
     socket.emit(SocketEvents.EMIT.OwnerFinishGame, roomId);
     roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
   };
+
   const handleCloseModalConfirmEndGame = () => {
     roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
   };
+
   return (
-    <div className='max-w-[1200px] w-[100%] h-full p-2'>
+    <div className="relative max-w-[1200px] w-full h-full p-2">
+      {/* Scrollable main layout */}
       <div
-        style={{ animationDelay: "unset" }}
-        className='fadeIn h-[calc(100%-40px)] mt-[20px] bg-[#ba85ff8f] shadow-xl rounded-[40px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
+        className={`
+          fadeIn h-[calc(100%-40px)] mt-5 bg-[#ba85ff8f] shadow-xl rounded-[40px] overflow-y-auto
+          [&::-webkit-scrollbar]:w-[3px]
+          [&::-webkit-scrollbar-thumb]:bg-transparent
+          [&::-webkit-scrollbar-thumb]:rounded-lg
+          [&::-webkit-scrollbar-track]:bg-transparent
+        `}
       >
         {!roomState.isWaiting && !roomState.isEndGame && (
-          <div className='flex w-full h-full'>
-            <div className='w-2/5'>
+          <div className="flex flex-col lg:flex-row w-full h-full gap-4">
+            <div className="w-full lg:w-2/5">
               <InfoBox />
             </div>
-            <div className='w-3/5'>
+            <div className="w-full lg:w-3/5">
               <QuestionBox
-                correctAnswer={roomState.correctAnswerOfCurrentQuestion}
-                selectedAnswer={roomState.selectedAnswer}
+                isShowAnswer={roomState.isShowAnswer}
+                correctAnswerText={roomState.correctTextAnswer}
+                correctAnswers={roomState.correctAnswerOfCurrentQuestions}
+                selectedAnswers={roomState.selectedAnswers}
                 isOwner={roomState.isOwner}
                 isSubmitAnswer={roomState.isSubmitAnswer}
                 onSendAnswer={handleSendAnswer}
@@ -68,6 +93,7 @@ const QuizzPage = () => {
           </div>
         )}
       </div>
+
       {roomState.isWaiting && (
         <LoadingOverlay
           title={
@@ -86,7 +112,9 @@ const QuizzPage = () => {
           }
         />
       )}
-      {roomState.isEndAnQuestion && roomState.isOwner && !roomState.isEndGame && <ShowResult />}
+      {roomState.isEndAnQuestion && roomState.isOwner && !roomState.isEndGame && (
+        <ShowResult />
+      )}
       {roomState.isEndGame && <EndGame />}
       <ModalConfirm
         isOpen={roomState.openMdoalConfirmEndGame}
@@ -101,4 +129,5 @@ const QuizzPage = () => {
     </div>
   );
 };
+
 export default QuizzPage;

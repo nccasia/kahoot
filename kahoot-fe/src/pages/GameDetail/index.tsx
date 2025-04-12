@@ -5,8 +5,9 @@ import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import { ROUTES } from "@/routes/routePath";
 import gameServices from "@/services/gameServices";
 import questionServices from "@/services/questionServices";
+import roomServices from "@/services/roomServices";
 import GameActions from "@/stores/gameStore/gameAction";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import GameInfoBox from "./components/GameInfoBox";
@@ -15,6 +16,7 @@ import QuestionBox from "./components/QuestionBox";
 const GameDetail = () => {
   const { gameId } = useParams();
   const { gameState, gameDispatch } = useContext(GameContext);
+  const [currentDeleteRoomId, setCurrentDeleteRoomId] = useState<string | null>(null);
   const { authState } = useContext(AuthContext);
   const navigate = useNavigate();
   useEffect(() => {
@@ -43,6 +45,24 @@ const GameDetail = () => {
         console.log("error", error);
       }
     };
+
+    const getRooms = async () => {
+      try {
+        const response = await roomServices.getRoomOfGame(gameId, 1, 10, "");
+        if (response.statusCode !== 200) {
+          console.log("error", response);
+          return;
+        }
+        const rooms = response.data;
+        // Đảo ngược thứ tự
+        const newestFirst = [...rooms].reverse();
+        gameDispatch(GameActions.changeListRooms(newestFirst));
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    getRooms();
     getGameById();
     getGameQuestions();
   }, [gameDispatch, gameId]);
@@ -87,6 +107,26 @@ const GameDetail = () => {
       gameDispatch(GameActions.changeIsDeleting(false));
     }
   };
+  const handleConfirmDeleteRoom = async () => {
+    if (!currentDeleteRoomId) return;
+    gameDispatch(GameActions.changeIsDeleting(true));
+    try {
+      const response = await roomServices.deleteRoom(currentDeleteRoomId);
+      if (response.statusCode !== 200) {
+        console.log("error", response);
+        return;
+      }
+      toast.success("Xoá phòng thành công!")!;
+      // Cập nhật lại danh sách phòng
+      const updatedRooms = gameState.listRooms.filter(room => room.id !== currentDeleteRoomId);
+      gameDispatch(GameActions.changeListRooms(updatedRooms));
+      setCurrentDeleteRoomId(null);
+    } catch (error) {
+      toast.error((error as any).response.data.data.message);
+    } finally {
+      gameDispatch(GameActions.changeIsDeleting(false));
+    }
+  };
 
   const handleConfirmDeleteQuestion = async () => {
     if (!gameState.selectedQuestion) return;
@@ -112,12 +152,14 @@ const GameDetail = () => {
     <div className='max-w-[1200px] w-[100%] h-full p-2'>
       <div
         style={{ animationDelay: "unset" }}
-        className='h-[calc(100%-40px)] bg-[#6b00e78a] flex mt-[20px]  rounded-[40px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent fadeIn '
+        className='h-[calc(100%-40px)] bg-[#6b00e78a] flex flex-col lg:flex-row mt-[20px] rounded-[40px] overflow-y-auto gap-2 p-2 [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent fadeIn
+            '
       >
         <GameInfoBox
           owner={authState.currentUser?.userName}
           totalQuestion={gameState?.listQuestions.length}
           gameInfo={gameState.selectedGame}
+          onDeleteRoom={(roomId) => setCurrentDeleteRoomId(roomId)}
         />
         <QuestionBox gameId={gameId ?? ""} questions={gameState.listQuestions} />
         <ModalConfirm
@@ -143,6 +185,18 @@ const GameDetail = () => {
           onConfirm={handleConfirmDeleteQuestion}
           isOpen={gameState.openModalConfirmDeleteQuestion}
           onClose={handleCloseModalConfirmDeleteQuestion}
+        />
+        <ModalConfirm
+          isOpen={!!currentDeleteRoomId}
+          onClose={() => setCurrentDeleteRoomId(null)}
+          onConfirm={handleConfirmDeleteRoom}
+          isLoading={gameState.isDeleting}
+          title={
+            <span>
+              Bạn có chắc chắn <br /> muốn xoá Phòng này không?
+            </span>
+          }
+          confirmText="Xác nhận xoá"
         />
       </div>
     </div>

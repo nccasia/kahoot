@@ -8,6 +8,7 @@ import ListGamePage from "@/pages/ListGamePage";
 import QuizzPage from "@/pages/QuizzPage";
 import RoomPage from "@/pages/RoomPage";
 import SearchGamePage from "@/pages/SearchGamePage";
+import SimulateGame from "@/pages/SimulateGame";
 import WaitingRoom from "@/pages/WaitingRoom";
 import { SocketProvider } from "@/providers/SocketProvider";
 import RoomSocketProvider from "@/providers/SocketProvider/RoomSocketProvider";
@@ -25,6 +26,7 @@ const AppRoutes = () => {
             <Route path={ROUTES.LIST_GAME} element={<ListGamePage />} />
             <Route path={ROUTES.CREATE_GAME} element={<CreateGamePage />} />
             <Route path={ROUTES.CREATE_GAME_TYPE} element={<CreateGameTypePage />} />
+            <Route path={ROUTES.SIMULATE_GAME} element={<SimulateGame />} />
             <Route element={<RoomSocketProvider />}>
               <Route path={ROUTES.SEARCH_ROOM} element={<SearchGamePage />} />
               <Route element={<SoundLayout />}>

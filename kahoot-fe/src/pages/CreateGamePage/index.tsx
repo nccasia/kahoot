@@ -19,7 +19,7 @@ import QuestionItem from "./components/QuestionItem";
 
 const initialGameData: ICreateGameDTO = {
   name: "",
-  description: "abcd",
+  description: "description",
   status: "draft",
 };
 
@@ -32,13 +32,13 @@ const CreateGamePage = () => {
     const id = generateId(6, "mixed");
     const newQuestion: IQuestion = {
       id,
-      mode: "single_choice",
+      mode: EQuestionTypes.SINGLE_CHOICE,
       title: "",
       time: 30,
       answerOptions: {
         options: ["", "", "", ""],
         correctIndex: null,
-        correctIndexes: null,
+        correctIndexes: [],
       },
     };
     gameDispatch(GameActions.addQuestion([newQuestion]));
@@ -51,7 +51,6 @@ const CreateGamePage = () => {
 
   const checkQuestionData = useCallback(() => {
     const listQuestions = gameState.listQuestions as IQuestion[];
-    console.log("listQuestions", listQuestions);
     if (!listQuestions || listQuestions.length === 0) {
       toast.error("Bạn chưa thêm câu hỏi nào!")!;
       return false;
@@ -125,7 +124,9 @@ const CreateGamePage = () => {
             toast.error("Lỗi khi tải ảnh lên!");
             return;
           }
+
           const imageUrl = uploadImageResponse.data.secure_url;
+
           listQuestions.push({
             mode: question.mode,
             title: question.title,

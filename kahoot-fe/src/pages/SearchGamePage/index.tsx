@@ -55,6 +55,12 @@ const SearchGamePage = () => {
         </div>
         <div className='w-full max-w-[400px] min-h-[150px] bg-[#ba85ff] rounded-lg flex-col flex items-center justify-center p-4 font-coiny'>
           <input
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearchGame();
+              }
+            }}
+            autoFocus
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             type='text'

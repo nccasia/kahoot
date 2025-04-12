@@ -9,4 +9,5 @@ export const ROUTES = {
   GAME_DETAIL: "/game-detail/:gameId",
   WAITING_ROOM: "/waiting-room/:roomId",
   QUIZZ: "/quizz/:roomId",
+  SIMULATE_GAME: "/simulate-game/:gameId",
 };
