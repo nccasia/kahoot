@@ -65,14 +65,24 @@ const QuizzPage = () => {
     <div className='max-w-[1200px] w-[100%] h-full p-2'>
       <div
         style={{ animationDelay: "unset" }}
-        className='fadeIn h-[calc(100%-40px)] mt-[20px] bg-[#ba85ff8f] shadow-xl rounded-[40px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
+        className='fadeIn h-[calc(100%-40px)] mt-[20px] bg-[#ba85ff8f] shadow-xl rounded-[40px] overflow-y-auto
+                   [&::-webkit-scrollbar]:w-[3px]
+                   [&::-webkit-scrollbar-thumb]:bg-transparent
+                   [&::-webkit-scrollbar-thumb]:rounded-lg
+                   [&::-webkit-scrollbar-track]:bg-transparent'
       >
         {!roomState.isWaiting && !roomState.isEndGame && (
-          <div className='flex w-full h-full'>
-            <div className='w-2/5'>
+          <div
+            className="
+              flex flex-col lg:flex-row    
+              w-full h-full
+              gap-4                        
+            "
+          >
+            <div className='w-full lg:w-2/5'>
               <InfoBox />
             </div>
-            <div className='w-3/5'>
+            <div className='w-full lg:w-3/5'>
               <QuestionBox
                 isShowAnswer={roomState.isShowAnswer}
                 correctAnswerText={roomState.correctTextAnswer}
@@ -86,38 +96,44 @@ const QuizzPage = () => {
             </div>
           </div>
         )}
+
+        {roomState.isWaiting && (
+          <LoadingOverlay
+            title={
+              <span>
+                Trò chơi chuẩn bị bắt đầu <br /> sẵn sàng chiến đấu nào!
+              </span>
+            }
+          />
+        )}
+
+        {roomState.isReconecting && (
+          <LoadingOverlay
+            title={
+              <span>
+                Đang kết nối lại với trò chơi <br /> vui lòng đợi trong giây lát!
+              </span>
+            }
+          />
+        )}
+
+        {roomState.isEndAnQuestion && roomState.isOwner && !roomState.isEndGame && (
+          <ShowResult />
+        )}
+        {roomState.isEndGame && <EndGame />}
+        <ModalConfirm
+          isOpen={roomState.openMdoalConfirmEndGame}
+          onClose={handleCloseModalConfirmEndGame}
+          title={
+            <span>
+              Bạn có chắc chắn <br /> muốn kết thúc game ngay không?
+            </span>
+          }
+          onConfirm={handleConfirmFinishGame}
+        />
       </div>
-      {roomState.isWaiting && (
-        <LoadingOverlay
-          title={
-            <span>
-              Trò chơi chuẩn bị bắt đầu <br /> sẵn sàng chiến đấu nào!
-            </span>
-          }
-        />
-      )}
-      {roomState.isReconecting && (
-        <LoadingOverlay
-          title={
-            <span>
-              Đang kết nối lại với trò chơi <br /> vui lòng đợi trong giây lát!
-            </span>
-          }
-        />
-      )}
-      {roomState.isEndAnQuestion && roomState.isOwner && !roomState.isEndGame && <ShowResult />}
-      {roomState.isEndGame && <EndGame />}
-      <ModalConfirm
-        isOpen={roomState.openMdoalConfirmEndGame}
-        onClose={handleCloseModalConfirmEndGame}
-        title={
-          <span>
-            Bạn có chắc chắn <br /> muốn kết thúc game ngay không?
-          </span>
-        }
-        onConfirm={handleConfirmFinishGame}
-      />
     </div>
   );
 };
+
 export default QuizzPage;

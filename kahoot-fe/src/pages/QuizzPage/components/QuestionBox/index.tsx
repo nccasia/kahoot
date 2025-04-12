@@ -75,14 +75,20 @@ const QuestionBox = ({
             <p>{question?.title}</p>
           </div>
           {question?.image && (
-            <div className='flex-1 max-w-full max-h-[250px]'>
+            <div className='w-full max-h-[250px] overflow-hidden rounded-xl flex justify-center items-center'>
               <ImagePreview
                 src={question.image}
-                classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
+                classNameDefault="
+              max-h-full max-w-full
+              object-contain
+              rounded-md cursor-pointer
+              mx-auto
+            "
                 classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[90vh] object-contain p-4"
               />
             </div>
           )}
+
         </div>
       )}
       {!isOwner && (
@@ -110,7 +116,7 @@ const QuestionBox = ({
           )}
         </div>
       ) : (
-        <div className='grid grid-cols-2 gap-4  w-full min-h-[50%]'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 w-full min-h-[50%]'>
           {question?.answerOptions?.options?.map((option, index) => (
             <Button
               onClick={() => handleClickAnswer(index)}

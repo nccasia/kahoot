@@ -2,6 +2,7 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { IQuestionGame } from "@/interfaces/questionTypes";
+import ImagePreview from "@/pages/QuizzPage/ShowImage/ImagePreview";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import RoomActions from "@/stores/roomStore/roomAction";
 import { useContext } from "react";
@@ -72,9 +73,19 @@ const QuestionBox = ({
             <p>{question?.title}</p>
           </div>
           {question?.image && (
-            <div className='flex-1 max-w-full max-h-[250px]'>
-              <img src={question.image} className=' object-contain rounded-md mb-1 w-full h-full' />
+            <div className='w-full max-h-[250px] overflow-hidden rounded-xl flex justify-center items-center'>
+              <ImagePreview
+                src={question.image}
+                classNameDefault="
+                max-h-full max-w-full
+                object-contain
+                rounded-md cursor-pointer
+                mx-auto
+              "
+                classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[90vh] object-contain p-4"
+              />
             </div>
+
           )}
         </div>
       )}
@@ -115,23 +126,20 @@ const QuestionBox = ({
               size='large'
               disabled={isSubmitAnswer || isOwner}
               className={`relative flex items-center justify-center rounded-xl min-h-[130px] max-h-[200px] p-2 transition-all filter  text-white text-xl 
-               ${
-                 !isSubmitAnswer && !isOwner
-                   ? "hover:brightness-110 active:brightness-100 select-none cursor-pointer"
-                   : "hover:brightness-100 active:brightness-100 cursor-default"
-               } ${
-                isSubmitAnswer
+               ${!isSubmitAnswer && !isOwner
+                  ? "hover:brightness-110 active:brightness-100 select-none cursor-pointer"
+                  : "hover:brightness-100 active:brightness-100 cursor-default"
+                } ${isSubmitAnswer
                   ? selectedAnswers?.includes(index)
                     ? "brightness-50 hover:brightness-50 active:brightness-50"
                     : ""
                   : ""
-              } ${correctAnswers?.includes(index) && "animate-pulse duration-200"}`}
+                } ${correctAnswers?.includes(index) && "animate-pulse duration-200"}`}
             >
               {!isOwner && (
                 <div
-                  className={`w-5 h-5 border-white border-2 flex items-center justify-center absolute top-2 left-2 ${
-                    question.mode === EQuestionTypes.SINGLE_CHOICE ? "rounded-full" : "rounded-md"
-                  }`}
+                  className={`w-5 h-5 border-white border-2 flex items-center justify-center absolute top-2 left-2 ${question.mode === EQuestionTypes.SINGLE_CHOICE ? "rounded-full" : "rounded-md"
+                    }`}
                 >
                   {roomState.multipleChoiceSelectedAnswers?.includes(index) && (
                     <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>
