@@ -69,7 +69,7 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
     gameDispatch(GameActions.changeOpenModalConfirmDeleteGame(true));
   };
   return (
-    <div className='left-box w-full lg:max-w-[350px] p-2 border-r-2 lg:border-r-[#1C0C8E] bg-[#6b00e78a]'>
+    <div className='left-box w-full lg:max-w-[350px] p-2 border-r-0 lg:border-r-2 lg:border-r-[#1C0C8E] bg-[#6b00e78a]'>
       <div className='flex justify-center font-coiny text-xl items-center min-h-[60px] border-b-2 border-[#1C0C8E] py-2'>
         <span>{gameInfo?.name}</span>
       </div>

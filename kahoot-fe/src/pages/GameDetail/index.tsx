@@ -152,7 +152,8 @@ const GameDetail = () => {
     <div className='max-w-[1200px] w-[100%] h-full p-2'>
       <div
         style={{ animationDelay: "unset" }}
-        className='h-[calc(100%-40px)] bg-[#6b00e78a] flex flex-col lg:flex-row mt-[20px] rounded-[40px] overflow-y-auto gap-2 p-2 [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent fadeIn '
+        className='h-[calc(100%-40px)] bg-[#6b00e78a] flex flex-col lg:flex-row mt-[20px] rounded-[40px] overflow-y-auto gap-2 p-2 [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent fadeIn
+            '
       >
         <GameInfoBox
           owner={authState.currentUser?.userName}

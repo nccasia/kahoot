@@ -307,7 +307,7 @@ const QuestionContent = ({
                   <ImagePreview
                     src={dataUpdate.image}
                     classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
-                    classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[90vh] object-contain p-4"
+                    classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-80vh] object-contain p-4"
                   />
                   <span
                     onClick={handleDeleteImage}
@@ -420,7 +420,7 @@ const QuestionContent = ({
                       <ImagePreview
                         src={dataUpdate.image}
                         classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
-                        classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[90vh] object-contain p-4"
+                        classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[80vh] object-contain p-4"
                       />
                     </div>
                   </div>
