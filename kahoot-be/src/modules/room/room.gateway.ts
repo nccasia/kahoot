@@ -203,6 +203,7 @@ export class RoomGateway
     });
     if (!room) {
       client.emit(ClientConnectionEvent.ClientError, {
+        ErrorCode: 'ROOM_NOT_FOUND',
         message: `Room with code ${roomCode} not found`,
       });
       return;
@@ -210,6 +211,7 @@ export class RoomGateway
 
     if (room.status === RoomStatus.Scheduled) {
       client.emit(ClientConnectionEvent.ClientError, {
+        ErrorCode: 'ROOM_SCHEDULED',
         message: `Room is scheduled to start at ${dayjs(room.scheduledAt).format('HH:mm DD/MM/YYYY')}`,
       });
       return;
@@ -222,6 +224,7 @@ export class RoomGateway
     if (!joined) {
       if (room?.status !== RoomStatus.Waiting) {
         client.emit(ClientConnectionEvent.ClientError, {
+          ErrorCode: 'ROOM_IN_PROGRESS',
           message: `Room code ${roomCode} cannot be join because it in progess or finished`,
         });
         return;

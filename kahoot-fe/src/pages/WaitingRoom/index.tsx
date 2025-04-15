@@ -1,16 +1,24 @@
+import { CopyTypes } from "@/constants/CopyTypes";
+import ENV from "@/constants/Environment";
 import SocketEvents from "@/constants/SocketEvents";
+import { AppContext } from "@/providers/ContextProvider/AppProvider";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import { useSocket } from "@/providers/SocketProvider";
 import { ROUTES } from "@/routes/routePath";
 import roomServices from "@/services/roomServices";
 import RoomActions from "@/stores/roomStore/roomAction";
-import { useContext, useEffect } from "react";
+import { QRCodeSVG } from 'qrcode.react';
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Tooltip } from 'react-tooltip';
 import PlayerItem from "./components/PlayerItem";
 
 const WaitingRoom = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const { roomState, roomDispatch } = useContext(RoomContext);
+  const {appState} = useContext(AppContext);
+  const [copyRoomCodeText, setCopyRoomCodeText] = useState<string>("Sao chép mã phòng");
+  const [copyLinkText, setCopyLinhText] = useState<string>("Sao chép liên kết");
   const navigate = useNavigate();
   const socket = useSocket();
   useEffect(() => {
@@ -30,11 +38,18 @@ const WaitingRoom = () => {
     };
     getRoomById();
   }, [roomDispatch, roomId]);
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(roomState.currentRoom?.code ?? "");
-    } catch (err) {
-      console.error("Failed to copy: ", err);
+  const handleCopy = async (type: CopyTypes) => {
+    switch (type) {
+      case CopyTypes.Link:
+        await navigator.clipboard.writeText(`${ENV.MEZON_URL}/channel-app/${appState.channelId}/${appState.clanId}?code=${roomState.currentRoom?.code}`);
+        setCopyLinhText("Đã sao chép liên kết");
+        break;
+      case CopyTypes.Code:
+        await navigator.clipboard.writeText(roomState.currentRoom?.code ?? "");
+        setCopyRoomCodeText("Đã sao chép mã phòng");
+        break;
+      default:
+        break;
     }
   };
   const handleOutGame = () => {
@@ -61,20 +76,50 @@ const WaitingRoom = () => {
 
         {/* Game PIN */}
         <div className='mt-2 bg-[#5d64d8c2] text-white rounded-lg p-2 shadow-xl flex flex-col justify-center items-center w-full max-w-[300px]'>
-          <span className='inline-block h-[25px] text-2xl'>GAME PIN</span>
-          <div className='flex justify-center h-[60px] max-w-[200px] w-full items-center'>
-            {!roomState.currentRoom?.code ? (
-              <span className='flex items-center justify-center bg-gray-400 h-[50px] w-full -rotate-2 rounded-lg'>
-                Loading Game Pin...
-              </span>
-            ) : (
-              <span
-                onClick={handleCopy}
-                className='text-4xl hover:bg-gray-400 rounded-md cursor-pointer px-2 py-1 active:bg-gray-200 transition-all'
-              >
-                {roomState.currentRoom?.code}
-              </span>
-            )}
+          <div className="w-full flex justify-around items-center py-2">
+            <div className='flex flex-col items-center justify-between gap-2 mt-1'>
+              <span className='inline-block h-[25px] text-2xl'>GAME PIN</span>
+              <div className='flex justify-center max-w-[200px] w-full items-center'>
+                {!roomState.currentRoom?.code ? (
+                  <span className='flex items-center justify-center bg-gray-400 w-full -rotate-2 rounded-lg'>
+                    Loading Game Pin...
+                  </span>
+                ) : (
+                  <span
+                    onClick={() => {
+                      handleCopy(CopyTypes.Code);
+                    }}
+                    onMouseLeave={() => {
+                      setCopyRoomCodeText("Sao chép mã phòng");
+                    }}
+                    data-tooltip-id="copy-code-btn"
+                    data-tooltip-content={copyRoomCodeText}
+                    className='text-4xl hover:bg-gray-400 rounded-md cursor-pointer px-2 active:bg-gray-200 transition-all'
+                  >
+                    {roomState.currentRoom?.code}
+                  </span>
+                )}
+                <Tooltip id="copy-code-btn" />
+              </div>
+            </div>
+            <div
+              data-tooltip-id="copy-link-btn"
+              data-tooltip-content={copyLinkText}
+              onClick={() => {
+                handleCopy(CopyTypes.Link);
+              }}
+              onMouseLeave={() => {
+                setCopyLinhText("Sao chép liên kết");
+              }}
+              className="p-1 cursor-pointer">
+              <QRCodeSVG
+                value={`${ENV.MEZON_URL}/channel-app/${appState.channelId}/${appState.clanId}?code=${roomState.currentRoom?.code}`}
+                fgColor="white"
+                bgColor="transparent"
+                size={80}
+              />
+              <Tooltip id="copy-link-btn" />
+            </div>
           </div>
           <div className='h-[35px] flex justify-between items-center w-full mt-1'>
             <div className='flex items-center gap-2 text-xl w-[100px] bg-[#cccccca6] h-[35px] px-1 rounded-md'>
@@ -100,7 +145,7 @@ const WaitingRoom = () => {
           </div>
         )}
       </div>
-      <div className='flex justify-center items-center w-full h-[calc(100%-140px)] p-2 '>
+      <div className='flex justify-center items-center w-full h-[calc(100%-140px)] p-6'>
         <div className='w-full max-w-[1200px] bg-[#ba85ff8f] rounded-xl h-full p-4 flex justify-around items-center flex-wrap gap-4 overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
           {/* <span className='font-coiny text-xl'>Chờ người chơi tham gia!</span> */}
           {roomState.listMemberOfRoom && roomState.listMemberOfRoom?.length > 0 ? (

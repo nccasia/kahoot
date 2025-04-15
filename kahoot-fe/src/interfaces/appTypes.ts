@@ -25,3 +25,8 @@ export interface IUploadImageResponse {
   display_name: string;
   format: string;
 }
+
+export interface IChannelInfo {
+  clanId: string;
+  channelId: string;
+}

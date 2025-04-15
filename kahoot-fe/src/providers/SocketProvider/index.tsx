@@ -44,7 +44,11 @@ export const SocketProvider = () => {
         console.log("Connected to socket");
       });
       socket.current.on(SocketEvents.ON.ClientError, (error) => {
-        console.log("Socket error", error);
+        console.log(error)
+        if (error.errorCode) {
+          navigate(ROUTES.SEARCH_ROOM);
+          return;
+        }
         toast.error(error.message);
       });
 
@@ -75,6 +79,7 @@ export const SocketProvider = () => {
         setSocketInitialized(false);
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authState.currentUser?.userId]);
 
   return (

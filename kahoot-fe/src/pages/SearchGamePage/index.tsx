@@ -4,6 +4,7 @@ import { useSocket } from "@/providers/SocketProvider";
 import { ROUTES } from "@/routes/routePath";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SearchGamePage = () => {
   const [searchText, setSearchText] = useState("");
@@ -12,7 +13,10 @@ const SearchGamePage = () => {
   const handleSearchGame = () => {
     if (searchText.length < 6) return;
     // Call API to search game by pin
-    if (!socket) return;
+    if (!socket) {
+      toast.error("Không thể kết nối đến máy chủ, vui lòng đóng ứng dụng và thử lại");
+      return;
+    }
     socket.emit(SocketEvents.EMIT.ClientEmitJoinRoom, { roomCode: searchText });
   };
   const handleBackToListGame = () => {
@@ -56,6 +60,7 @@ const SearchGamePage = () => {
         <div className='w-full max-w-[400px] min-h-[150px] bg-[#ba85ff] rounded-lg flex-col flex items-center justify-center p-4 font-coiny'>
           <input
             onKeyDown={(e) => {
+              e.preventDefault();
               if (e.key === 'Enter') {
                 handleSearchGame();
               }
@@ -72,7 +77,8 @@ const SearchGamePage = () => {
             <Button onClick={handleBackToListGame} className='text-[20px] mt-2 bg-[#d43d3d]'>
               Quay lại
             </Button>
-            <Button onClick={handleSearchGame} className='text-[20px] flex-1 mt-2 bg-[#6BB3E0]'>
+            <Button onClick={handleSearchGame}
+              className='text-[20px] flex-1 mt-2 bg-[#6BB3E0]'>
               Tìm Game
             </Button>
           </div>

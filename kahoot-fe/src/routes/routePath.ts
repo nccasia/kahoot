@@ -7,6 +7,7 @@ export const ROUTES = {
   CREATE_GAME_TYPE: "/create-game-type",
   ROOM_DETAIL: "/room/:roomId",
   GAME_DETAIL: "/game-detail/:gameId",
+  PLAY_GAME: "/play",
   WAITING_ROOM: "/waiting-room/:roomId",
   QUIZZ: "/quizz/:roomId",
   SIMULATE_GAME: "/simulate-game/:gameId",

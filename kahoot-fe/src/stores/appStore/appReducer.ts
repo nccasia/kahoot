@@ -6,6 +6,8 @@ export interface AppState {
   isShowSplash: boolean;
   isPlayCorrectSound: boolean;
   isPlayErrorSound: boolean;
+  clanId?: string;
+  channelId?: string;
 }
 
 export const initAppState: AppState = {
@@ -13,6 +15,8 @@ export const initAppState: AppState = {
   isShowSplash: true,
   isPlayCorrectSound: false,
   isPlayErrorSound: false,
+  clanId: undefined,
+  channelId: undefined,
 };
 
 const AppReducer = (state = initAppState, action: AppActionType<APP_TYPE>): AppState => {
@@ -44,7 +48,12 @@ const AppReducer = (state = initAppState, action: AppActionType<APP_TYPE>): AppS
         ...state,
         isPlayErrorSound: action.payload,
       };
-
+    case APP_TYPE.CHANGE_CHANNEL_ID:
+      return {
+        ...state,
+        clanId: action.payload.clanId,
+        channelId: action.payload.channelId,
+      };
     default:
       return state;
   }
