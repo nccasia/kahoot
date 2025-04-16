@@ -1,3 +1,5 @@
+import ReactDOM from 'react-dom';
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,32 +20,32 @@ const Modal = ({
   headerClassName,
   bodyClassName,
 }: ModalProps) => {
-  return (
-    <>
-      {isOpen && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-          <div
-            className='bg-[#402a97] shadow-md shadow-cyan-700 text-white min-h-[100px] rounded-lg min-w-[600px] transform fadeIn relative'
-            style={{ animationDelay: "unset", animationDuration: "0.2s" }}
-          >
-            {showHeader && (
-              <div className={`text-white min-h-[50px] flex items-center  px-4 border-b border-gray-300 ${headerClassName}`}>
-                <span>{modalTitle}</span>
-              </div>
-            )}
-            {showCloseButton && (
-              <div
-                className='text-red-600 text-2xl absolute top-1 right-1 h-[30px] w-[30px] flex items-center justify-center shadow-inner rounded-full cursor-pointer'
-                onClick={onClose}
-              >
-                &times;
-              </div>
-            )}
-            <div className={`body p-4 text-left text-white ${bodyClassName}`}>{children}</div>
-          </div>
+  return ReactDOM.createPortal(
+  <>
+    {isOpen && (
+      <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
+        <div
+          className='bg-[#402a97] shadow-md shadow-cyan-700 text-white min-h-[100px] rounded-lg w-[95%] max-w-[500px] transform fadeIn relative'
+          style={{ animationDelay: "unset", animationDuration: "0.2s" }}
+        >
+          {showHeader && (
+            <div className={`text-white min-h-[50px] flex items-center px-4 border-b border-gray-300 ${headerClassName}`}>
+              <span>{modalTitle}</span>
+            </div>
+          )}
+          {showCloseButton && (
+            <div
+              className='text-red-600 text-2xl absolute top-1 right-1 h-[30px] w-[30px] flex items-center justify-center shadow-inner rounded-full cursor-pointer'
+              onClick={onClose}
+            >
+              &times;
+            </div>
+          )}
+          <div className={`body p-4 text-left text-white ${bodyClassName}`}>{children}</div>
         </div>
-      )}
-    </>
-  );
+      </div>
+    )}
+  </>
+  , document.body)
 };
 export default Modal;

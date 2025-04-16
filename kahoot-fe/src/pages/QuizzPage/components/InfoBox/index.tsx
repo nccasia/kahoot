@@ -57,7 +57,7 @@ const InfoBox = () => {
   }, [roomState.currentQuestion?.id]);
 
   return (
-    <div className='p-4'>
+    <div className='p-2 md:p-4'>
       <UserBox
         isOwner={roomState.isOwner}
         onFinishGame={handleFinishGame}

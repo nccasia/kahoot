@@ -210,27 +210,9 @@ const QuestionContent = ({
     } else {
       newQuestion.answerOptions.correctIndexes = [index];
     }
-    if (dataUpdate.isError) {
-      newQuestion.isError = !checkQuestionData(newQuestion);
-    }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
-  const checkQuestionData = (dataUpdate: IQuestion) => {
-    const checkAnswerOptions =
-      dataUpdate.mode !== EQuestionTypes.TEXT
-      && dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "")
-    const checkAnswerIndexes =
-      dataUpdate.mode === EQuestionTypes.MULTIPLE_CHOICE
-      && dataUpdate.answerOptions.correctIndexes && dataUpdate.answerOptions.correctIndexes.length > 0
-    const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
-    const checkAnswerText =
-      dataUpdate.mode === EQuestionTypes.TEXT
-      && dataUpdate?.answerText && dataUpdate.answerText.trim() !== ""
-    const checkCorrectIndex =
-      dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
-      && dataUpdate.answerOptions.correctIndex !== null && dataUpdate.answerOptions.correctIndex >= 0
-    return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
-  };
+  
   const [textValue, setTextValue] = useState<string>("");
   const handleFocus = (field: string | number) => {
     if (typeof field === "string") {
@@ -243,9 +225,6 @@ const QuestionContent = ({
     if (!dataUpdate) return;
     if (typeof field === "string") {
       const newQuestion = { ...dataUpdate, [field]: textValue };
-      if (dataUpdate.isError) {
-        newQuestion.isError = !checkQuestionData(newQuestion);
-      }
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     } else {
       const newOptions = [...dataUpdate.answerOptions.options];
@@ -257,14 +236,11 @@ const QuestionContent = ({
           options: newOptions,
         },
       };
-      if (dataUpdate.isError) {
-        newQuestion.isError = !checkQuestionData(newQuestion);
-      }
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     }
   };
   return (
-    <div className='body p-2 font-coiny text-white'>
+    <div className='body font-coiny text-white'>
       <div className='flex flex-col gap-3'>
         {isEditing ? (
           <>
@@ -272,25 +248,27 @@ const QuestionContent = ({
               <div className='flex flex-col gap-2 w-full '>
                 <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
                   <span className='inline-block font-coiny min-w-[100px] text-start text-2xl'>Câu hỏi:</span>
-                  <Input
-                    onChange={(e) => handleChange(e, "title")}
-                    value={dataUpdate.title}
-                    className='flex-1 rounded-lg font-coiny'
-                  />
-                  <span
-                    onClick={handleAddImage}
-                    className='ml-2 w-[50px] h-[50px] flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all rounded-full border border-white'
-                  >
-                    <img className='w-[30px] h-[30px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
-                    <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
-                  </span>
+                  <div className="flex-1 flex items-center gap-2">
+                    <Input
+                      onChange={(e) => handleChange(e, "title")}
+                      value={dataUpdate.title}
+                      className='flex-1 w-[250px] rounded-lg'
+                    />
+                    <span
+                      onClick={handleAddImage}
+                      className='ml-2 w-[50px] h-[50px] flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all rounded-full border border-white'
+                    >
+                      <img className='w-[30px] h-[30px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
+                      <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
+                    </span>
+                  </div>
                 </div>
 
                 <div className=' w-full flex justify-end items-center gap-3 ' >
                   <div>
                     <SelectDropdown dropdownPosition='bottom' selectedValue={dataUpdate.time} options={timeOptions} onSelect={handleChangeTime} />
                   </div>
-                  <div className="min-w-[300px]">
+                  <div className="min-w-[230px]">
                     <SelectDropdown
                       dropdownPosition='bottom'
                       selectedValue={dataUpdate.mode}

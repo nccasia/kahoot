@@ -1,9 +1,10 @@
-import { AppActionType } from "@/interfaces/appTypes";
+import { AppActionType, IChannelInfo } from "@/interfaces/appTypes";
 
 export enum APP_TYPE {
   START_LOADING = "START_LOADING",
   END_LOADING = "END_LOADING",
-  CHANGE_CHANNEL_ID = "CHANGE_CHANNEL_ID",
+  CHANGE_CHANNEL = "CHANGE_CHANNEL",
+  CHANGE_CHANNEL_LIST = "CHANGE_CHANNEL_LIST",
   CHANGE_IS_SHOW_SPLASH = "CHANGE_IS_SHOW_SPLASH",
   CHANGE_IS_PLAY_CORRECT_SOUND = "CHANGE_IS_PLAY_CORRECT_SOUND",
   CHANGE_IS_PLAY_ERROR_SOUND = "CHANGE_IS_PLAY_ERROR_SOUND",
@@ -20,6 +21,20 @@ const endLoading = (): AppActionType<APP_TYPE> => {
   return {
     type: APP_TYPE.END_LOADING,
     payload: null,
+  };
+};
+
+const changeChannel = (channelInfo: IChannelInfo): AppActionType<APP_TYPE> => {
+  return {
+    type: APP_TYPE.CHANGE_CHANNEL,
+    payload: channelInfo,
+  };
+};
+
+const changeChannelList = (channelList: IChannelInfo[]): AppActionType<APP_TYPE> => {
+  return {
+    type: APP_TYPE.CHANGE_CHANNEL_LIST,
+    payload: channelList,
   };
 };
 
@@ -47,6 +62,8 @@ const changeIsPlayCorrectSound = (isPlayCorrectSound: boolean): AppActionType<AP
 const AppActions = {
   startLoading,
   endLoading,
+  changeChannel,
+  changeChannelList,
   changeIsShowSplash,
   changeIsPlayErrorSound,
   changeIsPlayCorrectSound,

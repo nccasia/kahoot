@@ -41,7 +41,7 @@ const WaitingRoom = () => {
   const handleCopy = async (type: CopyTypes) => {
     switch (type) {
       case CopyTypes.Link:
-        await navigator.clipboard.writeText(`${ENV.MEZON_URL}/channel-app/${appState.channelId}/${appState.clanId}?code=${roomState.currentRoom?.code}`);
+        await navigator.clipboard.writeText(`${ENV.MEZON_URL}/channel-app/${appState?.currentChannel?.channelId}/${appState?.clanId}?code=${roomState.currentRoom?.code}`);
         setCopyLinhText("Đã sao chép liên kết");
         break;
       case CopyTypes.Code:
@@ -64,19 +64,30 @@ const WaitingRoom = () => {
   };
   return (
     <div className='w-full h-screen'>
-      <div className='font-coiny h-[140px] flex items-center justify-center flex-col w-full relative'>
+      <div className=' font-coiny h-[220px] md:h-[160px] flex items-center justify-end flex-col w-full relative'>
         {/* Button out game */}
         <div
           onClick={handleOutGame}
-          className='w-[60px] h-[60px] flex justify-center items-center cursor-pointer absolute top-2 left-2 hover:scale-[0.98] transition-all active:scale-[1.0]'
+          className='w-[50px] h-[50px] flex justify-center items-center cursor-pointer absolute top-2 left-2 hover:scale-[0.98] transition-all active:scale-[1.0]'
         >
           <img src='/buttons/SmallButton-pressed.png' />
-          <img className='w-[30px] absolute top-[12px] left-[12px]' src='/icons/ExitIcon.png' />
+          <img className='w-[25px] absolute top-[10px] left-[10px]' src='/icons/ExitIcon.png' />
         </div>
 
+        {/* Start game */}
+        {roomState.isOwner && (
+          <div
+            onClick={handleStartGame}
+            className='w-[50px] h-[50px] flex justify-center items-center cursor-pointer absolute top-2 right-2 hover:scale-[0.98] transition-all active:scale-[1.0]'
+          >
+            <img src='/buttons/SmallButton.png' />
+            <img className='w-[20px] absolute top-[12px] left-[17px]' src='/icons/PlayIcon.png' />
+          </div>
+        )}
+
         {/* Game PIN */}
-        <div className='mt-2 bg-[#5d64d8c2] text-white rounded-lg p-2 shadow-xl flex flex-col justify-center items-center w-full max-w-[300px]'>
-          <div className="w-full flex justify-around items-center py-2">
+        <div className='bg-[#5d64d8c2] text-white rounded-lg p-2 shadow-xl flex flex-col justify-center items-center w-full mx-2 max-w-[400px]'>
+          <div className="w-full flex justify-between items-center py-2">
             <div className='flex flex-col items-center justify-between gap-2 mt-1'>
               <span className='inline-block h-[25px] text-2xl'>GAME PIN</span>
               <div className='flex justify-center max-w-[200px] w-full items-center'>
@@ -113,7 +124,7 @@ const WaitingRoom = () => {
               }}
               className="p-1 cursor-pointer">
               <QRCodeSVG
-                value={`${ENV.MEZON_URL}/channel-app/${appState.channelId}/${appState.clanId}?code=${roomState.currentRoom?.code}`}
+                value={`${ENV.MEZON_URL}/channel-app/${appState?.currentChannel?.channelId}/${appState?.clanId}?code=${roomState.currentRoom?.code}`}
                 fgColor="white"
                 bgColor="transparent"
                 size={80}
@@ -133,20 +144,9 @@ const WaitingRoom = () => {
             </div>
           </div>
         </div>
-
-        {/* Start game */}
-        {roomState.isOwner && (
-          <div
-            onClick={handleStartGame}
-            className='w-[60px] h-[60px] flex justify-center items-center cursor-pointer absolute top-2 right-2 hover:scale-[0.98] transition-all active:scale-[1.0]'
-          >
-            <img src='/buttons/SmallButton.png' />
-            <img className='w-[25px] absolute top-[12px] left-[20px]' src='/icons/PlayIcon.png' />
-          </div>
-        )}
       </div>
-      <div className='flex justify-center items-center w-full h-[calc(100%-140px)] p-6'>
-        <div className='w-full max-w-[1200px] bg-[#ba85ff8f] rounded-xl h-full p-4 flex justify-around items-center flex-wrap gap-4 overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
+      <div className='flex justify-center items-center w-full h-[calc(100%-220px)] md:h-[calc(100%-160px)] p-2'>
+        <div className='w-full max-w-[1200px] bg-[#ba85ff8f] rounded-xl h-full p-2 flex justify-around items-center flex-wrap gap-4 overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
           {/* <span className='font-coiny text-xl'>Chờ người chơi tham gia!</span> */}
           {roomState.listMemberOfRoom && roomState.listMemberOfRoom?.length > 0 ? (
             roomState.listMemberOfRoom?.map((player, index) => <PlayerItem player={player} key={index} />)

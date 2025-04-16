@@ -1,6 +1,7 @@
 import Button from "@/components/Button";
 import ButtonBack from "@/components/ButtonBack";
 import Input from "@/components/Input";
+import { EQuestionErrorTypes } from '@/constants/QuestionErrorTypes';
 import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { ICreateGameDTO } from "@/interfaces/gameTypes";
 import { IAddQuestionToGameDTO, IQuestion } from "@/interfaces/questionTypes";
@@ -40,6 +41,7 @@ const CreateGamePage = () => {
         correctIndex: null,
         correctIndexes: [],
       },
+      questionStatus: EQuestionErrorTypes.NO_ERROR
     };
     gameDispatch(GameActions.addQuestion([newQuestion]));
     gameDispatch(GameActions.changeSelectedQuestion(id));
@@ -57,41 +59,68 @@ const CreateGamePage = () => {
     }
     let check = true;
     const listErrorQuestion: string[] = [];
-    listQuestions.forEach((question) => {
+
+    const newListQuestions = [...listQuestions]
+
+    for(const question of newListQuestions) {
+      // check title question      
+      const checkTitle = question.title && question.title.trim() !== "";
+      if(!checkTitle) {
+        question.questionStatus = EQuestionErrorTypes.INVALID_QUESTION
+        check=false;
+        continue;
+      }
+
+      // check answer options
       const checkAnswerOptions =
         question.mode !== EQuestionTypes.TEXT
           ? question.answerOptions.options.every((option) => option && option.trim() !== "")
           : true;
+      if(!checkAnswerOptions) {
+        question.questionStatus = EQuestionErrorTypes.INVALID_ANSWER;
+        check=false;
+        continue;
+      }
+
+      // check answer indexes
       const checkAnswerIndexes =
         question.mode === EQuestionTypes.MULTIPLE_CHOICE
           ? question.answerOptions.correctIndexes && question.answerOptions.correctIndexes.length > 0
           : true;
-      const checkTitle = question.title && question.title.trim() !== "";
-      const checkAnswerText =
-        question.mode === EQuestionTypes.TEXT.toString() ? question?.answerText && question.answerText?.trim() !== "" : true;
+      if(!checkAnswerIndexes) {
+        question.questionStatus = EQuestionErrorTypes.INVALID_CORRECT_INDEXS
+        check=false;
+        continue;
+      }
+
+      // check correct index
       const checkCorrectIndex =
         question.mode === EQuestionTypes.SINGLE_CHOICE
           ? question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0
           : true;
+      if (!checkCorrectIndex) {
+        question.questionStatus = EQuestionErrorTypes.INVALID_CORRECT_INDEX
+        check=false;
+        continue;
+      }
+      
+      // check answer text
+      const checkAnswerText =
+        question.mode === EQuestionTypes.TEXT.toString() ? question?.answerText && question.answerText?.trim() !== "" : true;
+      if(!checkAnswerText) {
+        question.questionStatus = EQuestionErrorTypes.INVALID_TEXT_ANSWER
+        check=false;
+        continue;
+      }
+
       if (!checkAnswerOptions || !checkAnswerText || !checkAnswerIndexes || !checkTitle || !checkCorrectIndex) {
         listErrorQuestion.push(question?.id ?? "");
         check = false;
-      }
-    });
-    const newListQuestion = listQuestions?.map((question) => {
-      if (listErrorQuestion.includes(question.id ?? "")) {
-        return {
-          ...question,
-          isError: true,
-        };
       } else {
-        return {
-          ...question,
-          isError: false,
-        };
+        question.questionStatus = EQuestionErrorTypes.NO_ERROR;
       }
-    });
-    gameDispatch(GameActions.changeListQuestion(newListQuestion));
+    }
+    gameDispatch(GameActions.changeListQuestion(newListQuestions));
     if (!check) {
       return false;
     }

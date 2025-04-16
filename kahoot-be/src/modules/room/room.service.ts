@@ -7,7 +7,7 @@ import { MezonClientService } from '@modules/shared/mezon/mezon-client.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import schedule from 'node-schedule';
+import { cancelJob, scheduleJob } from 'node-schedule';
 import { generateRoomCode } from 'src/utils';
 import { Repository } from 'typeorm';
 import { BaseRoomDto, BaseScheduledRoomDto } from './dto/base-room.dto';
@@ -80,18 +80,25 @@ export class RoomService {
       ...createRoomDto,
       ownerId: payload.userId,
       status: RoomStatus.Scheduled,
+      isNotifyEnabled: createRoomDto.isNotifyEnabled,
       code: roomCode,
     });
     await this.roomRepository.save(room);
 
     const scheduleTime = new Date(createRoomDto.scheduledAt);
 
-    schedule.scheduleJob(room.id, scheduleTime, async () => {
+    scheduleJob(room.id, scheduleTime, async () => {
       //? Implement the logic to start the game here
       //? For example, you can update the room status to "Waiting"
-      console.log(
-        `Room with id ${room.id} has been scheduled at ${scheduleTime}`,
-      );
+      //? and notify the users in the channels
+      const channels = createRoomDto.channels;
+      const isNotifyEnabled = createRoomDto.isNotifyEnabled;
+      if (isNotifyEnabled && channels && channels.length > 0) {
+        await this.mezonClientService.sendRoomCodeToChanneles(
+          roomCode,
+          channels,
+        );
+      }
       await this.roomRepository.update(
         { id: room.id },
         { status: RoomStatus.Waiting },
@@ -150,27 +157,34 @@ export class RoomService {
         errorCode: ERROR_CODES.ROOM.ROOM_CANNOT_BE_UPDATED,
       });
     }
-    schedule.cancelJob(room.id);
+    cancelJob(room.id);
     const scheduleTime = new Date(updateRoomDto.scheduledAt);
-    schedule.scheduleJob(room.id, scheduleTime, async () => {
+    scheduleJob(room.id, scheduleTime, async () => {
       //? Implement the logic to start the game here
-      console.log(
-        `Room with id ${room.id} has been started at ${scheduleTime}`,
+      const channels = room.channels;
+      const isNotifyEnabled = room.isNotifyEnabled;
+      if (isNotifyEnabled && channels && channels.length > 0) {
+        await this.mezonClientService.sendRoomCodeToChanneles(
+          room.code,
+          channels,
+        );
+      }
+      await this.roomRepository.update(
+        { id: room.id },
+        { status: RoomStatus.Waiting },
       );
     });
-    await this.roomRepository.update(
-      { id: room.id },
-      {
-        status: RoomStatus.Scheduled,
-        scheduledAt: updateRoomDto.scheduledAt,
-        channelIds: updateRoomDto.channelIds,
-      },
-    );
+    const updatedRoom = await this.roomRepository.save({
+      ...room,
+      status: RoomStatus.Scheduled,
+      scheduledAt: updateRoomDto.scheduledAt,
+      channels: updateRoomDto.channels,
+    });
     return plainToInstance(
       BaseScheduledRoomDto,
       {
-        ...room,
-        isOnwer: room.ownerId === payload.userId,
+        ...updatedRoom,
+        isOnwer: updatedRoom.ownerId === payload.userId,
       },
       {
         excludeExtraneousValues: true,
@@ -188,18 +202,30 @@ export class RoomService {
         errorCode: ERROR_CODES.ROOM.ROOM_NOT_FOUND,
       });
 
-    if (room.status !== RoomStatus.Scheduled) {
+    if (
+      room.status !== RoomStatus.Scheduled &&
+      room.status !== RoomStatus.Waiting
+    ) {
       throw new BadRequestException({
         message: `Room cannot be cancelled because it is not scheduled`,
         errorCode: ERROR_CODES.ROOM.ROOM_CANNOT_BE_UPDATED,
       });
     }
-    schedule.cancelJob(room.id);
-    await this.roomRepository.update(
-      { id: room.id },
-      { status: RoomStatus.InProgress },
+    cancelJob(room.id);
+    const updatedRoom = await this.roomRepository.save({
+      ...room,
+      status: RoomStatus.Cancelled,
+    });
+    return plainToInstance(
+      BaseRoomDto,
+      {
+        ...updatedRoom,
+        isOnwer: updatedRoom.ownerId === payload.userId,
+      },
+      {
+        excludeExtraneousValues: true,
+      },
     );
-    return { message: `Room scheduled has been cancelled` };
   }
 
   async getGameRoomsAsync(
@@ -216,11 +242,12 @@ export class RoomService {
         errorCode: ERROR_CODES.GAME.GAME_NOT_FOUND,
       });
 
-    const { getPagination, skip, take } = new QueryOptionsHelper(
+    const { getPagination, skip, take, sort } = new QueryOptionsHelper(
       queryOptionsDto,
     );
     const [rawRooms, count] = await this.roomRepository.findAndCount({
       where: { gameId: game.id },
+      order: sort,
       skip,
       take,
     });

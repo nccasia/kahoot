@@ -4,11 +4,11 @@ interface CollapseProps {
   children: React.ReactNode;
   content: React.ReactNode;
   open?: boolean;
-  hasError?: boolean;
+  hasError?: string;
   changeCollapse?: (isOpen: boolean) => void;
   disabled?: boolean;
 }
-const Collapse = ({ children, content, open, changeCollapse, hasError = false, disabled = false }: CollapseProps) => {
+const Collapse = ({ children, content, open, changeCollapse, hasError, disabled = false }: CollapseProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleToogle = () => {
     if (disabled) return;
@@ -24,7 +24,7 @@ const Collapse = ({ children, content, open, changeCollapse, hasError = false, d
     <div className={`w-full bg-[#466CF7A1] rounded-xl border-2 ${hasError ? " border-red-600" : "border-transparent"}`}>
       <button
         onClick={handleToogle}
-        className={`rounded-xl w-full outline-none border-none focus:ring-0 focus:outline-none flex justify-between items-center gap-2 p-5 bg-[#466CF7A1] cursor-pointer transition-all duration-500 ease-in-out relative`}
+        className={`rounded-xl w-full outline-none border-none focus:ring-0 focus:outline-none flex justify-between items-center gap-2 p-2 lg:p-4 ${hasError && "pt-6 lg:pt-6"} bg-[#466CF7A1] cursor-pointer transition-all duration-500 ease-in-out relative`}
         style={{
           borderBottomRightRadius: isOpen ? 0 : undefined,
           borderBottomLeftRadius: isOpen ? 0 : undefined,
@@ -33,8 +33,9 @@ const Collapse = ({ children, content, open, changeCollapse, hasError = false, d
         }}
       >
         {hasError && (
-          <div className='absolute top-1 left-1 '>
-            <img className='w-[20px]' src='/icons/exclamation.png' />
+          <div className='absolute top-1 items-center left-1 flex gap-2'>
+            <img className='w-[20px] h-20px' src='/icons/exclamation.png' />
+            <span className="flex-1 text-red-600 font-coiny text-sm">{hasError}</span>
           </div>
         )}
         <div className='flex-1'>{children}</div>
@@ -54,7 +55,7 @@ const Collapse = ({ children, content, open, changeCollapse, hasError = false, d
         </div>
       </button>
       <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? "max-h-[1000px]" : "max-h-0"}`}>
-        <div className='body p-4 text-white'>{content}</div>
+        <div className='body p-2 lg:p-4 text-white'>{content}</div>
       </div>
     </div>
   );

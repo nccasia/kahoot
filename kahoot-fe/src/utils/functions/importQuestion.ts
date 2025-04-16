@@ -1,3 +1,4 @@
+import { EQuestionErrorTypes } from "@/constants/QuestionErrorTypes";
 import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
 import PizZip from "pizzip";
@@ -100,7 +101,7 @@ function convertArrayToJSON(inputArray: string[]) {
           correctIndex: null,
           correctIndexes: [],
         }, // This field is not used in the current version of the app
-        isError: false,
+        questionStatus: EQuestionErrorTypes.NO_ERROR,
         answerText: "",
         title: currentItem.replace(questionRegex, "").trim(), // Remove the question number e.g. 1. or Câu 1.
       };

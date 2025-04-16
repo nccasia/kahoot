@@ -75,7 +75,7 @@ export class RoomController {
       payload,
     );
   }
-  @ApiResponseType(ResponseGetScheduledRoom)
+  @ApiResponseType(ResponseGetRoom)
   @Put('cancel-schedule/:roomId')
   cancelScheduleRoom(
     @Param('roomId') roomId: string,

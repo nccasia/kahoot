@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEnum } from 'class-validator';
 import { RoomStatus } from '../types';
+import { MezonChannel } from '../types/channel.type';
 
 export class BaseRoomDto {
   @ApiProperty()
@@ -39,11 +40,11 @@ export class BaseScheduledRoomDto extends BaseRoomDto {
   @Expose()
   scheduledAt: Date;
 
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: Boolean, default: false })
   @Expose()
-  clanId: string;
+  isNotifyEnabled?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ type: MezonChannel, isArray: true })
   @Expose()
-  channelIds?: string[];
+  channels?: MezonChannel[];
 }

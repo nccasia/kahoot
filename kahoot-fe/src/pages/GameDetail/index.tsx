@@ -48,15 +48,13 @@ const GameDetail = () => {
 
     const getRooms = async () => {
       try {
-        const response = await roomServices.getRoomOfGame(gameId, 1, 10, "");
+        const response = await roomServices.getRoomOfGame(gameId, 1, 5, "", { createdAt: "desc" });
         if (response.statusCode !== 200) {
           console.log("error", response);
           return;
         }
         const rooms = response.data;
-        // Đảo ngược thứ tự
-        const newestFirst = [...rooms].reverse();
-        gameDispatch(GameActions.changeListRooms(newestFirst));
+        gameDispatch(GameActions.changeListRooms(rooms));
       } catch (error) {
         console.log("error", error);
       }
@@ -152,8 +150,7 @@ const GameDetail = () => {
     <div className='max-w-[1200px] w-[100%] h-full p-2'>
       <div
         style={{ animationDelay: "unset" }}
-        className='h-[calc(100%-40px)] bg-[#6b00e78a] flex flex-col lg:flex-row mt-[20px] rounded-[40px] overflow-y-auto gap-2 p-2 [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent fadeIn
-            '
+        className='h-[calc(100%-10px)] lg:h-[calc(100%-40px)] bg-[#6b00e78a] flex flex-col lg:flex-row mt-[5px] lg:mt-[20px] rounded-[20px]  overflow-y-auto gap-2 lg:p-2 [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent fadeIn'
       >
         <GameInfoBox
           owner={authState.currentUser?.userName}

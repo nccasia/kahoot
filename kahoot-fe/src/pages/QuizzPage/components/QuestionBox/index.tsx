@@ -67,7 +67,7 @@ const QuestionBox = ({
   };
 
   return (
-    <div className='p-4 flex flex-col gap-4 w-full h-full font-coiny'>
+    <div className='p-2 md:p-4 flex flex-col gap-4 w-full h-full font-coiny'>
       {question?.order && <div className='p-2 font-coiny text-center text-white'>QUESTION {question?.order}</div>}
       {question?.title && (
         <div className=' flex-1 flex-col flex items-center justify-center text-xl bg-[#5d017e] text-white w-full rounded-xl p-2 select-none '>
@@ -100,7 +100,7 @@ const QuestionBox = ({
         </div>
       )}
       {question?.mode === EQuestionTypes.TEXT ? (
-        <div className='flex justify-center flex-col items-center gap-4 w-full min-h-[40%] bg-[#4c7e01ad] rounded-lg '>
+        <div className='flex mb-10 justify-center flex-col items-center gap-4 w-full min-h-[40%] bg-[#4c7e01ad] rounded-lg '>
           <Input
             disabled={isSubmitAnswer || isOwner}
             onChange={handleChangeAnswerText}

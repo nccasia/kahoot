@@ -2,6 +2,7 @@ import Button from "@/components/Button";
 import Collapse from "@/components/Collapse";
 import Input from "@/components/Input";
 import SelectDropdown from "@/components/SelectDropdown";
+import { EQuestionErrorTypes, questionErrorTypes } from '@/constants/QuestionErrorTypes';
 import { EQuestionTypes, questionTypeOptions } from "@/constants/QuestionTypes";
 import timeOptions from "@/constants/TimeOptions";
 import { IQuestion } from "@/interfaces/questionTypes";
@@ -20,7 +21,6 @@ interface IQuestionItemProps {
 
 const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion, isShowDeleteButton }: IQuestionItemProps) => {
   const [textValue, setTextValue] = useState<string>("");
-  console.log("question", question);
   const handleFocus = (field: string | number) => {
     if (typeof field === "string") {
       setTextValue(question[field as keyof IQuestion] as string);
@@ -32,28 +32,48 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     setTextValue(e.target.value);
   };
   const checkQuestionData = (question: IQuestion) => {
+
+    // check answer options
     const checkAnswerOptions =
       question.mode !== EQuestionTypes.TEXT
         ? question.answerOptions.options.every((option) => option && option.trim() !== "")
         : true;
+    if(!checkAnswerOptions) {
+      return EQuestionErrorTypes.INVALID_ANSWER
+    }
 
+    // check answer indexes
     const checkAnswerIndexes =
       question.mode === EQuestionTypes.MULTIPLE_CHOICE
         ? question.answerOptions.correctIndexes && question.answerOptions.correctIndexes.length > 0
         : true;
+    if(!checkAnswerIndexes) {
+      return EQuestionErrorTypes.INVALID_CORRECT_INDEXS
+    }
 
+    // check question title
     const checkTitle = question.title && question.title.trim() !== "";
+    if(!checkTitle) {
+      return EQuestionErrorTypes.INVALID_QUESTION
+    }
 
+    // check answer text
     const checkAnswerText =
       question.mode === EQuestionTypes.TEXT.toString() ? question?.answerText && question.answerText?.trim() !== "" : true;
+    if(!checkAnswerText) {
+      return EQuestionErrorTypes.INVALID_TEXT_ANSWER
+    }
 
+    // check correct index
     const checkCorrectIndex =
       question.mode === EQuestionTypes.SINGLE_CHOICE
         ? question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0
         : true;
+    if(!checkCorrectIndex) {
+      return EQuestionErrorTypes.INVALID_CORRECT_INDEX
+    }
 
-
-    return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
+    return EQuestionErrorTypes.NO_ERROR
   };
 
   const handleBlur = (field: string | number) => {
@@ -65,8 +85,8 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     } else {
       newQuestion.answerOptions.options[field] = textValue;
     }
-    if (question.isError) {
-      newQuestion.isError = !checkQuestionData(newQuestion);
+    if (question.questionStatus !== EQuestionErrorTypes.NO_ERROR) {
+      newQuestion.questionStatus = checkQuestionData(newQuestion);
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
@@ -75,8 +95,8 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
       ...question,
     };
     newQuestion.answerOptions.correctIndex = index;
-    if (question.isError) {
-      newQuestion.isError = !checkQuestionData(newQuestion);
+    if (question.questionStatus) {
+      newQuestion.questionStatus = checkQuestionData(newQuestion);
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
@@ -94,8 +114,8 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     } else {
       newQuestion.answerOptions.correctIndexes = [index];
     }
-    if (question.isError) {
-      newQuestion.isError = !checkQuestionData(newQuestion);
+    if (question.questionStatus) {
+      newQuestion.questionStatus = checkQuestionData(newQuestion);
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
@@ -134,8 +154,8 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     ) {
       newQuestion.answerOptions.correctIndex = null;
     }
-    if (question.isError) {
-      newQuestion.isError = !checkQuestionData(newQuestion);
+    if (question.questionStatus) {
+      newQuestion.questionStatus = checkQuestionData(newQuestion);
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
@@ -149,8 +169,8 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         options: [...question.answerOptions.options, ""],
       },
     };
-    if (question.isError) {
-      newQuestion.isError = !checkQuestionData(newQuestion);
+    if (question.questionStatus) {
+      newQuestion.questionStatus = checkQuestionData(newQuestion);
     }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
@@ -196,7 +216,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
     }
   };
   return (
-    <div className='body p-1 sm:p-2 md:p-4 font-coiny text-white'>
+    <div className='body sm:p-2 md:p-4 font-coiny text-white'>
       <div className='flex justify-end mb-3'>
         <div className='max-w-[100px] w-full mr-2'>
           <SelectDropdown
@@ -217,7 +237,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
         </div>
       </div>
       <div className='flex items-center flex-wrap'>
-        <span className='inline-block sm:w-[150px] md:w-[200px] w-full text-start text-2xl'>Câu hỏi:</span>
+        <span className='inline-block sm:w-[150px] md:w-[200px] w-full text-start text-xl md:text-2xl'>Câu hỏi:</span>
         <div className='flex-1 flex items-center gap-2'>
           <Input
             onFocus={() => handleFocus("title")}
@@ -251,7 +271,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
       <div className='flex flex-col gap-3 mt-2 pt-2 border-t-2 border-gray-100'>
         {question.mode === EQuestionTypes.TEXT ? (
           <div className='flex items-center flex-wrap gap-1'>
-            <span className='inline-block min-w-[195px] text-start text-2xl'>Đáp án :</span>
+            <span className='inline-block min-w-[195px] text-start text-xl md:text-2xl'>Đáp án :</span>
             <div className='input-box flex-1 min-w-[300px] relative'>
               <Input
                 onFocus={() => handleFocus("answerText")}
@@ -266,7 +286,7 @@ const QuestionContent = ({ question, handleUpdateQuestion, handleDeleteQuestion,
           <>
             {question.answerOptions?.options.map((option, index) => (
               <div key={index} className='flex items-center flex-wrap gap-1'>
-                <span className='inline-block min-w-[150px] md:min-w-[200px] text-start text-2xl'>Đáp án {index + 1}:</span>
+                <span className='inline-block min-w-[150px] md:min-w-[200px] text-start text-xl md:text-2xl'>Đáp án {index + 1}:</span>
                 <div className='flex-1 flex'>
                   <div className='input-box flex-1 min-w-[300px] relative'>
                     {question.mode === EQuestionTypes.SINGLE_CHOICE ? (
@@ -362,7 +382,7 @@ const QuestionItem = ({ question, index, isShowDeleteButton }: IQuestionItemProp
   return (
     <div className='select-none'>
       <Collapse
-        hasError={question.isError}
+        hasError={question.questionStatus !== EQuestionErrorTypes.NO_ERROR ? questionErrorTypes[question.questionStatus] : undefined }
         changeCollapse={handleChangeCollapse}
         open={question.id === gameState.selectedQuestion?.id}
         content={

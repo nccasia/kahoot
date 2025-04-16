@@ -3,8 +3,15 @@ import { Table } from '@constants';
 import { Game } from '@modules/game/entities/game.entity';
 import { User } from '@modules/user/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  ValidateIf,
+} from 'class-validator';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { MezonChannel } from '../types/channel.type';
 import { RoomStatus } from '../types/room.type';
 import { QuestionRoomUser } from './question-room-user.entity';
 import { RoomQuestion } from './room-question.entity';
@@ -40,13 +47,14 @@ export class Room extends AbstractEntity {
   scheduledAt?: Date;
 
   @ApiProperty()
-  @IsString()
-  @Column({ nullable: true })
-  clanId?: string;
+  @Column({ nullable: true, type: 'boolean', default: false })
+  isNotifyEnabled?: boolean;
 
   @ApiProperty()
-  @Column('varchar', { array: true, nullable: true })
-  channelIds?: string[];
+  @ValidateIf((o) => o.isNotifyEnabled === true)
+  @IsNotEmpty()
+  @Column('json', { nullable: true })
+  channels?: MezonChannel[];
 
   // relations
   @ManyToOne(() => User, (user) => user.games, {

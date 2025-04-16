@@ -60,7 +60,6 @@ const SearchGamePage = () => {
         <div className='w-full max-w-[400px] min-h-[150px] bg-[#ba85ff] rounded-lg flex-col flex items-center justify-center p-4 font-coiny'>
           <input
             onKeyDown={(e) => {
-              e.preventDefault();
               if (e.key === 'Enter') {
                 handleSearchGame();
               }

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Collapse from "@/components/Collapse";
+import { EQuestionErrorTypes, questionErrorTypes } from '@/constants/QuestionErrorTypes';
 import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { IAddQuestionToGameDTO, IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
@@ -62,32 +63,47 @@ const QuestionItem = ({
       dataUpdate.mode !== EQuestionTypes.TEXT
         ? dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "")
         : true;
+    if(!checkAnswerOptions) {
+      return EQuestionErrorTypes.INVALID_ANSWER
+    }
+
     const checkAnswerIndexes =
       dataUpdate.mode === EQuestionTypes.MULTIPLE_CHOICE
         ? dataUpdate.answerOptions.correctIndexes && dataUpdate.answerOptions.correctIndexes.length > 0
         : true;
+    if(!checkAnswerIndexes) {
+      return EQuestionErrorTypes.INVALID_CORRECT_INDEXS
+    }
+    
     const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
+    if(!checkTitle) {
+      return EQuestionErrorTypes.INVALID_QUESTION
+    }
+
     const checkAnswerText =
       dataUpdate.mode === EQuestionTypes.TEXT ? dataUpdate?.answerText && dataUpdate.answerText?.trim() !== "" : true;
+    if(!checkAnswerText) {
+      return EQuestionErrorTypes.INVALID_TEXT_ANSWER
+    }
+
     const checkCorrectIndex =
       dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
         ? dataUpdate.answerOptions.correctIndex !== null &&
         dataUpdate.answerOptions.correctIndex >= 0 &&
         dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length
         : true;
+    if(!checkCorrectIndex) {
+      return EQuestionErrorTypes.INVALID_CORRECT_INDEX
+    }
 
-    return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
+    return EQuestionErrorTypes.NO_ERROR
   };
 
   const handleConfirmSaveChange = async () => {
     gameDispatch(GameActions.changeIsSubmitting(true));
     try {
-      if (!checkQuestionData(dataUpdate)) {
-        if (dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE && dataUpdate.answerOptions.correctIndex === null) {
-          toast.warning("Vui lòng chọn đáp án đúng!");
-        } else {
-          toast.warning("Vui lòng điền đầy đủ thông tin câu hỏi!");
-        }
+      if (checkQuestionData(dataUpdate) !== EQuestionErrorTypes.NO_ERROR) {
+        toast.warning(questionErrorTypes[checkQuestionData(dataUpdate)])
         return;
       }
 
@@ -158,7 +174,6 @@ const QuestionItem = ({
     <div className='select-none'>
       <Collapse
         disabled={gameState.isCreateQuestionOfGame}
-        hasError={question.isError}
         changeCollapse={handleChangeCollapse}
         open={question.id === gameState.selectedQuestion?.id}
         content={

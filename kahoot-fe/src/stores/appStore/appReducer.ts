@@ -1,4 +1,4 @@
-import { AppActionType } from "@/interfaces/appTypes";
+import { AppActionType, IChannelInfo } from "@/interfaces/appTypes";
 import { APP_TYPE } from "./appAction";
 
 export interface AppState {
@@ -6,8 +6,9 @@ export interface AppState {
   isShowSplash: boolean;
   isPlayCorrectSound: boolean;
   isPlayErrorSound: boolean;
+  currentChannel?: IChannelInfo;
+  channelList?: IChannelInfo[];
   clanId?: string;
-  channelId?: string;
 }
 
 export const initAppState: AppState = {
@@ -16,7 +17,8 @@ export const initAppState: AppState = {
   isPlayCorrectSound: false,
   isPlayErrorSound: false,
   clanId: undefined,
-  channelId: undefined,
+  currentChannel: undefined,
+  channelList: [],
 };
 
 const AppReducer = (state = initAppState, action: AppActionType<APP_TYPE>): AppState => {
@@ -48,11 +50,16 @@ const AppReducer = (state = initAppState, action: AppActionType<APP_TYPE>): AppS
         ...state,
         isPlayErrorSound: action.payload,
       };
-    case APP_TYPE.CHANGE_CHANNEL_ID:
+    case APP_TYPE.CHANGE_CHANNEL:
       return {
         ...state,
         clanId: action.payload.clanId,
-        channelId: action.payload.channelId,
+        currentChannel: action.payload,
+      };
+    case APP_TYPE.CHANGE_CHANNEL_LIST:
+      return {
+        ...state,
+        channelList: action.payload,
       };
     default:
       return state;

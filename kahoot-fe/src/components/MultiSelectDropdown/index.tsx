@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
-type OptionType = {
-  label: string;
-  value: string | number;
+export type OptionType = {
+  label: string | undefined;
+  value: string | number
 };
 
 type SelectDropdownProps = {
@@ -45,6 +45,10 @@ const MultiSelectDropdown: React.FC<SelectDropdownProps> = ({
     selected.some((s) => s.value === value);
 
   useEffect(() => {
+    setSelected(options.filter((option) => selectedValues.includes(option.value)));
+  }, [options, selectedValues]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -72,7 +76,7 @@ const MultiSelectDropdown: React.FC<SelectDropdownProps> = ({
             selected.map((s) => (
               <span
                 key={s.value}
-                className="bg-white text-purple-700 rounded-full px-2 py-1 text-sm font-semibold"
+                className="bg-white text-purple-700 rounded-full px-2 pb-1 pt-2 text-sm font-semibold"
               >
                 {s.label}
               </span>

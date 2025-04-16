@@ -25,6 +25,9 @@ export enum GAME_TYPE {
   CHANGE_OLD_QUESTION_DATA = "CHANGE_OLD_QUESTION_DATA",
   CHANGE_IS_DELETING_QUESTION = "CHANGE_IS_DELETING_QUESTION",
   CHANGE_LIST_ROOMS = "CHANGE_LIST_ROOMS",
+  ADD_ROOM = "ADD_ROOM",
+  UPDATE_SCHEDULED_ROOM = "UPDATE_SCHEDULED_ROOM",
+  CANCEL_SCHEDULED_ROOM = "CANCEL_SCHEDULED_ROOM",
 }
 
 const addQuestion = (question: IQuestion[]): AppActionType<GAME_TYPE> => {
@@ -173,8 +176,24 @@ const changeListRooms = (listRooms: IRoom[]): AppActionType<GAME_TYPE> => {
   };
 };
 
+const addRoom = (room: IRoom): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.ADD_ROOM,
+    payload: room,
+  };
+};
+
+const updateScheduledRoom = (room: IRoom): AppActionType<GAME_TYPE> => {
+  return {
+    type: GAME_TYPE.UPDATE_SCHEDULED_ROOM,
+    payload: room,
+  };
+};
+
 const GameActions = {
   changeListRooms,
+  addRoom,
+  updateScheduledRoom,
   addQuestion,
   deleteQuestion,
   changeListQuestion,

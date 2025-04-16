@@ -204,6 +204,28 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
         listRooms: action.payload,
       };
     }
+    case GAME_TYPE.ADD_ROOM: {
+      const listRooms = state.listRooms;
+      if (listRooms.length == 5) {
+        listRooms.pop();
+      }
+      return {
+        ...state,
+        listRooms: [action.payload, ...listRooms],
+      };
+    }
+    case GAME_TYPE.UPDATE_SCHEDULED_ROOM: {
+      const listRooms = state.listRooms.map((item: IRoom) => {
+        if (item.id === action.payload.id) {
+          return action.payload;
+        }
+        return item;
+      });
+      return {
+        ...state,
+        listRooms: listRooms,
+      };
+    }
     default:
       return state;
   }

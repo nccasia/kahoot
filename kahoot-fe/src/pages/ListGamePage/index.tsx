@@ -64,16 +64,19 @@ const ListGamePage = () => {
           placeholder='Tìm kiếm...'
           className='text-center w-[150px] md:w-[200px] placeholder-white'
         />
-        <Button onClick={handleGoToCreateGame} className='text-center bg-[#6B00E7] font-coiny min-w-[80px] md:min-w-[150px]'>
+        <Button onClick={handleGoToCreateGame} className='hidden sm:block text-center bg-[#6B00E7] font-coiny min-w-[80px] md:min-w-[150px]'>
           Tạo game
+        </Button>
+        <Button onClick={handleGoToCreateGame} className='block sm:hidden text-center bg-[#6B00E7] font-coiny min-w-[50px] px-3'>
+          <img className="w-[20px] h-[20px]" src="/icons/PlusIcon.png" />
         </Button>
       </div>
       <div
         style={{ animationDelay: "unset" }}
-        className='fadeIn h-[calc(100%-100px)] mt-[20px] bg-[#6B00E7CC] border-[0.6rem] border-[#1C0C8E] rounded-[40px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
+        className='fadeIn h-[calc(100%-100px)] mt-[20px] bg-[#6B00E7CC] border-[0.3rem] md:border-[0.6rem] border-[#1C0C8E] rounded-[20px] md:rounded-[40px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
       >
         {gameState?.filterGames?.length > 0 ? (
-          <div className='grid grid-cols-1 lg:grid-cols-2  gap-4 p-4'>
+          <div className='grid grid-cols-1 lg:grid-cols-2  gap-2 md:gap-4 p-2 md:p-4'>
             {gameState.filterGames?.map((item, index) => (
               <RoomItem game={item} key={index} />
             ))}

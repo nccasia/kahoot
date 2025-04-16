@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import { IChannelInfo } from "@/interfaces/appTypes";
+import { ICreateScheduleRoom } from "@/interfaces/roomTypes";
+import { AppContext } from "@/providers/ContextProvider/AppProvider";
+import roomServices from "@/services/roomServices";
+import { HttpStatusCode } from "axios";
+import dayjs from "dayjs";
+import React, { useContext, useEffect, useState } from "react";
 import Modal from ".";
 import Button from "../Button";
-import MultiSelectDropdown from "../MultiSelectDropdown";
+import MultiSelectDropdown, { OptionType } from "../MultiSelectDropdown";
 
 interface ModalConfirmProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm?: () => void;
+  onConfirm?: (scheduleData: ICreateScheduleRoom, roomId?: string) => void;
+  roomId?: string;
   confirmText?: string;
   cancelText?: string;
   title?: React.ReactNode;
@@ -16,26 +23,51 @@ const ModalGameTimer = ({
   isOpen,
   onClose,
   onConfirm,
+  roomId,
   confirmText = "Xác nhận",
   cancelText = "Huỷ bỏ",
   isLoading = false,
   title = "Bạn có chắc chắn muốn thực hiện hành động này không?",
 }: ModalConfirmProps) => {
-  const [startDate, setStartDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  });
-  const [startTime, setStartTime] = useState(
-    () => {
-      const today = new Date();
-      return today.toTimeString().split(' ')[0].slice(0, 5);
+  const { appState } = useContext(AppContext);
+  const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
+  const [startTime, setStartTime] = useState(dayjs().format("HH:mm"));
+  const [selectedChannels, setSelectedChannels] = useState<IChannelInfo[]>([]);
+  const [isNotify, setIsNotify] = useState(false);
+
+  useEffect(() => {
+    if (!roomId)
+      return;
+    (async () => {
+      try {
+          const response = await roomServices.getScheduledRoom(roomId);
+          if (response.statusCode !== HttpStatusCode.Ok) {
+            console.error("Error fetching scheduled room data:", response.message);
+            return;
+          }
+          const roomData = response.data;
+          setStartDate(dayjs(roomData?.scheduledAt).format("YYYY-MM-DD"));
+          setStartTime(dayjs(roomData?.scheduledAt).format("HH:mm"));
+          setIsNotify(roomData?.isNotifyEnabled || false);
+          setSelectedChannels(roomData?.channels || []);
+      }
+      catch (error) {
+        console.error("Error fetching scheduled room data:", error);
+      }
+    })()
+  }, [roomId]);
+  
+  const handleConfirm = () => {
+    if (onConfirm) {
+      const scheduleData: ICreateScheduleRoom = {
+        scheduledAt: dayjs(`${startDate} ${startTime}`).toDate(),
+        isNotifyEnabled: isNotify, 
+        channels: selectedChannels,
+      };
+      onConfirm(scheduleData, roomId);
     }
-  );
-  const getFullDateTime = () => {
-    const [year, month, day] = startDate.split("-");
-    return `Trò chơi sẽ bắt đầu vào lúc: ${startTime} ngày ${day} tháng ${month} năm ${year}`;
-  };
-  console.log("startDate", getFullDateTime());
+  }
+
   return (
     <Modal
       isOpen={isOpen}
@@ -45,10 +77,10 @@ const ModalGameTimer = ({
       headerClassName='flex items-center justify-center font-bold text-lg font-coiny'
     >
       <div className='text-white text-sm font-coiny'>
-        <div className='text-center mt-4 text-xl'>{title}</div>
+        <div className='text-center mt-2 text-xl'>{title}</div>
         <div className="mt-10">
-          <p className="text-xl font-coiny ">Hẹn giờ bắt đầu trò chơi </p>
-          <div className="flex gap-3 justify-center items-center">
+          <p className="text-lg font-coiny">Thiết lập thời gian</p>
+          <div className="flex flex-wrap gap-3 justify-center items-center">
             <input
               type="time"
               name="timer"
@@ -63,30 +95,48 @@ const ModalGameTimer = ({
               onChange={(e) => setStartDate(e.target.value)}
               className="text-xl px-4 py-2 rounded-xl bg-purple-700 text-white font-bold shadow-lg outline-none border-2 border-purple-400 focus:ring-4 focus:ring-purple-300 hover:bg-purple-600 transition-all duration-200 w-full cursor-pointer text-center"
             />
-
           </div>
         </div>
         <div className="flex flex-col">
-          <div className=" mt-4">
-            <p className="text-xl font-coiny ">Chanel bạn muốn gửi lời mời </p>
+          <div className="mt-4">
+            <p className="text-lg font-coiny">Chọn channels cần thông báo</p>
             <MultiSelectDropdown
               dropdownPosition='bottom'
-              options={['Vinh ', 'Ha Noi1 ', 'Quy Nhon', 'Nha cua chung', 'Ha Noi2', 'Ha Noi3'].map((item) => ({ label: item, value: item }))}
-              onSelect={() => { }} />
+              selectedValues={selectedChannels?.map((item) => item.channelId) || []}
+              options={appState.channelList?.map((item) => ({ label: item.channelName!, value: item.channelId! })) || []}
+              onSelect={(selectedOptions: OptionType[]) => {
+                const selectedChannels = appState.channelList?.filter((item) =>
+                  selectedOptions.some((option) => option.value === item.channelId)
+                );
+                setSelectedChannels(selectedChannels || []);
+              }}
+            />
           </div>
-          <div className=" mt-4">
-            <p className="text-xl font-coiny ">Clan bạn muốn gửi lời mời </p>
-            <MultiSelectDropdown
-              dropdownPosition='bottom'
-              options={['KOMU', 'KAHOOT'].map((item) => ({ label: item, value: item }))}
-              onSelect={() => { }} />
+          <div className="mt-4 flex items-center gap-2">
+            <label htmlFor="send-notify-checkbox" className="relative w-5 h-5 cursor-pointer">
+              <input
+                onChange={(e) => setIsNotify(e.target.checked)}
+                checked={isNotify}
+                type="checkbox"
+                className="peer w-full h-full cursor-pointer transition-all appearance-none rounded shadow hover:shadow-md border border-slate-300 checked:bg-amber-600 checked:border-amber-600"
+                id="send-notify-checkbox"
+              />
+              <span className="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" strokeWidth="1">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                </svg>
+              </span>
+            </label>
+            <label htmlFor="send-notify-checkbox" className="text-md font-coiny text-slate-300 peer-checked:text-slate-200 cursor-pointer select-none">
+              Gửi thông báo đến channels đã chọn
+            </label>
           </div>
         </div>
         <div className='flex justify-center gap-3 mt-4'>
           <Button onClick={onClose} className='text-center bg-[#ded525] font-coiny '>
             {cancelText}
           </Button>
-          <Button isLoading={isLoading} onClick={onConfirm} className='text-center bg-[#e93d3d] font-coiny '>
+          <Button isLoading={isLoading} onClick={handleConfirm} className='text-center bg-[#e93d3d] font-coiny '>
             {confirmText}
           </Button>
         </div>

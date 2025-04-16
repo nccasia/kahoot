@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import Modal from ".";
 import Button from "../Button";
@@ -5,7 +6,8 @@ import Button from "../Button";
 interface ModalConfirmProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm?: () => void;
+  onConfirm?: (data?: any) => void;
+  modalData?: any
   confirmText?: string;
   cancelText?: string;
   title?: React.ReactNode;
@@ -15,11 +17,22 @@ const ModalConfirm = ({
   isOpen,
   onClose,
   onConfirm,
+  modalData,
   confirmText = "Xác nhận",
   cancelText = "Huỷ bỏ",
   isLoading = false,
   title = "Bạn có chắc chắn muốn thực hiện hành động này không?",
 }: ModalConfirmProps) => {
+
+  const handleConfirm = () => {
+    if (onConfirm && modalData) {
+      onConfirm(modalData)
+      return
+    }
+    if (onConfirm) {
+      onConfirm()
+    }
+  }
   return (
     <Modal
       isOpen={isOpen}
@@ -36,7 +49,7 @@ const ModalConfirm = ({
           <Button onClick={onClose} className='text-center bg-[#ded525] font-coiny '>
             {cancelText}
           </Button>
-          <Button isLoading={isLoading} onClick={onConfirm} className='text-center bg-[#e93d3d] font-coiny '>
+          <Button isLoading={isLoading} onClick={handleConfirm} className='text-center bg-[#e93d3d] font-coiny '>
             {confirmText}
           </Button>
         </div>

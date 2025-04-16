@@ -1,9 +1,11 @@
+import { EQuestionErrorTypes } from '@/constants/QuestionErrorTypes';
 export interface IAnswerOption {
   options: string[];
   correctIndex: number | null;
   correctIndexes: number[] | null;
   // answerText?: string;
 }
+
 export interface IQuestion {
   id?: string;
   mode: string;
@@ -13,7 +15,7 @@ export interface IQuestion {
   gameId?: string;
   answerOptions: IAnswerOption;
   answerText?: string;
-  isError?: boolean;
+  questionStatus: EQuestionErrorTypes;
   imageFile?: File;
   image?: string;
 }
