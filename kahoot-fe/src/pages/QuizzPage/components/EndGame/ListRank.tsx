@@ -6,37 +6,24 @@ interface ListRankProps {
 }
 const ListRank = ({ userRankings, totalQuestion }: ListRankProps) => {
   return (
-    <div className='w-full max-w-[800px] mt-3 px-4 py-2'>
-      {[
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-        ...userRankings,
-      ]?.map((userRanking, index) => (
+    <div className='w-full max-w-[800px] mt-3 px-2 md:px-4 py-2'>
+      {userRankings?.map((userRanking, index) => (
         <div
           key={index}
-          className='flex font-coiny w-full bg-[#00020dad] rounded-sm p-2 mb-2 min-h-[50px] items-center cursor-pointer filter hover:brightness-125 hover:bg-[#00020d]'
+          className='flex flex-col gap-2 md:flex-row font-coiny w-full bg-[#00020dad] rounded-md p-2 mb-2 min-h-[50px] items-center justify-center cursor-pointer filter hover:brightness-125 hover:bg-[#00020d]'
         >
-          <div className='w-[50px]'>
-            <span>{index + 1}</span>
+          <div className="flex w-full justify-between items-center">
+            <div className='w-[50px]'>
+              <span>{index + 1}</span>
+            </div>
+            <div className='min-w-[200px]'>
+              <span>{userRanking?.userName}</span>
+            </div>
+            <div className='w-[100px]'>
+              <span>{userRanking?.totalPoint}</span>
+            </div>
           </div>
-          <div className='w-[200px]'>
-            <span>{userRanking?.userName}</span>
-          </div>
-          <div className='w-[100px]'>
-            <span>{userRanking?.totalPoint}</span>
-          </div>
-          <div className='flex-1'>
+          <div className='w-full flex justify-center items-center'>
             <div className='w-full bg-[#ff0000c7] h-[25px] rounded-md text-start relative overflow-hidden'>
               <div
                 className={`h-full inline-block bg-[#077f05]`}
@@ -53,9 +40,7 @@ const ListRank = ({ userRankings, totalQuestion }: ListRankProps) => {
               </div>
             </div>
           </div>
-          <div className='w-[50px]'>
-            <span>&#10006;</span>
-          </div>
+          
         </div>
       ))}
     </div>

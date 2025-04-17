@@ -101,12 +101,19 @@ export class RoomGateway
 
     scheduledRooms.forEach(async (room) => {
       const channels = room?.channels;
+      const clanId = room?.clanId;
+      const channelId = room?.channelId;
+      const textMessage = room?.textMessage;
+
       if (new Date(room.scheduledAt) > new Date()) {
         scheduleJob(room.id, new Date(room.scheduledAt), async () => {
           if (room.isNotifyEnabled) {
-            await this.mezonClientService.sendRoomCodeToChanneles(
+            await this.mezonClientService.sendEventChanneles(
               room.code,
               channels,
+              clanId,
+              channelId,
+              textMessage,
             );
           }
           await this.roomsRepository.update(
@@ -118,9 +125,12 @@ export class RoomGateway
       }
       // ? If the scheduled time is in the past, we can start the game immediately
       if (room.isNotifyEnabled) {
-        await this.mezonClientService.sendRoomCodeToChanneles(
+        await this.mezonClientService.sendEventChanneles(
           room.code,
           channels,
+          clanId,
+          channelId,
+          textMessage,
         );
       }
       await this.roomsRepository.update(

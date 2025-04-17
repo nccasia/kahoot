@@ -16,6 +16,24 @@ export class CreateScheduleRoomDto extends CreateRoomDto {
   @Expose()
   isNotifyEnabled?: boolean;
 
+  @ApiProperty({ type: String })
+  @ValidateIf((o) => o.isNotifyEnabled === true)
+  @IsNotEmpty()
+  @Expose()
+  clanId?: string;
+
+  @ApiProperty({ type: String })
+  @ValidateIf((o) => o.isNotifyEnabled === true)
+  @IsNotEmpty()
+  @Expose()
+  channelId?: string;
+
+  @ApiProperty({ type: String })
+  @ValidateIf((o) => o.isNotifyEnabled === true)
+  @IsNotEmpty()
+  @Expose()
+  textMessage?: string;
+
   @ApiProperty({ type: MezonChannel, isArray: true })
   @ValidateIf((o) => o.isNotifyEnabled === true)
   @IsNotEmpty()
@@ -34,6 +52,12 @@ export class UpdateScheduleRoomDto {
   @IsNotEmpty()
   @Expose()
   isNotifyEnabled?: boolean;
+
+  @ApiProperty({ type: String })
+  @ValidateIf((o) => o.isNotifyEnabled === true)
+  @IsNotEmpty()
+  @Expose()
+  textMessage?: string;
 
   @ApiProperty({ type: MezonChannel, isArray: true })
   @ValidateIf((o) => o.isNotifyEnabled === true)

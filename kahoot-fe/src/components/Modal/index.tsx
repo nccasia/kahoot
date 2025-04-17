@@ -25,7 +25,7 @@ const Modal = ({
     {isOpen && (
       <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
         <div
-          className='bg-[#402a97] shadow-md shadow-cyan-700 text-white min-h-[100px] rounded-lg w-[95%] max-w-[500px] transform fadeIn relative'
+          className='bg-[#402a97] shadow-md shadow-cyan-700 text-white min-h-[100px] rounded-lg w-[95%] max-w-[500px] max-h-[95vh] transform fadeIn relative overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
           style={{ animationDelay: "unset", animationDuration: "0.2s" }}
         >
           {showHeader && (

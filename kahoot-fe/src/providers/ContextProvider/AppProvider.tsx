@@ -26,7 +26,7 @@ const AppProvider = ({ children }: { children: React.ReactNode }): JSX.Element =
       if (!data) return;
       const channelData: IChannelInfo = {
         clanId: data.clan_id,
-        channelId: data.app_channel_id,
+        channelId: data.channel_id,
       };
       setChannelData(channelData);
     });

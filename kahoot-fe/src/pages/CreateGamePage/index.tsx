@@ -35,7 +35,7 @@ const CreateGamePage = () => {
       id,
       mode: EQuestionTypes.SINGLE_CHOICE,
       title: "",
-      time: 30,
+      time: 10,
       answerOptions: {
         options: ["", "", "", ""],
         correctIndex: null,

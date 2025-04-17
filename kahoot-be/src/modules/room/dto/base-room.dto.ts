@@ -44,6 +44,18 @@ export class BaseScheduledRoomDto extends BaseRoomDto {
   @Expose()
   isNotifyEnabled?: boolean;
 
+  @ApiProperty({ type: String })
+  @Expose()
+  clanId?: string;
+
+  @ApiProperty({ type: String })
+  @Expose()
+  channelId?: string;
+
+  @ApiProperty({ type: String })
+  @Expose()
+  textMessage?: string;
+
   @ApiProperty({ type: MezonChannel, isArray: true })
   @Expose()
   channels?: MezonChannel[];

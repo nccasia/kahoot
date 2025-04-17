@@ -1,3 +1,4 @@
+import { QueryOptions } from "@/constants/QueryOption";
 import { AppActionType } from "@/interfaces/appTypes";
 import { IGame } from "@/interfaces/gameTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
@@ -206,7 +207,7 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
     }
     case GAME_TYPE.ADD_ROOM: {
       const listRooms = state.listRooms;
-      if (listRooms.length == 5) {
+      if (listRooms.length == QueryOptions.MAX_HISTORY_SIZE) {
         listRooms.pop();
       }
       return {

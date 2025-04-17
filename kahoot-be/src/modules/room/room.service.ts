@@ -91,12 +91,19 @@ export class RoomService {
       //? Implement the logic to start the game here
       //? For example, you can update the room status to "Waiting"
       //? and notify the users in the channels
+      const clanId = createRoomDto.clanId;
+      const channelId = createRoomDto.channelId;
+      const textMessage = createRoomDto.textMessage;
+
       const channels = createRoomDto.channels;
       const isNotifyEnabled = createRoomDto.isNotifyEnabled;
       if (isNotifyEnabled && channels && channels.length > 0) {
-        await this.mezonClientService.sendRoomCodeToChanneles(
+        await this.mezonClientService.sendEventChanneles(
           roomCode,
           channels,
+          clanId,
+          channelId,
+          textMessage,
         );
       }
       await this.roomRepository.update(
@@ -161,12 +168,19 @@ export class RoomService {
     const scheduleTime = new Date(updateRoomDto.scheduledAt);
     scheduleJob(room.id, scheduleTime, async () => {
       //? Implement the logic to start the game here
+      const clanId = room.clanId;
+      const channelId = room.channelId;
+      const textMessage = updateRoomDto.textMessage;
+
       const channels = room.channels;
       const isNotifyEnabled = room.isNotifyEnabled;
       if (isNotifyEnabled && channels && channels.length > 0) {
-        await this.mezonClientService.sendRoomCodeToChanneles(
+        await this.mezonClientService.sendEventChanneles(
           room.code,
           channels,
+          clanId,
+          channelId,
+          textMessage,
         );
       }
       await this.roomRepository.update(
@@ -178,6 +192,7 @@ export class RoomService {
       ...room,
       status: RoomStatus.Scheduled,
       scheduledAt: updateRoomDto.scheduledAt,
+      textMessage: updateRoomDto.textMessage,
       channels: updateRoomDto.channels,
     });
     return plainToInstance(

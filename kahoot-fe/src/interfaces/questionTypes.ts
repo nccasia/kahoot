@@ -41,6 +41,7 @@ export interface IQuestionGame {
   order?: number;
   imageFile?: File | null;
   image?: string | null;
+  questionStatus: EQuestionErrorTypes;
 }
 
 export interface ISendAnswerDTO {

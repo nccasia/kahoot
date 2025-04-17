@@ -10,12 +10,18 @@ export interface IRoom {
   isOwner: boolean;
   scheduledAt?: Date
   isNotifyEnabled?: boolean;
+  clanId?: string;
+  channelId?: string;
+  textMessage?: string;
   channels?: IChannelInfo[];
   createdAt: string;
   updatedAt: string;
 }
 export interface ICreateScheduleRoom {
   scheduledAt: Date;
+  clanId?: string;
+  channelId?: string;
+  textMessage?: string;
   isNotifyEnabled?: boolean;
   channels?: IChannelInfo[];
 }

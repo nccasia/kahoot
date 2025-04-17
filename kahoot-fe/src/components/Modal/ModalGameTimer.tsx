@@ -1,3 +1,4 @@
+import RichTextBox from "@/components/RichTextbox";
 import { IChannelInfo } from "@/interfaces/appTypes";
 import { ICreateScheduleRoom } from "@/interfaces/roomTypes";
 import { AppContext } from "@/providers/ContextProvider/AppProvider";
@@ -8,7 +9,6 @@ import React, { useContext, useEffect, useState } from "react";
 import Modal from ".";
 import Button from "../Button";
 import MultiSelectDropdown, { OptionType } from "../MultiSelectDropdown";
-
 interface ModalConfirmProps {
   isOpen: boolean;
   onClose: () => void;
@@ -34,6 +34,8 @@ const ModalGameTimer = ({
   const [startTime, setStartTime] = useState(dayjs().format("HH:mm"));
   const [selectedChannels, setSelectedChannels] = useState<IChannelInfo[]>([]);
   const [isNotify, setIsNotify] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState<string>("")
+  const [openModalShowNotify, setOpenModalShowNotify] = useState<boolean>(false)
 
   useEffect(() => {
     if (!roomId)
@@ -49,6 +51,7 @@ const ModalGameTimer = ({
           setStartDate(dayjs(roomData?.scheduledAt).format("YYYY-MM-DD"));
           setStartTime(dayjs(roomData?.scheduledAt).format("HH:mm"));
           setIsNotify(roomData?.isNotifyEnabled || false);
+          setNotifyMessage(roomData?.textMessage || "");
           setSelectedChannels(roomData?.channels || []);
       }
       catch (error) {
@@ -62,6 +65,7 @@ const ModalGameTimer = ({
       const scheduleData: ICreateScheduleRoom = {
         scheduledAt: dayjs(`${startDate} ${startTime}`).toDate(),
         isNotifyEnabled: isNotify, 
+        textMessage: notifyMessage,
         channels: selectedChannels,
       };
       onConfirm(scheduleData, roomId);
@@ -80,20 +84,20 @@ const ModalGameTimer = ({
         <div className='text-center mt-2 text-xl'>{title}</div>
         <div className="mt-10">
           <p className="text-lg font-coiny">Thiết lập thời gian</p>
-          <div className="flex flex-wrap gap-3 justify-center items-center">
+          <div className="flex flex-wrap sm:flex-nowrap gap-3 justify-center items-center">
             <input
               type="time"
               name="timer"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="text-xl px-4 py-2 rounded-xl bg-purple-700 text-white font-bold shadow-lg outline-none border-2 border-purple-400 focus:ring-4 focus:ring-purple-300 hover:bg-purple-600 transition-all duration-200 w-full cursor-pointer text-center"
+              className="text-xl px-4 py-2 rounded-xl bg-purple-700 text-white font-bold shadow-lg outline-none border-2 border-purple-400 focus:ring-4 focus:ring-purple-300 hover:bg-purple-600 transition-all duration-200 w-full min-w-[200px] cursor-pointer text-center"
             />
             <input
               type="date"
               name="timer"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="text-xl px-4 py-2 rounded-xl bg-purple-700 text-white font-bold shadow-lg outline-none border-2 border-purple-400 focus:ring-4 focus:ring-purple-300 hover:bg-purple-600 transition-all duration-200 w-full cursor-pointer text-center"
+              className="text-xl px-4 py-2 rounded-xl bg-purple-700 text-white font-bold shadow-lg outline-none border-2 border-purple-400 focus:ring-4 focus:ring-purple-300 hover:bg-purple-600 transition-all duration-200 w-full min-w-[200px] cursor-pointer text-center"
             />
           </div>
         </div>
@@ -132,6 +136,13 @@ const ModalGameTimer = ({
             </label>
           </div>
         </div>
+        <div className="mt-3">
+          <div className="flex justify-between">
+            <p className="text-lg font-coiny">Nội dung thông báo</p>
+            <img onClick={() => setOpenModalShowNotify(true)} alt="icon-eye" src="/icons/icon-eye.png" className="w-[25px] cursor-pointer" />
+          </div>
+          <RichTextBox value={notifyMessage} onChange={(e) => setNotifyMessage(e.target.value)} rows={7} className="rounded-md border-[2px] w-full min-h-[200px] text-justify text-sm"></RichTextBox>
+        </div>
         <div className='flex justify-center gap-3 mt-4'>
           <Button onClick={onClose} className='text-center bg-[#ded525] font-coiny '>
             {cancelText}
@@ -140,6 +151,23 @@ const ModalGameTimer = ({
             {confirmText}
           </Button>
         </div>
+        <Modal
+          isOpen={openModalShowNotify}
+          onClose={() => {setOpenModalShowNotify(false)}}
+          showHeader={false}
+          showCloseButton={true}
+          headerClassName='flex items-center justify-center font-bold text-lg font-coiny z-[1000]'
+        >
+          <div className="mt-3">
+            <div className="rounded whitespace-pre-wrap text-justify">
+              {notifyMessage}
+            </div>
+            <div className="mt-3 border-t-2 pt-2">
+              <p className="font-coiny text-justify">Hãy nhập mã ... hoặc quét mã QR bằng ứng dụng Mezon để tham gia</p>
+              <img alt="icon-qr" src="/icons/icon-qr-code.png" className="w-[180px]" />
+            </div>
+          </div>
+        </Modal>
       </div>
     </Modal>
   );

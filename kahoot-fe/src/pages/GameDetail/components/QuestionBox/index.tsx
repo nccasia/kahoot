@@ -1,3 +1,4 @@
+import { EQuestionErrorTypes } from "@/constants/QuestionErrorTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import GameActions from "@/stores/gameStore/gameAction";
@@ -5,7 +6,6 @@ import generateId from "@/utils/functions/generateId";
 import { useCallback, useContext } from "react";
 import { toast } from "react-toastify";
 import QuestionItem from "../QuestionItem";
-
 interface QuestionItemProps {
   questions: IQuestion[];
   gameId: string;
@@ -20,7 +20,6 @@ const QuestionBox = ({ questions, gameId }: QuestionItemProps) => {
 
   const handleUpdateQuestion = useCallback(
     (question: IQuestion) => {
-      console.log(question);
       gameDispatch(GameActions.changeIsUpdateQuestionOfGame(true));
       gameDispatch(GameActions.changeSelectedQuestion(question.id ?? ""));
       gameDispatch(GameActions.changeOldQuestionData(question));
@@ -38,12 +37,13 @@ const QuestionBox = ({ questions, gameId }: QuestionItemProps) => {
       id,
       mode: "single_choice",
       title: "",
-      time: 30,
+      time: 10,
       answerOptions: {
         options: ["", "", "", ""],
         correctIndex: null,
         correctIndexes: null,
       },
+      questionStatus: EQuestionErrorTypes.NO_ERROR
     };
     gameDispatch(GameActions.addQuestion([newQuestion]));
     gameDispatch(GameActions.changeSelectedQuestion(id));

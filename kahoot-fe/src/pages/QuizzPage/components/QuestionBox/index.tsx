@@ -23,20 +23,20 @@ const submitLabel = {
   [EQuestionTypes.SINGLE_CHOICE]: (
     <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
       <span>Bạn hãy chọn</span>
-      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>một đáp án</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm'>một đáp án</span>
       <span> cho câu hỏi này!</span>
     </div>
   ),
   [EQuestionTypes.MULTIPLE_CHOICE]: (
     <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
       <span>Bạn có thể chọn</span>
-      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>nhiều đáp án</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm'>nhiều đáp án</span>
       <span> cho câu hỏi này!</span>
     </div>
   ),
   [EQuestionTypes.TEXT]: (
     <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
-      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>Nhập đáp án</span>
+      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm'>Nhập đáp án</span>
       <span> Và nhấn submit để trả lời!</span>
     </div>
   ),
@@ -92,9 +92,9 @@ const QuestionBox = ({
         </div>
       )}
       {!isOwner && (
-        <div className='flex items-center justify-between w-full'>
+        <div className='flex flex-col sm:flex-row items-center justify-between w-full'>
           <span>{question?.mode && submitLabel[question?.mode as EQuestionTypes]}</span>
-          <Button onClick={() => onSendAnswer(question?.id ?? "")} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
+          <Button onClick={() => onSendAnswer(question?.id ?? "")} className='bg-[#6B00E7] rounded-md min-w-[50px] mt-3'>
             Submit
           </Button>
         </div>

@@ -2,10 +2,12 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import SelectDropdown from "@/components/SelectDropdown";
 import { EQuestionTypes, questionTypeOptions } from "@/constants/QuestionTypes";
+import timeOptions from "@/constants/TimeOptions";
 import { IQuestion } from "@/interfaces/questionTypes";
 import ImagePreview from "@/pages/QuizzPage/ShowImage/ImagePreview";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
+
 interface IQuestionContentProps {
   question: IQuestion;
   handleUpdateQuestion: (question: IQuestion) => void;
@@ -19,15 +21,7 @@ interface IQuestionContentProps {
   handleDeleteQuestion?: (questionId: string) => void;
 
 }
-const timeOptions: Array<{
-  label: string;
-  value: number;
-}> = [
-    { label: "15s", value: 15 },
-    { label: "30s", value: 30 },
-    { label: "45s", value: 45 },
-    { label: "60s", value: 60 },
-  ];
+
 const QuestionContent = ({
   question,
   onOpenModalConfirmDeleteQuestion,
@@ -146,7 +140,6 @@ const QuestionContent = ({
         };
         changeDataUpdate(newQuestion);
         if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
-        console.log("newQuestion", newQuestion);
       } catch (error) {
         console.error("Lỗi upload ảnh:", error);
       }
@@ -390,27 +383,23 @@ const QuestionContent = ({
           </>
         ) : (
           <div className='mt-2'>
-            <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
-              {dataUpdate.image && (
-                <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
-                  <div className="border-2 border-gray-100 rounded-md p-2 w-fit">
-                    <div className="flex-1 max-w-full max-h-[250px]">
-                      <ImagePreview
-                        src={dataUpdate.image}
-                        classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
-                        classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[80vh] object-contain p-4"
-                      />
-                    </div>
+            {dataUpdate.image && (
+              <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
+                <div className="border-2 border-gray-100 rounded-md p-2 w-fit">
+                  <div className="flex-1 max-w-full max-h-[250px]">
+                    <ImagePreview
+                      src={dataUpdate.image}
+                      classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
+                      classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[80vh] object-contain p-4"
+                    />
                   </div>
                 </div>
-              )}
-
-
-            </div>
+              </div>
+            )}
 
             {dataUpdate.mode === EQuestionTypes.TEXT ? (
-              <div className='flex items-center flex-wrap gap-2 min-h-[30px] font-coiny'>
-                <span className='flex-1 text-start'>{dataUpdate.answerText || "Chưa có đáp án"}</span>
+              <div className='flex items-center flex-wrap gap-2 min-h-[30px] font-coiny mt-2'>
+                Đáp án: <span className='flex-1 text-start'>{dataUpdate.answerText || "Chưa có đáp án"}</span>
               </div>
             ) : (
               dataUpdate.answerOptions?.options.map((option, index) => (

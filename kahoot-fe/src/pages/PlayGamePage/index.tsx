@@ -13,7 +13,7 @@ const PlayGame = () => {
     useEffect(() => {
         const roomCode = searchParams.get("code") || searchParams.get("roomId"); 
         if (!socket) {
-            navigate(ROUTES.HOME);
+            // navigate(ROUTES.HOME);
             return;
         }
         if (!roomCode) {

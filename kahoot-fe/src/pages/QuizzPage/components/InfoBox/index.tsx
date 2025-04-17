@@ -16,9 +16,6 @@ const InfoBox = () => {
     if (!roomState.currentQuestion?.id) return;
     const endTime = new Date(roomState.currentQuestion.endTime);
     const currentTime = new Date();
-
-    console.log("endTime", endTime);
-    console.log("currentTime", currentTime);
     const timeRemaining = endTime.getTime() - currentTime.getTime();
 
     // Chuyển đổi sang giây

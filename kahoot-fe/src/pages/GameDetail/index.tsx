@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import ModalConfirm from "@/components/Modal/ModalConfirm";
+import { QueryOptions } from "@/constants/QueryOption";
 import { AuthContext } from "@/providers/ContextProvider/AuthProvider";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import { ROUTES } from "@/routes/routePath";
@@ -21,7 +22,7 @@ const GameDetail = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (!gameId) return;
-    const getGameById = async () => {
+    (async () => {
       try {
         const response = await gameServices.getGameById(gameId);
         if (response.statusCode !== 200) {
@@ -32,8 +33,9 @@ const GameDetail = () => {
       } catch (error) {
         console.log("error", error);
       }
-    };
-    const getGameQuestions = async () => {
+    })();
+
+    (async () => {
       try {
         const response = await questionServices.getGameQuestion(gameId, 1, 999, "");
         if (response.statusCode !== 200) {
@@ -44,11 +46,11 @@ const GameDetail = () => {
       } catch (error) {
         console.log("error", error);
       }
-    };
+    })();
 
-    const getRooms = async () => {
+    (async () => {
       try {
-        const response = await roomServices.getRoomOfGame(gameId, 1, 5, "", { createdAt: "desc" });
+        const response = await roomServices.getRoomOfGame(gameId, 1, QueryOptions.MAX_HISTORY_SIZE, "", { createdAt: "desc" });
         if (response.statusCode !== 200) {
           console.log("error", response);
           return;
@@ -58,11 +60,8 @@ const GameDetail = () => {
       } catch (error) {
         console.log("error", error);
       }
-    };
+    })();
 
-    getRooms();
-    getGameById();
-    getGameQuestions();
   }, [gameDispatch, gameId]);
 
   useEffect(() => {

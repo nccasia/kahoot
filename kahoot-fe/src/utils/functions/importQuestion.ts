@@ -1,5 +1,5 @@
 import { EQuestionErrorTypes } from "@/constants/QuestionErrorTypes";
-import { EQuestionTypes } from "@/constants/QuestionTypes";
+import { EQuestionTypes, questionImportTypes } from "@/constants/QuestionTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
 import PizZip from "pizzip";
 import { DOMParser } from "xmldom";
@@ -80,7 +80,6 @@ let answerText = "";
 let isEndAnswerText = false;
 function convertArrayToJSON(inputArray: string[]) {
   const newInputArray = mergeAsterisks(inputArray);
-  console.log("newInputArray", newInputArray);
   const resultArray = [];
   let currentQuestion: IQuestion | null = null;
   let currentId = 1;
@@ -95,7 +94,7 @@ function convertArrayToJSON(inputArray: string[]) {
       currentQuestion = {
         id: currentId.toString(),
         mode: "single_choice", // Default mode is single
-        time: 30, // Default time is 30 seconds
+        time: 10, // Default time is 10 seconds
         answerOptions: {
           options: [],
           correctIndex: null,
@@ -111,7 +110,6 @@ function convertArrayToJSON(inputArray: string[]) {
       isCheckMode = false; // Reset check mode for each question
     }
 
-    // console.log("currentItem", currentItem);
     if (answerRegex.test(currentItem) || (correctAnswerRegex.test(currentItem) && currentQuestion !== null)) {
       currentQuestion?.answerOptions?.options?.push(currentItem.replace(answerRegex, "").trim());
       if (correctAnswerRegex.test(currentItem) && currentQuestion !== null) {
@@ -155,13 +153,13 @@ function convertArrayToJSON(inputArray: string[]) {
         .trim()
         .toUpperCase();
       switch (modeMatch.trim()) {
-        case "SQ":
+        case questionImportTypes[EQuestionTypes.SINGLE_CHOICE]:
           currentQuestion.mode = EQuestionTypes.SINGLE_CHOICE;
           break;
-        case "MQ":
+        case questionImportTypes[EQuestionTypes.MULTIPLE_CHOICE]:
           currentQuestion.mode = EQuestionTypes.MULTIPLE_CHOICE;
           break;
-        case "TQ":
+        case questionImportTypes[EQuestionTypes.TEXT]:
           currentQuestion.mode = EQuestionTypes.TEXT;
           break;
         default:

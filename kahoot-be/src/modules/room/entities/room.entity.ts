@@ -52,6 +52,24 @@ export class Room extends AbstractEntity {
 
   @ApiProperty()
   @ValidateIf((o) => o.isNotifyEnabled === true)
+  @IsString()
+  @Column({ nullable: true })
+  clanId?: string;
+
+  @ApiProperty()
+  @ValidateIf((o) => o.isNotifyEnabled === true)
+  @IsString()
+  @Column({ nullable: true })
+  channelId?: string;
+
+  @ApiProperty()
+  @ValidateIf((o) => o.isNotifyEnabled === true)
+  @IsString()
+  @Column({ nullable: true, type: 'text' })
+  textMessage?: string;
+
+  @ApiProperty()
+  @ValidateIf((o) => o.isNotifyEnabled === true)
   @IsNotEmpty()
   @Column('json', { nullable: true })
   channels?: MezonChannel[];

@@ -1,10 +1,12 @@
 import Button from "@/components/Button";
 import ModalConfirm from "@/components/Modal/ModalConfirm";
 import ModalGameTimer from "@/components/Modal/ModalGameTimer";
+import { QueryOptions } from "@/constants/QueryOption";
 import { ERoomStatus, RoomStatus, RoomStatusColor } from "@/constants/RoomStatus";
 import SocketEvents from "@/constants/SocketEvents";
 import { IGame } from "@/interfaces/gameTypes";
 import { ICreateScheduleRoom, IRoom } from "@/interfaces/roomTypes";
+import { AppContext } from "@/providers/ContextProvider/AppProvider";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
 import { useSocket } from "@/providers/SocketProvider";
 import { ROUTES } from "@/routes/routePath";
@@ -26,6 +28,7 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
   const navigate = useNavigate();
   const socket = useSocket();
   const { gameState, gameDispatch } = useContext(GameContext);
+  const { appState } = useContext(AppContext);
   const [openModalGameTimer, setOpenModalGameTimer] = useState(false);
   const [openModalUpdateGameTimer, setOpenModalUpdateGameTimer] = useState(false);
   const [openModalConfirm, setOpenModalConfirm] = useState(false);
@@ -65,13 +68,20 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
     if (!gameInfo?.id) {
       return;
     }
-    const response = await roomServices.createScheduleRoom(gameInfo?.id, scheduleData)
+    
+    const response = await roomServices.createScheduleRoom(gameInfo?.id, {
+      ...scheduleData,
+      clanId: appState?.currentChannel?.clanId ?? "0",
+      channelId: appState?.currentChannel?.channelId ?? "0",
+    })
+
     if (response.statusCode !== HttpStatusCode.Created) {
       console.log("error", response);
       toast.error("Tạo phòng không thành công");
       return;
     }
     const roomData = response?.data as IRoom;
+    
     gameDispatch(GameActions.addRoom(roomData));
     toast.success("Tạo phòng thành công");
     setOpenModalGameTimer(false);
@@ -116,7 +126,7 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
     if (!gameInfo?.id) {
       return;
     }
-    const response = await roomServices.getRoomOfGame(gameInfo.id, 1, 5, "", { createdAt: "desc" });
+    const response = await roomServices.getRoomOfGame(gameInfo.id, 1, QueryOptions.MAX_HISTORY_SIZE, "", { createdAt: "desc" });
     if (response.statusCode !== HttpStatusCode.Ok) {
       console.log("error", response);
       return;

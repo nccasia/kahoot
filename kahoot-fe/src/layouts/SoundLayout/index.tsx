@@ -27,7 +27,6 @@ const SoundLayout = () => {
         console.error("Autoplay failed:", err);
       }
     };
-    console.log("isPlayBgSound", isPlayBgSound);
     playAudio();
   }, [isPlayBgSound]);
 
