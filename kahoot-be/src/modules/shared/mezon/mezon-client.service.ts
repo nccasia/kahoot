@@ -51,9 +51,9 @@ export class MezonClientService {
             t: message ?? 'Tham gia trò chơi Đố Bạn cùng NCC',
             embed: [
               {
-                title: 'Tham gia trò chơi Đố Bạn cùng NCC',
+                title: 'Tham gia trò chơi Đố Bạn tại đây',
                 url: playLink,
-                description: `Hãy nhập mã: ${roomCode} hoặc quét mã QR bằng ứng dụng Mezon để tham gia`,
+                description: `Nhập mã: ${roomCode} hoặc quét mã QR bằng ứng dụng Mezon để tham gia trên thiết bị di động`,
                 image: {
                   url: qrCodeURL,
                 },
