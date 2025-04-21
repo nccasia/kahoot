@@ -5,6 +5,7 @@ import CreateGameTypePage from "@/pages/CreateGameTypePage";
 import GameDetail from "@/pages/GameDetail";
 import HomePage from "@/pages/HomePage";
 import ListGamePage from "@/pages/ListGamePage";
+import PlayGame from "@/pages/PlayGamePage";
 import QuizzPage from "@/pages/QuizzPage";
 import RoomPage from "@/pages/RoomPage";
 import SearchGamePage from "@/pages/SearchGamePage";
@@ -28,6 +29,7 @@ const AppRoutes = () => {
             <Route path={ROUTES.CREATE_GAME_TYPE} element={<CreateGameTypePage />} />
             <Route path={ROUTES.SIMULATE_GAME} element={<SimulateGame />} />
             <Route element={<RoomSocketProvider />}>
+              <Route path={ROUTES.PLAY_GAME} element={<PlayGame />} />
               <Route path={ROUTES.SEARCH_ROOM} element={<SearchGamePage />} />
               <Route element={<SoundLayout />}>
                 <Route path={ROUTES.GAME_DETAIL} element={<GameDetail />} />

@@ -18,7 +18,6 @@ const EndGame = () => {
   const top3 = useMemo(() => {
     return roomState.userRanking?.slice(0, 3);
   }, [roomState.userRanking]);
-  console.log("current room state", roomState.currentRoom);
   const handleOutGame = () => {
     navigate(ROUTES.HOME);
   };
@@ -50,7 +49,7 @@ const EndGame = () => {
       <div className='max-w-[800px] w-[100%] h-full p-2'>
         <div
           style={{ animationDelay: "unset" }}
-          className='flex bg-[#191c49] flex-col items-center h-[calc(100%-40px)] mt-[20px] shadow-xl rounded-[10px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
+          className='flex bg-[#191c49] flex-col items-center h-[calc(100%-10px)] md:h-[calc(100%-40px)] mt-[5px] md:mt-[20px] shadow-xl rounded-[10px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
         >
           <Header onOutGame={handleOutGame} onPlayAgain={handlePlayAgain} isOwner={roomState.isOwner} />
           <TopRank top3={top3} />

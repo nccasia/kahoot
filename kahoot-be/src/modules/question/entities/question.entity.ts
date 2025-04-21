@@ -12,6 +12,7 @@ import {
   IsPositive,
   IsUrl,
   IsUUID,
+  MinLength,
   ValidateIf,
 } from 'class-validator';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
@@ -39,6 +40,7 @@ export class Question extends AbstractEntity {
   time: number;
 
   @ApiProperty()
+  @MinLength(4)
   @IsNotEmpty()
   @Expose()
   @Column()

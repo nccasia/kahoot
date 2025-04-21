@@ -66,7 +66,7 @@ const QuizzPage = () => {
       {/* Scrollable main layout */}
       <div
         className={`
-          fadeIn h-[calc(100%-40px)] mt-5 bg-[#ba85ff8f] shadow-xl rounded-[40px] overflow-y-auto
+          fadeIn h-[calc(100%-10px)] md:h-[calc(100%-40px)] mt-1 bg-[#ba85ff8f] shadow-xl rounded-[20px] md:rounded-[40px] overflow-y-auto
           [&::-webkit-scrollbar]:w-[3px]
           [&::-webkit-scrollbar-thumb]:bg-transparent
           [&::-webkit-scrollbar-thumb]:rounded-lg

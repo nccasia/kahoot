@@ -14,6 +14,7 @@ import {
   QuestionMode,
   SingleChoiceAnswerOptionsDto,
 } from '@modules/question/types';
+import { MezonClientService } from '@modules/shared/mezon/mezon-client.service';
 import { User } from '@modules/user/entities/user.entity';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -32,7 +33,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import dayjs from 'dayjs';
 import * as _ from 'lodash';
-import schedule from 'node-schedule';
+import { scheduleJob } from 'node-schedule';
 import { Namespace, Socket } from 'socket.io';
 import { corsConfig } from 'src/configs/cors.config';
 import { calculatePoint } from 'src/utils';
@@ -79,6 +80,7 @@ export class RoomGateway
     private roomQuestionsRepository: Repository<RoomQuestion>,
     private roomCacheService: RoomCacheService,
     private jwtService: JwtService,
+    private mezonClientService: MezonClientService,
   ) {}
 
   async afterInit() {
@@ -92,12 +94,49 @@ export class RoomGateway
   }
 
   private async rescheduleRooms() {
-    const rooms = await this.roomsRepository.find({
+    const scheduledRooms = await this.roomsRepository.find({
       where: { status: RoomStatus.Scheduled },
-      select: ['id', 'code', 'scheduledAt', 'channelIds'],
+      select: ['id', 'code', 'status', 'scheduledAt', 'channels'],
     });
-    rooms.forEach((room) => {
-      schedule.scheduleJob(room.id, new Date(room.scheduledAt), async () => {});
+
+    scheduledRooms.forEach(async (room) => {
+      const channels = room?.channels;
+      const clanId = room?.clanId;
+      const channelId = room?.channelId;
+      const textMessage = room?.textMessage;
+
+      if (new Date(room.scheduledAt) > new Date()) {
+        scheduleJob(room.id, new Date(room.scheduledAt), async () => {
+          if (room.isNotifyEnabled) {
+            await this.mezonClientService.sendEventChanneles(
+              room.code,
+              channels,
+              clanId,
+              channelId,
+              textMessage,
+            );
+          }
+          await this.roomsRepository.update(
+            { id: room.id },
+            { status: RoomStatus.Waiting },
+          );
+        });
+        return;
+      }
+      // ? If the scheduled time is in the past, we can start the game immediately
+      if (room.isNotifyEnabled) {
+        await this.mezonClientService.sendEventChanneles(
+          room.code,
+          channels,
+          clanId,
+          channelId,
+          textMessage,
+        );
+      }
+      await this.roomsRepository.update(
+        { id: room.id },
+        { status: RoomStatus.Waiting },
+      );
     });
   }
 
@@ -203,6 +242,7 @@ export class RoomGateway
     });
     if (!room) {
       client.emit(ClientConnectionEvent.ClientError, {
+        ErrorCode: 'ROOM_NOT_FOUND',
         message: `Room with code ${roomCode} not found`,
       });
       return;
@@ -210,7 +250,16 @@ export class RoomGateway
 
     if (room.status === RoomStatus.Scheduled) {
       client.emit(ClientConnectionEvent.ClientError, {
+        ErrorCode: 'ROOM_SCHEDULED',
         message: `Room is scheduled to start at ${dayjs(room.scheduledAt).format('HH:mm DD/MM/YYYY')}`,
+      });
+      return;
+    }
+
+    if (room.status === RoomStatus.Cancelled) {
+      client.emit(ClientConnectionEvent.ClientError, {
+        ErrorCode: 'ROOM_CANCELLED',
+        message: `Room is cancelled, please contact the owner`,
       });
       return;
     }
@@ -222,7 +271,8 @@ export class RoomGateway
     if (!joined) {
       if (room?.status !== RoomStatus.Waiting) {
         client.emit(ClientConnectionEvent.ClientError, {
-          message: `Room code ${roomCode} cannot be join because it in progess or finished`,
+          ErrorCode: 'ROOM_IN_PROGRESS',
+          message: `Room cannot be join because it in progess or finished`,
         });
         return;
       }

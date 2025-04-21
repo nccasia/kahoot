@@ -18,3 +18,9 @@ export const questionTypeOptions = [
     value: EQuestionTypes.TEXT,
   },
 ];
+
+export const questionImportTypes = {
+  [EQuestionTypes.SINGLE_CHOICE]: "SINGLE",
+  [EQuestionTypes.MULTIPLE_CHOICE]: "MULTIPLE",
+  [EQuestionTypes.TEXT]: "TEXT"
+}

@@ -2,10 +2,12 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import SelectDropdown from "@/components/SelectDropdown";
 import { EQuestionTypes, questionTypeOptions } from "@/constants/QuestionTypes";
+import timeOptions from "@/constants/TimeOptions";
 import { IQuestion } from "@/interfaces/questionTypes";
 import ImagePreview from "@/pages/QuizzPage/ShowImage/ImagePreview";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
+
 interface IQuestionContentProps {
   question: IQuestion;
   handleUpdateQuestion: (question: IQuestion) => void;
@@ -19,15 +21,7 @@ interface IQuestionContentProps {
   handleDeleteQuestion?: (questionId: string) => void;
 
 }
-const timeOptions: Array<{
-  label: string;
-  value: number;
-}> = [
-    { label: "15s", value: 15 },
-    { label: "30s", value: 30 },
-    { label: "45s", value: 45 },
-    { label: "60s", value: 60 },
-  ];
+
 const QuestionContent = ({
   question,
   onOpenModalConfirmDeleteQuestion,
@@ -146,7 +140,6 @@ const QuestionContent = ({
         };
         changeDataUpdate(newQuestion);
         if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
-        console.log("newQuestion", newQuestion);
       } catch (error) {
         console.error("Lỗi upload ảnh:", error);
       }
@@ -210,27 +203,9 @@ const QuestionContent = ({
     } else {
       newQuestion.answerOptions.correctIndexes = [index];
     }
-    if (dataUpdate.isError) {
-      newQuestion.isError = !checkQuestionData(newQuestion);
-    }
     if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
   };
-  const checkQuestionData = (dataUpdate: IQuestion) => {
-    const checkAnswerOptions =
-      dataUpdate.mode !== EQuestionTypes.TEXT
-      && dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "")
-    const checkAnswerIndexes =
-      dataUpdate.mode === EQuestionTypes.MULTIPLE_CHOICE
-      && dataUpdate.answerOptions.correctIndexes && dataUpdate.answerOptions.correctIndexes.length > 0
-    const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
-    const checkAnswerText =
-      dataUpdate.mode === EQuestionTypes.TEXT
-      && dataUpdate?.answerText && dataUpdate.answerText.trim() !== ""
-    const checkCorrectIndex =
-      dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
-      && dataUpdate.answerOptions.correctIndex !== null && dataUpdate.answerOptions.correctIndex >= 0
-    return checkAnswerOptions && checkAnswerText && checkAnswerIndexes && checkTitle && checkCorrectIndex;
-  };
+  
   const [textValue, setTextValue] = useState<string>("");
   const handleFocus = (field: string | number) => {
     if (typeof field === "string") {
@@ -243,9 +218,6 @@ const QuestionContent = ({
     if (!dataUpdate) return;
     if (typeof field === "string") {
       const newQuestion = { ...dataUpdate, [field]: textValue };
-      if (dataUpdate.isError) {
-        newQuestion.isError = !checkQuestionData(newQuestion);
-      }
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     } else {
       const newOptions = [...dataUpdate.answerOptions.options];
@@ -257,14 +229,11 @@ const QuestionContent = ({
           options: newOptions,
         },
       };
-      if (dataUpdate.isError) {
-        newQuestion.isError = !checkQuestionData(newQuestion);
-      }
       if (handleUpdateQuestion) handleUpdateQuestion(newQuestion);
     }
   };
   return (
-    <div className='body p-2 font-coiny text-white'>
+    <div className='body font-coiny text-white'>
       <div className='flex flex-col gap-3'>
         {isEditing ? (
           <>
@@ -272,25 +241,27 @@ const QuestionContent = ({
               <div className='flex flex-col gap-2 w-full '>
                 <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
                   <span className='inline-block font-coiny min-w-[100px] text-start text-2xl'>Câu hỏi:</span>
-                  <Input
-                    onChange={(e) => handleChange(e, "title")}
-                    value={dataUpdate.title}
-                    className='flex-1 rounded-lg font-coiny'
-                  />
-                  <span
-                    onClick={handleAddImage}
-                    className='ml-2 w-[50px] h-[50px] flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all rounded-full border border-white'
-                  >
-                    <img className='w-[30px] h-[30px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
-                    <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
-                  </span>
+                  <div className="flex-1 flex items-center gap-2">
+                    <Input
+                      onChange={(e) => handleChange(e, "title")}
+                      value={dataUpdate.title}
+                      className='flex-1 w-[250px] rounded-lg'
+                    />
+                    <span
+                      onClick={handleAddImage}
+                      className='ml-2 w-[50px] h-[50px] flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all rounded-full border border-white'
+                    >
+                      <img className='w-[30px] h-[30px] filter brightness-0 invert' src='/icons/addimage2.png' alt='Add' />
+                      <input type='file' accept='image/*' ref={fileInputRef} className='hidden' onChange={handleImageUpload} />
+                    </span>
+                  </div>
                 </div>
 
                 <div className=' w-full flex justify-end items-center gap-3 ' >
                   <div>
                     <SelectDropdown dropdownPosition='bottom' selectedValue={dataUpdate.time} options={timeOptions} onSelect={handleChangeTime} />
                   </div>
-                  <div className="min-w-[300px]">
+                  <div className="min-w-[230px]">
                     <SelectDropdown
                       dropdownPosition='bottom'
                       selectedValue={dataUpdate.mode}
@@ -412,27 +383,23 @@ const QuestionContent = ({
           </>
         ) : (
           <div className='mt-2'>
-            <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
-              {dataUpdate.image && (
-                <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
-                  <div className="border-2 border-gray-100 rounded-md p-2 w-fit">
-                    <div className="flex-1 max-w-full max-h-[250px]">
-                      <ImagePreview
-                        src={dataUpdate.image}
-                        classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
-                        classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[80vh] object-contain p-4"
-                      />
-                    </div>
+            {dataUpdate.image && (
+              <div className="flex items-center flex-wrap gap-2 min-h-[30px] font-coiny">
+                <div className="border-2 border-gray-100 rounded-md p-2 w-fit">
+                  <div className="flex-1 max-w-full max-h-[250px]">
+                    <ImagePreview
+                      src={dataUpdate.image}
+                      classNameDefault="max-h-[200px] object-contain rounded-md cursor-pointer"
+                      classNameZoom="w-[90vw] max-w-[700px] h-auto max-h-[80vh] object-contain p-4"
+                    />
                   </div>
                 </div>
-              )}
-
-
-            </div>
+              </div>
+            )}
 
             {dataUpdate.mode === EQuestionTypes.TEXT ? (
-              <div className='flex items-center flex-wrap gap-2 min-h-[30px] font-coiny'>
-                <span className='flex-1 text-start'>{dataUpdate.answerText || "Chưa có đáp án"}</span>
+              <div className='flex items-center flex-wrap gap-2 min-h-[30px] font-coiny mt-2'>
+                Đáp án: <span className='flex-1 text-start'>{dataUpdate.answerText || "Chưa có đáp án"}</span>
               </div>
             ) : (
               dataUpdate.answerOptions?.options.map((option, index) => (

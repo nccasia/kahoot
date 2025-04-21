@@ -1,16 +1,26 @@
+import { CopyTypes } from "@/constants/CopyTypes";
+import ENV from "@/constants/Environment";
 import SocketEvents from "@/constants/SocketEvents";
+import { AppContext } from "@/providers/ContextProvider/AppProvider";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import { useSocket } from "@/providers/SocketProvider";
 import { ROUTES } from "@/routes/routePath";
 import roomServices from "@/services/roomServices";
 import RoomActions from "@/stores/roomStore/roomAction";
-import { useContext, useEffect } from "react";
+import { QRCodeSVG } from 'qrcode.react';
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Tooltip } from 'react-tooltip';
+import ModalShowQR from "./components/ModalShowQR";
 import PlayerItem from "./components/PlayerItem";
 
 const WaitingRoom = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const { roomState, roomDispatch } = useContext(RoomContext);
+  const { appState } = useContext(AppContext);
+  const [copyRoomCodeText, setCopyRoomCodeText] = useState<string>("Sao chép mã phòng");
+  const [copyLinkText, setCopyLinhText] = useState<string>("Sao chép liên kết");
+  const [openModalShowQR, setOpenModalShowQR] = useState<boolean>(false)
   const navigate = useNavigate();
   const socket = useSocket();
   useEffect(() => {
@@ -30,11 +40,24 @@ const WaitingRoom = () => {
     };
     getRoomById();
   }, [roomDispatch, roomId]);
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(roomState.currentRoom?.code ?? "");
-    } catch (err) {
-      console.error("Failed to copy: ", err);
+  const handleCopy = async (type: CopyTypes) => {
+    switch (type) {
+      case CopyTypes.Link:
+        {
+          const params = new URLSearchParams({
+            code: roomState.currentRoom?.code ?? "",
+            subpath: '/play',
+          });
+          await navigator.clipboard.writeText(`${ENV.MEZON_URL}/channel-app/${appState?.currentChannel?.channelId}/${appState?.clanId}?${params.toString()}`);
+          setCopyLinhText("Đã sao chép liên kết");
+          break;
+        }
+      case CopyTypes.Code:
+        await navigator.clipboard.writeText(roomState.currentRoom?.code ?? "");
+        setCopyRoomCodeText("Đã sao chép mã phòng");
+        break;
+      default:
+        break;
     }
   };
   const handleOutGame = () => {
@@ -49,60 +72,90 @@ const WaitingRoom = () => {
   };
   return (
     <div className='w-full h-screen'>
-      <div className='font-coiny h-[140px] flex items-center justify-center flex-col w-full relative'>
+      <div className='mt-[40px] sm:mt-0 font-coiny h-[220px] md:h-[160px] flex items-center justify-end flex-col w-full relative'>
         {/* Button out game */}
         <div
           onClick={handleOutGame}
-          className='w-[60px] h-[60px] flex justify-center items-center cursor-pointer absolute top-2 left-2 hover:scale-[0.98] transition-all active:scale-[1.0]'
+          className='w-[50px] h-[50px] flex justify-center items-center cursor-pointer absolute top-2 left-2 hover:scale-[0.98] transition-all active:scale-[1.0]'
         >
           <img src='/buttons/SmallButton-pressed.png' />
-          <img className='w-[30px] absolute top-[12px] left-[12px]' src='/icons/ExitIcon.png' />
-        </div>
-
-        {/* Game PIN */}
-        <div className='mt-2 bg-[#5d64d8c2] text-white rounded-lg p-2 shadow-xl flex flex-col justify-center items-center w-full max-w-[300px]'>
-          <span className='inline-block h-[25px] text-2xl'>GAME PIN</span>
-          <div className='flex justify-center h-[60px] max-w-[200px] w-full items-center'>
-            {!roomState.currentRoom?.code ? (
-              <span className='flex items-center justify-center bg-gray-400 h-[50px] w-full -rotate-2 rounded-lg'>
-                Loading Game Pin...
-              </span>
-            ) : (
-              <span
-                onClick={handleCopy}
-                className='text-4xl hover:bg-gray-400 rounded-md cursor-pointer px-2 py-1 active:bg-gray-200 transition-all'
-              >
-                {roomState.currentRoom?.code}
-              </span>
-            )}
-          </div>
-          <div className='h-[35px] flex justify-between items-center w-full mt-1'>
-            <div className='flex items-center gap-2 text-xl w-[100px] bg-[#cccccca6] h-[35px] px-1 rounded-md'>
-              <img className='w-5' src='/icons/icon-user-1.png' />
-              <span className='text-gray-700'>{roomState.listMemberOfRoom?.length ?? 0}</span>
-            </div>
-            <div className='flex items-center gap-3 w-[100px] h-[35px] px-1 rounded-md justify-center bg-[#cccccca6]'>
-              <img className='w-5 cursor-pointer' src='/icons/speaker.png' />
-              <img className='w-5 cursor-pointer' src='/icons/settings.png' />
-              <img className='w-5 cursor-pointer' src='/icons/zoom-in.png' />
-            </div>
-          </div>
+          <img className='w-[25px] absolute top-[10px] left-[10px]' src='/icons/ExitIcon.png' />
         </div>
 
         {/* Start game */}
         {roomState.isOwner && (
           <div
             onClick={handleStartGame}
-            className='w-[60px] h-[60px] flex justify-center items-center cursor-pointer absolute top-2 right-2 hover:scale-[0.98] transition-all active:scale-[1.0]'
+            className='w-[50px] h-[50px] flex justify-center items-center cursor-pointer absolute top-2 right-2 hover:scale-[0.98] transition-all active:scale-[1.0]'
           >
             <img src='/buttons/SmallButton.png' />
-            <img className='w-[25px] absolute top-[12px] left-[20px]' src='/icons/PlayIcon.png' />
+            <img className='w-[20px] absolute top-[12px] left-[17px]' src='/icons/PlayIcon.png' />
           </div>
         )}
+
+        {/* Game PIN */}
+        <div className='bg-[#5d64d8c2] text-white rounded-lg p-2 shadow-xl flex flex-col justify-center items-center w-full mx-2 max-w-[400px] sm:max-w-[300px]'>
+          <div className="w-full flex justify-between items-center py-2">
+            <div className='flex flex-col items-center justify-between gap-2 mt-1'>
+              <span className='inline-block h-[25px] text-2xl'>GAME PIN</span>
+              <div className='flex justify-center max-w-[200px] w-full items-center'>
+                {!roomState.currentRoom?.code ? (
+                  <span className='flex items-center justify-center bg-gray-400 w-full -rotate-2 rounded-lg'>
+                    Loading Game Pin...
+                  </span>
+                ) : (
+                  <span
+                    onClick={() => {
+                      handleCopy(CopyTypes.Code);
+                    }}
+                    onMouseLeave={() => {
+                      setCopyRoomCodeText("Sao chép mã phòng");
+                    }}
+                    data-tooltip-id="copy-code-btn"
+                    data-tooltip-content={copyRoomCodeText}
+                    className='text-4xl hover:bg-gray-400 rounded-md cursor-pointer px-2 active:bg-gray-200 transition-all'
+                  >
+                    {roomState.currentRoom?.code}
+                  </span>
+                )}
+                <Tooltip id="copy-code-btn" />
+              </div>
+              <div className='flex items-center gap-2 text-xl w-[100px] bg-[#cccccca6] h-[35px] px-1 rounded-md'>
+                <img className='w-5' src='/icons/icon-user-1.png' />
+                <span className='text-gray-700'>{roomState.listMemberOfRoom?.length ?? 0}</span>
+              </div>
+            </div>
+            <div className="cursor-pointer filter hover:bg-[#7027c491] rounded-sm p-2 transition-all" onClick={() => setOpenModalShowQR(true)}>
+              <QRCodeSVG
+                value={((): string => {
+                  const params = new URLSearchParams({
+                    code: roomState.currentRoom?.code ?? "",
+                    subpath: '/play',
+                  });
+                  return `${ENV.MEZON_URL}/channel-app/${appState?.currentChannel?.channelId}/${appState?.clanId}?${params.toString()}`;
+                })()}
+                fgColor="white"
+                bgColor="transparent"
+                size={90}
+              />
+            </div>
+          </div>
+          <ModalShowQR
+            isOpen={openModalShowQR}
+            copyLinkText={copyLinkText}
+            setCopyLinkText={setCopyLinhText}
+            onCancel={() => setOpenModalShowQR(false)}
+            handleCopy={handleCopy}
+            urlData={{
+              channelId: appState.currentChannel?.channelId ?? "",
+              clanId: appState?.clanId ?? "",
+              code: roomState.currentRoom?.code ?? ""
+            }}
+          />
+        </div>
       </div>
-      <div className='flex justify-center items-center w-full h-[calc(100%-140px)] p-2 '>
-        <div className='w-full max-w-[1200px] bg-[#ba85ff8f] rounded-xl h-full p-4 flex justify-around items-center flex-wrap gap-4 overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
-          {/* <span className='font-coiny text-xl'>Chờ người chơi tham gia!</span> */}
+      <div className='flex justify-center items-center w-full h-[calc(100%-260px)] sm:h-[calc(100%-220px)] md:h-[calc(100%-160px)] p-2'>
+        <div className='w-full max-w-[1200px] bg-[#ba85ff8f] rounded-xl h-full p-2 flex justify-around items-center flex-wrap gap-4 overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
           {roomState.listMemberOfRoom && roomState.listMemberOfRoom?.length > 0 ? (
             roomState.listMemberOfRoom?.map((player, index) => <PlayerItem player={player} key={index} />)
           ) : (

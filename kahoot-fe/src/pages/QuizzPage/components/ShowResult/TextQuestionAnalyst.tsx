@@ -6,9 +6,6 @@ interface ITextQuestionAnalystProps {
   correctAnswers: string;
 }
 const TextQuestionAnalyst = ({ currentQuestion, questionAnalyst, correctAnswers }: ITextQuestionAnalystProps) => {
-  console.log("TextQuestionAnalyst", questionAnalyst);
-  console.log("currentQuestion", currentQuestion);
-  console.log("correctAnswers", correctAnswers);
   return (
     <div className='p-2 w-full h-full'>
       <div

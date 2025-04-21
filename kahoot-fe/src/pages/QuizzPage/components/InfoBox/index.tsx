@@ -16,9 +16,6 @@ const InfoBox = () => {
     if (!roomState.currentQuestion?.id) return;
     const endTime = new Date(roomState.currentQuestion.endTime);
     const currentTime = new Date();
-
-    console.log("endTime", endTime);
-    console.log("currentTime", currentTime);
     const timeRemaining = endTime.getTime() - currentTime.getTime();
 
     // Chuyển đổi sang giây
@@ -57,7 +54,7 @@ const InfoBox = () => {
   }, [roomState.currentQuestion?.id]);
 
   return (
-    <div className='p-4'>
+    <div className='p-2 md:p-4'>
       <UserBox
         isOwner={roomState.isOwner}
         onFinishGame={handleFinishGame}
