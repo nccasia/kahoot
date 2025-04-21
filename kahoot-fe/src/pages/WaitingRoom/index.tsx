@@ -48,7 +48,7 @@ const WaitingRoom = () => {
             code: roomState.currentRoom?.code ?? "",
             subpath: '/play',
           });
-          await navigator.clipboard.writeText(`${ENV.MEZON_URL}/channel-app/${appState?.currentChannel?.channelId}/${appState?.clanId}?${params.toString()}`);
+          await navigator.clipboard.writeText(`https://${ENV.MEZON_URL}/chat/clans/${appState?.currentChannel?.clanId}/channels/${appState.currentChannel?.channelId}?${params.toString()}`);
           setCopyLinhText("Đã sao chép liên kết");
           break;
         }
@@ -148,7 +148,7 @@ const WaitingRoom = () => {
             handleCopy={handleCopy}
             urlData={{
               channelId: appState.currentChannel?.channelId ?? "",
-              clanId: appState?.clanId ?? "",
+              clanId: appState?.currentChannel?.clanId ?? "",
               code: roomState.currentRoom?.code ?? ""
             }}
           />

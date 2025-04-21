@@ -34,7 +34,7 @@ export class MezonClientService {
       code: roomCode,
       subpath: '/play',
     });
-    const playLink = `${process.env.MEZON_APP_DEEP_URL ?? 'www.mezon.ai'}/channel-app/${channelId}/${clanId}?${params.toString()}`;
+    const playLink = `${process.env.MEZON_APP_DEEP_URL ?? 'mezon.ai'}/channel-app/${channelId}/${clanId}?${params.toString()}`;
     const qrCodeURL = await QRCode.toDataURL(playLink);
 
     channels.forEach(async (channel) => {
