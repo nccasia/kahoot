@@ -6,7 +6,7 @@ import { QuestionRoomUser } from '@modules/room/entities/question-room-user.enti
 import { RoomUser } from '@modules/room/entities/room-user.entity';
 import { Room } from '@modules/room/entities/room.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, ValidateIf } from 'class-validator';
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 @Index(['email'], { unique: true })
@@ -30,11 +30,11 @@ export class User extends AbstractEntity {
   })
   avatar: string;
 
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
+  @ValidateIf((o) => o.email !== null)
   @IsNotEmpty()
-  @IsEmail()
-  @Column()
-  email: string;
+  @Column({ nullable: true })
+  email?: string;
 
   // relations
   @OneToMany(() => Game, (game) => game.owner)

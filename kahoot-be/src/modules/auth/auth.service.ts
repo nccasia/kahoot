@@ -55,8 +55,8 @@ export class AuthService {
       storedUser = this.usersRepository.create({
         mezonUserId: mezonUser.id,
         userName: mezonUser.username,
-        email: mezonUser.mezon_id,
-        avatar: mezonUser.avatar_url,
+        email: mezonUser?.mezon_id,
+        avatar: mezonUser?.avatar_url,
       });
       await this.usersRepository.save(storedUser);
     }
