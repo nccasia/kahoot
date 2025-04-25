@@ -143,6 +143,7 @@ const RoomSocketProvider: React.FC = () => {
           })
         );
       }
+      roomDispatch(RoomActions.changeIsSubmitAnswer(true));
       roomDispatch(RoomActions.changeIsShowAnswer(true));
     });
 
