@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Collapse from "@/components/Collapse";
-import { EQuestionErrorTypes, questionErrorTypes } from '@/constants/QuestionErrorTypes';
+import {
+  EQuestionErrorTypes,
+  questionErrorTypes,
+} from "@/constants/QuestionErrorTypes";
 import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { IAddQuestionToGameDTO, IQuestion } from "@/interfaces/questionTypes";
 import { GameContext } from "@/providers/ContextProvider/GameProvider";
@@ -34,14 +37,23 @@ const QuestionItem = ({
     ...JSON.parse(JSON.stringify(question)),
     answerOptions: {
       options: question.answerOptions?.options || [],
-      correctIndex: question.mode === EQuestionTypes.SINGLE_CHOICE ? question.answerOptions?.correctIndex ?? null : null,
-      correctIndexes: question.mode === EQuestionTypes.MULTIPLE_CHOICE ? question.answerOptions?.correctIndexes || [] : [],
+      correctIndex:
+        question.mode === EQuestionTypes.SINGLE_CHOICE
+          ? question.answerOptions?.correctIndex ?? null
+          : null,
+      correctIndexes:
+        question.mode === EQuestionTypes.MULTIPLE_CHOICE
+          ? question.answerOptions?.correctIndexes || []
+          : [],
     },
   });
 
   const handleChangeCollapse = (isOpen: boolean) => {
     if (gameState.isCreateQuestionOfGame) {
-      toast.warning("Hãy lưu câu hỏi trước khi chọn câu hỏi khác!");
+      toast.warning(
+        // "Hãy lưu câu hỏi trước khi chọn câu hỏi khác!"
+        "Please save the question before selecting another one!"
+      );
       return;
     }
     if (isOpen) {
@@ -51,8 +63,14 @@ const QuestionItem = ({
         ...JSON.parse(JSON.stringify(question)),
         answerOptions: {
           options: question.answerOptions?.options || [],
-          correctIndex: question.mode === EQuestionTypes.SINGLE_CHOICE ? question.answerOptions?.correctIndex ?? null : null,
-          correctIndexes: question.mode === EQuestionTypes.MULTIPLE_CHOICE ? question.answerOptions?.correctIndexes || [] : [],
+          correctIndex:
+            question.mode === EQuestionTypes.SINGLE_CHOICE
+              ? question.answerOptions?.correctIndex ?? null
+              : null,
+          correctIndexes:
+            question.mode === EQuestionTypes.MULTIPLE_CHOICE
+              ? question.answerOptions?.correctIndexes || []
+              : [],
         },
       });
     }
@@ -61,56 +79,67 @@ const QuestionItem = ({
   const checkQuestionData = (dataUpdate: IQuestion) => {
     const checkAnswerOptions =
       dataUpdate.mode !== EQuestionTypes.TEXT
-        ? dataUpdate.answerOptions.options.every((option) => option && option.trim() !== "")
+        ? dataUpdate.answerOptions.options.every(
+            (option) => option && option.trim() !== ""
+          )
         : true;
-    if(!checkAnswerOptions) {
-      return EQuestionErrorTypes.INVALID_ANSWER
+    if (!checkAnswerOptions) {
+      return EQuestionErrorTypes.INVALID_ANSWER;
     }
 
     const checkAnswerIndexes =
       dataUpdate.mode === EQuestionTypes.MULTIPLE_CHOICE
-        ? dataUpdate.answerOptions.correctIndexes && dataUpdate.answerOptions.correctIndexes.length > 0
+        ? dataUpdate.answerOptions.correctIndexes &&
+          dataUpdate.answerOptions.correctIndexes.length > 0
         : true;
-    if(!checkAnswerIndexes) {
-      return EQuestionErrorTypes.INVALID_CORRECT_INDEXS
+    if (!checkAnswerIndexes) {
+      return EQuestionErrorTypes.INVALID_CORRECT_INDEXS;
     }
-    
+
     const checkTitle = dataUpdate.title && dataUpdate.title.trim() !== "";
-    if(!checkTitle) {
-      return EQuestionErrorTypes.INVALID_QUESTION
+    if (!checkTitle) {
+      return EQuestionErrorTypes.INVALID_QUESTION;
     }
 
     const checkAnswerText =
-      dataUpdate.mode === EQuestionTypes.TEXT ? dataUpdate?.answerText && dataUpdate.answerText?.trim() !== "" : true;
-    if(!checkAnswerText) {
-      return EQuestionErrorTypes.INVALID_TEXT_ANSWER
+      dataUpdate.mode === EQuestionTypes.TEXT
+        ? dataUpdate?.answerText && dataUpdate.answerText?.trim() !== ""
+        : true;
+    if (!checkAnswerText) {
+      return EQuestionErrorTypes.INVALID_TEXT_ANSWER;
     }
 
     const checkCorrectIndex =
       dataUpdate.mode === EQuestionTypes.SINGLE_CHOICE
         ? dataUpdate.answerOptions.correctIndex !== null &&
-        dataUpdate.answerOptions.correctIndex >= 0 &&
-        dataUpdate.answerOptions.correctIndex < dataUpdate.answerOptions.options.length
+          dataUpdate.answerOptions.correctIndex >= 0 &&
+          dataUpdate.answerOptions.correctIndex <
+            dataUpdate.answerOptions.options.length
         : true;
-    if(!checkCorrectIndex) {
-      return EQuestionErrorTypes.INVALID_CORRECT_INDEX
+    if (!checkCorrectIndex) {
+      return EQuestionErrorTypes.INVALID_CORRECT_INDEX;
     }
 
-    return EQuestionErrorTypes.NO_ERROR
+    return EQuestionErrorTypes.NO_ERROR;
   };
 
   const handleConfirmSaveChange = async () => {
     gameDispatch(GameActions.changeIsSubmitting(true));
     try {
       if (checkQuestionData(dataUpdate) !== EQuestionErrorTypes.NO_ERROR) {
-        toast.warning(questionErrorTypes[checkQuestionData(dataUpdate)])
+        toast.warning(questionErrorTypes[checkQuestionData(dataUpdate)]);
         return;
       }
 
       if (dataUpdate.imageFile) {
-        const uploadImageResponse = await uploadService.uploadAnImage(dataUpdate.imageFile);
+        const uploadImageResponse = await uploadService.uploadAnImage(
+          dataUpdate.imageFile
+        );
         if (uploadImageResponse.statusCode !== 200) {
-          toast.error("Lỗi khi tải ảnh lên!");
+          toast.error(
+            // "Tải ảnh lên thất bại, vui lòng thử lại!"
+            "Image upload failed, please try again!"
+          );
           return;
         }
         dataUpdate.image = uploadImageResponse.data.secure_url;
@@ -131,7 +160,10 @@ const QuestionItem = ({
         if (!(response.statusCode === 200 || response.statusCode === 201)) {
           return;
         }
-        toast.success("Thêm câu hỏi thành công!");
+        toast.success(
+          // "Thêm câu hỏi thành công!"
+          "Question added successfully!"
+        );
         gameDispatch(GameActions.changeIsCreateQuestionOfGame(false));
         gameDispatch(GameActions.changeIsUpdateQuestionOfGame(false));
         gameDispatch(GameActions.changeQuestionValue(dataUpdate));
@@ -142,7 +174,10 @@ const QuestionItem = ({
       if (response.statusCode !== 200) {
         return;
       }
-      toast.success("Cập nhật câu hỏi thành công!");
+      toast.success(
+        // "Cập nhật câu hỏi thành công!"
+        "Question updated successfully!"
+      );
       gameDispatch(GameActions.changeIsUpdateQuestionOfGame(false));
       gameDispatch(GameActions.changeQuestionValue(dataUpdate));
     } catch (error) {
@@ -164,14 +199,20 @@ const QuestionItem = ({
       ...JSON.parse(JSON.stringify(question)),
       answerOptions: {
         options: question.answerOptions?.options || [],
-        correctIndex: question.mode === EQuestionTypes.SINGLE_CHOICE ? question.answerOptions?.correctIndex ?? null : null,
-        correctIndexes: question.mode === EQuestionTypes.MULTIPLE_CHOICE ? question.answerOptions?.correctIndexes || [] : [],
+        correctIndex:
+          question.mode === EQuestionTypes.SINGLE_CHOICE
+            ? question.answerOptions?.correctIndex ?? null
+            : null,
+        correctIndexes:
+          question.mode === EQuestionTypes.MULTIPLE_CHOICE
+            ? question.answerOptions?.correctIndexes || []
+            : [],
       },
     });
   }, [dataUpdate.id, gameDispatch, gameState.isCreateQuestionOfGame, question]);
 
   return (
-    <div className='select-none'>
+    <div className="select-none">
       <Collapse
         disabled={gameState.isCreateQuestionOfGame}
         changeCollapse={handleChangeCollapse}
@@ -190,8 +231,8 @@ const QuestionItem = ({
           />
         }
       >
-        <div className='font-coiny text-start text-white text-lg line-clamp-2 min-h-[50px]'>
-          <span className='mr-2'>Câu {index}:</span>
+        <div className="font-coiny text-start text-white text-lg line-clamp-2 min-h-[50px]">
+          <span className="mr-2">Question {index ? index : question.id}</span>
           <span>{question.title}</span>
         </div>
       </Collapse>

@@ -22,19 +22,35 @@ const QuizzPage = () => {
   const handleSendAnswer = (questionId: string) => {
     if (!socket || !roomId || !questionId) return;
 
-    const { isSubmitAnswer, isOwner, isEndGame, isWaitingEndGame, textAnswer, currentQuestion, multipleChoiceSelectedAnswers } = roomState;
+    const {
+      isSubmitAnswer,
+      isOwner,
+      isEndGame,
+      isWaitingEndGame,
+      textAnswer,
+      currentQuestion,
+      multipleChoiceSelectedAnswers,
+    } = roomState;
 
     if (isSubmitAnswer || isOwner || isEndGame || isWaitingEndGame) return;
 
     if (
       (!textAnswer?.trim() && currentQuestion?.mode === EQuestionTypes.TEXT) ||
-      (currentQuestion?.mode !== EQuestionTypes.TEXT && !multipleChoiceSelectedAnswers?.length)
+      (currentQuestion?.mode !== EQuestionTypes.TEXT &&
+        !multipleChoiceSelectedAnswers?.length)
     ) {
-      toast.warning("Bạn chưa nhập hoặc chọn đáp án cho câu hỏi này!");
+      toast.warning(
+        // "Bạn chưa nhập hoặc chọn đáp án cho câu hỏi này!"
+        "You have not entered or selected an answer for this question!"
+      );
       return;
     }
 
-    roomDispatch(RoomActions.changeSelectedAnswers(multipleChoiceSelectedAnswers as number[]));
+    roomDispatch(
+      RoomActions.changeSelectedAnswers(
+        multipleChoiceSelectedAnswers as number[]
+      )
+    );
 
     const emitData: ISendAnswerDTO = {
       roomId,
@@ -49,7 +65,10 @@ const QuizzPage = () => {
 
   const handleConfirmFinishGame = () => {
     if (!socket || !roomState.isOwner) {
-      toast.warning("Chỉ chủ phòng mới có thể kết thúc trò chơi");
+      toast.warning(
+        // "Chỉ chủ phòng mới có thể kết thúc trò chơi"
+        "Only the room owner can end the game!"
+      );
       return;
     }
 
@@ -98,7 +117,8 @@ const QuizzPage = () => {
         <LoadingOverlay
           title={
             <span>
-              Trò chơi chuẩn bị bắt đầu <br /> sẵn sàng chiến đấu nào!
+              {/* Trò chơi chuẩn bị bắt đầu <br /> sẵn sàng chiến đấu nào! */}
+              The game is about to start <br /> get ready to fight!
             </span>
           }
         />
@@ -107,21 +127,23 @@ const QuizzPage = () => {
         <LoadingOverlay
           title={
             <span>
-              Đang kết nối lại với trò chơi <br /> vui lòng đợi trong giây lát!
+              {/* Đang kết nối lại với trò chơi <br /> vui lòng đợi trong giây lát! */}
+              Reconnecting to the game <br /> please wait a moment!
             </span>
           }
         />
       )}
-      {roomState.isEndAnQuestion && roomState.isOwner && !roomState.isEndGame && (
-        <ShowResult />
-      )}
+      {roomState.isEndAnQuestion &&
+        roomState.isOwner &&
+        !roomState.isEndGame && <ShowResult />}
       {roomState.isEndGame && <EndGame />}
       <ModalConfirm
         isOpen={roomState.openMdoalConfirmEndGame}
         onClose={handleCloseModalConfirmEndGame}
         title={
           <span>
-            Bạn có chắc chắn <br /> muốn kết thúc game ngay không?
+            {/* Bạn có chắc chắn <br /> muốn kết thúc game ngay không? */}
+            Are you sure <br /> you want to end the game now?
           </span>
         }
         onConfirm={handleConfirmFinishGame}

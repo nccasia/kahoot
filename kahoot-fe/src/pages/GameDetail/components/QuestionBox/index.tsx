@@ -29,7 +29,10 @@ const QuestionBox = ({ questions, gameId }: QuestionItemProps) => {
 
   const handleAddQuestion = useCallback(() => {
     if (gameState.isCreateQuestionOfGame) {
-      toast.warning("Có câu hỏi chưa lưu, vui lòng lưu câu hỏi trước khi thêm mới!");
+      toast.warning(
+        // "Có câu hỏi chưa lưu, vui lòng lưu câu hỏi trước khi thêm mới!"
+        "You have an unsaved question, please save it before adding a new one!"
+      );
       return;
     }
     const id = generateId(6, "mixed");
@@ -43,7 +46,7 @@ const QuestionBox = ({ questions, gameId }: QuestionItemProps) => {
         correctIndex: null,
         correctIndexes: null,
       },
-      questionStatus: EQuestionErrorTypes.NO_ERROR
+      questionStatus: EQuestionErrorTypes.NO_ERROR,
     };
     gameDispatch(GameActions.addQuestion([newQuestion]));
     gameDispatch(GameActions.changeSelectedQuestion(id));
@@ -52,23 +55,31 @@ const QuestionBox = ({ questions, gameId }: QuestionItemProps) => {
   }, [gameDispatch, gameState.isCreateQuestionOfGame]);
 
   return (
-    <div className='flex-1 p-2 flex gap-2 flex-col lg:overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'>
-      <div className="mt-2 font-coiny">Danh sách câu hỏi</div>
+    <div className="flex-1 p-2 flex gap-2 flex-col lg:overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent">
+      <div className="mt-2 font-coiny">
+        {/* Danh sách câu hỏi */}
+        List of Questions
+      </div>
       {questions.map((question, index) => (
         <QuestionItem
           gameId={gameId}
           handleUpdateQuestion={handleUpdateQuestion}
-          isEditing={gameState.isUpdateQuestionOfGame && gameState.selectedQuestion?.id === question.id}
-          onOpenModalConfirmDeleteQuestion={handleOpenModalConfirmDeleteQuestion}
+          isEditing={
+            gameState.isUpdateQuestionOfGame &&
+            gameState.selectedQuestion?.id === question.id
+          }
+          onOpenModalConfirmDeleteQuestion={
+            handleOpenModalConfirmDeleteQuestion
+          }
           key={question.id}
           question={question}
           index={index + 1}
         />
       ))}
-      <div className='flex justify-center items-center gap-2 my-5'>
+      <div className="flex justify-center items-center gap-2 my-5">
         <button
           onClick={handleAddQuestion}
-          className='bg-none outline-none text-3xl  bg-[#6B00E7] hover:border-transparent font-coiny w-[60px] h-[60px] rounded-full p-0 flex items-center justify-center focus:outline-none hover:scale-[1.03] active:scale-[0.97] filter brightness-100 hover:brightness-110 transition-all duration-300 ease-in-out shadow-md shadow-blue-400'
+          className="bg-none outline-none text-3xl  bg-[#6B00E7] hover:border-transparent font-coiny w-[60px] h-[60px] rounded-full p-0 flex items-center justify-center focus:outline-none hover:scale-[1.03] active:scale-[0.97] filter brightness-100 hover:brightness-110 transition-all duration-300 ease-in-out shadow-md shadow-blue-400"
         >
           +
         </button>

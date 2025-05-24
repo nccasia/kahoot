@@ -17,7 +17,9 @@ import QuestionBox from "./components/QuestionBox";
 const GameDetail = () => {
   const { gameId } = useParams();
   const { gameState, gameDispatch } = useContext(GameContext);
-  const [currentDeleteRoomId, setCurrentDeleteRoomId] = useState<string | null>(null);
+  const [currentDeleteRoomId, setCurrentDeleteRoomId] = useState<string | null>(
+    null
+  );
   const { authState } = useContext(AuthContext);
   const navigate = useNavigate();
   useEffect(() => {
@@ -37,7 +39,12 @@ const GameDetail = () => {
 
     (async () => {
       try {
-        const response = await questionServices.getGameQuestion(gameId, 1, 999, "");
+        const response = await questionServices.getGameQuestion(
+          gameId,
+          1,
+          999,
+          ""
+        );
         if (response.statusCode !== 200) {
           console.log("error", response);
           return;
@@ -50,7 +57,13 @@ const GameDetail = () => {
 
     (async () => {
       try {
-        const response = await roomServices.getRoomOfGame(gameId, 1, QueryOptions.MAX_HISTORY_SIZE, "", { createdAt: "desc" });
+        const response = await roomServices.getRoomOfGame(
+          gameId,
+          1,
+          QueryOptions.MAX_HISTORY_SIZE,
+          "",
+          { createdAt: "desc" }
+        );
         if (response.statusCode !== 200) {
           console.log("error", response);
           return;
@@ -61,7 +74,6 @@ const GameDetail = () => {
         console.log("error", error);
       }
     })();
-
   }, [gameDispatch, gameId]);
 
   useEffect(() => {
@@ -97,7 +109,10 @@ const GameDetail = () => {
       gameDispatch(GameActions.changeOpenModalConfirmDeleteGame(false));
       gameDispatch(GameActions.changeSelectedGameId(""));
       navigate(ROUTES.LIST_GAME);
-      toast.success("Xoá game thành công!")!;
+      toast.success(
+        // "Xoá game thành công!"
+        "Game deleted successfully!"
+      )!;
     } catch (error) {
       toast.error((error as any).response.data.data.message);
     } finally {
@@ -113,9 +128,14 @@ const GameDetail = () => {
         console.log("error", response);
         return;
       }
-      toast.success("Xoá phòng thành công!")!;
+      toast.success(
+        // "Xoá phòng thành công!"
+        "Room deleted successfully!"
+      )!;
       // Cập nhật lại danh sách phòng
-      const updatedRooms = gameState.listRooms.filter(room => room.id !== currentDeleteRoomId);
+      const updatedRooms = gameState.listRooms.filter(
+        (room) => room.id !== currentDeleteRoomId
+      );
       gameDispatch(GameActions.changeListRooms(updatedRooms));
       setCurrentDeleteRoomId(null);
     } catch (error) {
@@ -129,15 +149,22 @@ const GameDetail = () => {
     if (!gameState.selectedQuestion) return;
     gameDispatch(GameActions.changeIsDeleting(true));
     try {
-      const response = await questionServices.deleteQuestion(gameState.selectedQuestion?.id ?? "");
+      const response = await questionServices.deleteQuestion(
+        gameState.selectedQuestion?.id ?? ""
+      );
       if (response.statusCode !== 200) {
         console.log("error", response);
         return;
       }
-      toast.success("Xoá câu hỏi thành công!")!;
+      toast.success(
+        // "Xoá câu hỏi thành công!"
+        "Question deleted successfully!"
+      )!;
       gameDispatch(GameActions.changeOpenModalConfirmDeleteQuestion(false));
       gameDispatch(GameActions.changeSelectedQuestion(""));
-      gameDispatch(GameActions.deleteQuestion(gameState.selectedQuestion?.id ?? ""));
+      gameDispatch(
+        GameActions.deleteQuestion(gameState.selectedQuestion?.id ?? "")
+      );
     } catch (error) {
       toast.error((error as any).response.data.data.message);
     } finally {
@@ -146,10 +173,10 @@ const GameDetail = () => {
   };
 
   return (
-    <div className='max-w-[1200px] w-[100%] h-full p-2'>
+    <div className="max-w-[1200px] w-[100%] h-full p-2">
       <div
         style={{ animationDelay: "unset" }}
-        className='h-[calc(100%-10px)] lg:h-[calc(100%-40px)] bg-[#6b00e78a] flex flex-col lg:flex-row mt-[5px] lg:mt-[20px] rounded-[20px]  overflow-y-auto gap-2 lg:p-2 [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent fadeIn'
+        className="h-[calc(100%-10px)] lg:h-[calc(100%-40px)] bg-[#6b00e78a] flex flex-col lg:flex-row mt-[5px] lg:mt-[20px] rounded-[20px]  overflow-y-auto gap-2 lg:p-2 [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent fadeIn"
       >
         <GameInfoBox
           owner={authState.currentUser?.userName}
@@ -157,15 +184,20 @@ const GameDetail = () => {
           gameInfo={gameState.selectedGame}
           onDeleteRoom={(roomId) => setCurrentDeleteRoomId(roomId)}
         />
-        <QuestionBox gameId={gameId ?? ""} questions={gameState.listQuestions} />
+        <QuestionBox
+          gameId={gameId ?? ""}
+          questions={gameState.listQuestions}
+        />
         <ModalConfirm
           isLoading={gameState.isDeleting}
           title={
             <span>
-              Bạn có chắc chắn <br /> muốn xoá game này không?
+              {/* Bạn có chắc chắn <br /> muốn xoá game này không? */}
+              Are you <br /> you want to delete this game?
             </span>
           }
-          confirmText='Xác nhận xoá'
+          // confirmText='Xác nhận xoá'
+          confirmText="Confirm Delete"
           onConfirm={handleConfirmDeleteGame}
           isOpen={gameState.openModalConfirmDeleteGame}
           onClose={handleCloseModalConfirmDeleteGame}
@@ -174,10 +206,12 @@ const GameDetail = () => {
           isLoading={gameState.isDeleting}
           title={
             <span>
-              Bạn có chắc chắn <br /> muốn xoá câu hỏi này không?
+              {/* Bạn có chắc chắn <br /> muốn xoá câu hỏi này không? */}
+              Are you sure <br /> you want to delete this question?
             </span>
           }
-          confirmText='Xác nhận xoá'
+          // confirmText='Xác nhận xoá'
+          confirmText="Confirm Delete"
           onConfirm={handleConfirmDeleteQuestion}
           isOpen={gameState.openModalConfirmDeleteQuestion}
           onClose={handleCloseModalConfirmDeleteQuestion}
@@ -189,10 +223,12 @@ const GameDetail = () => {
           isLoading={gameState.isDeleting}
           title={
             <span>
-              Bạn có chắc chắn <br /> muốn xoá Phòng này không?
+              {/* Bạn có chắc chắn <br /> muốn xoá Phòng này không? */}
+              Are you sure <br /> you want to delete this room?
             </span>
           }
-          confirmText="Xác nhận xoá"
+          // confirmText="Xác nhận xoá"
+          confirmText="Confirm Delete"
         />
       </div>
     </div>

@@ -20,8 +20,15 @@ const ModalChooseFile = ({ isOpen, onClose }: IModalChooseFileProps) => {
     try {
       const reader = new FileReader();
       const file = files[0];
-      if (!file || file.type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        toast.warning("Bạn chỉ có thể chọn file word để nhập vào hệ thống");
+      if (
+        !file ||
+        file.type !=
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
+        toast.warning(
+          // "Bạn chỉ có thể chọn file word để nhập vào hệ thống"
+          "You can only select Word files to import into the system"
+        );
         return;
       }
 
@@ -33,14 +40,19 @@ const ModalChooseFile = ({ isOpen, onClose }: IModalChooseFileProps) => {
           toast.error(result.message as string);
           return;
         }
-        gameDispatch(GameActions.changeListQuestion(result.data as IQuestion[]));
+        gameDispatch(
+          GameActions.changeListQuestion(result.data as IQuestion[])
+        );
         navigate(ROUTES.CREATE_GAME);
       };
       reader.onerror = (err) => console.error(err);
       reader.readAsBinaryString(file);
     } catch (e) {
       console.log(e);
-      toast.error("Lỗi mất rồi, vui lòng thử lại sau");
+      toast.error(
+        // "Đã có lỗi xảy ra khi tải file lên. Vui lòng thử lại sau."
+        "An error occurred while uploading the file. Please try again later."
+      );
     }
   };
 
@@ -63,16 +75,23 @@ const ModalChooseFile = ({ isOpen, onClose }: IModalChooseFileProps) => {
   };
 
   return (
-    <Modal showCloseButton={false} showHeader={false} isOpen={isOpen} onClose={onClose}>
-      <div className='font-coiny flex justify-center items-center gap-2 text-white text-sm'>
-        <span>Bạn có thể tải file câu hỏi mẫu </span>
+    <Modal
+      showCloseButton={false}
+      showHeader={false}
+      isOpen={isOpen}
+      onClose={onClose}
+    >
+      <div className="font-coiny flex justify-center items-center gap-2 text-white text-sm">
+        {/* <span>Bạn có thể tải file câu hỏi mẫu </span> */}
+        <span>You can download the sample question file </span>
         <a
-          href='/example-list-question.docx'
-          download='example-list-question.docx'
-          className='text-[#ea0ad5] cursor-pointer animate-pulse'
+          href="/example-list-question.docx"
+          download="example-list-question.docx"
+          className="text-[#ea0ad5] cursor-pointer animate-pulse"
           style={{ animationDuration: "0.5s" }}
         >
-          tại đây
+          {/* tại đây */}
+          here
         </a>
       </div>
       <div
@@ -81,34 +100,37 @@ const ModalChooseFile = ({ isOpen, onClose }: IModalChooseFileProps) => {
         ${isDragActive ? "border-blue-500" : "border-gray-100 "}`}
       >
         <input {...getInputProps()} />
-        <p className='text-white font-coiny'>
+        <p className="text-white font-coiny">
           {isDragActive ? (
             "Thả file của bạn vào đây..."
           ) : (
             <span>
-              Kéo và thả file của bạn vào đây! <br /> Hoặc nhấn vào đây để chọn!
+              {/* Kéo và thả file của bạn vào đây! <br /> Hoặc nhấn vào đây để chọn! */}
+              Drag and drop your file here! <br /> Or click here to select!
             </span>
           )}
         </p>
       </div>
       <div>
         {selectedFile && (
-          <div className='flex justify-between items-center bg-[#758ac5] p-[2px] px-3 rounded-sm'>
-            <p className='text-white'>{selectedFile.name}</p>
+          <div className="flex justify-between items-center bg-[#758ac5] p-[2px] px-3 rounded-sm">
+            <p className="text-white">{selectedFile.name}</p>
           </div>
         )}
       </div>
-      <div className='flex justify-center mt-2 gap-3'>
-        <Button onClick={handleCancel} className='bg-[#c02121] font-coiny'>
-          Huỷ bỏ
+      <div className="flex justify-center mt-2 gap-3">
+        <Button onClick={handleCancel} className="bg-[#c02121] font-coiny">
+          {/* Huỷ bỏ */}
+          Cancel
         </Button>
         <Button
           style={{ backgroundColor: selectedFile ? "#6BB3E0" : "#4b4b4b" }}
           disabled={!selectedFile}
           onClick={handleConfirm}
-          className=' font-coiny'
+          className=" font-coiny"
         >
-          Xác nhận
+          {/* Xác nhận */}
+          Confirm
         </Button>
       </div>
     </Modal>

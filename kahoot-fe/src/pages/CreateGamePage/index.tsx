@@ -1,7 +1,7 @@
 import Button from "@/components/Button";
 import ButtonBack from "@/components/ButtonBack";
 import Input from "@/components/Input";
-import { EQuestionErrorTypes } from '@/constants/QuestionErrorTypes';
+import { EQuestionErrorTypes } from "@/constants/QuestionErrorTypes";
 import { EQuestionTypes } from "@/constants/QuestionTypes";
 import { ICreateGameDTO } from "@/interfaces/gameTypes";
 import { IAddQuestionToGameDTO, IQuestion } from "@/interfaces/questionTypes";
@@ -41,7 +41,7 @@ const CreateGamePage = () => {
         correctIndex: null,
         correctIndexes: [],
       },
-      questionStatus: EQuestionErrorTypes.NO_ERROR
+      questionStatus: EQuestionErrorTypes.NO_ERROR,
     };
     gameDispatch(GameActions.addQuestion([newQuestion]));
     gameDispatch(GameActions.changeSelectedQuestion(id));
@@ -60,60 +60,72 @@ const CreateGamePage = () => {
     let check = true;
     const listErrorQuestion: string[] = [];
 
-    const newListQuestions = [...listQuestions]
+    const newListQuestions = [...listQuestions];
 
-    for(const question of newListQuestions) {
-      // check title question      
+    for (const question of newListQuestions) {
+      // check title question
       const checkTitle = question.title && question.title.trim() !== "";
-      if(!checkTitle) {
-        question.questionStatus = EQuestionErrorTypes.INVALID_QUESTION
-        check=false;
+      if (!checkTitle) {
+        question.questionStatus = EQuestionErrorTypes.INVALID_QUESTION;
+        check = false;
         continue;
       }
 
       // check answer options
       const checkAnswerOptions =
         question.mode !== EQuestionTypes.TEXT
-          ? question.answerOptions.options.every((option) => option && option.trim() !== "")
+          ? question.answerOptions.options.every(
+              (option) => option && option.trim() !== ""
+            )
           : true;
-      if(!checkAnswerOptions) {
+      if (!checkAnswerOptions) {
         question.questionStatus = EQuestionErrorTypes.INVALID_ANSWER;
-        check=false;
+        check = false;
         continue;
       }
 
       // check answer indexes
       const checkAnswerIndexes =
         question.mode === EQuestionTypes.MULTIPLE_CHOICE
-          ? question.answerOptions.correctIndexes && question.answerOptions.correctIndexes.length > 0
+          ? question.answerOptions.correctIndexes &&
+            question.answerOptions.correctIndexes.length > 0
           : true;
-      if(!checkAnswerIndexes) {
-        question.questionStatus = EQuestionErrorTypes.INVALID_CORRECT_INDEXS
-        check=false;
+      if (!checkAnswerIndexes) {
+        question.questionStatus = EQuestionErrorTypes.INVALID_CORRECT_INDEXS;
+        check = false;
         continue;
       }
 
       // check correct index
       const checkCorrectIndex =
         question.mode === EQuestionTypes.SINGLE_CHOICE
-          ? question.answerOptions.correctIndex !== null && question.answerOptions.correctIndex >= 0
+          ? question.answerOptions.correctIndex !== null &&
+            question.answerOptions.correctIndex >= 0
           : true;
       if (!checkCorrectIndex) {
-        question.questionStatus = EQuestionErrorTypes.INVALID_CORRECT_INDEX
-        check=false;
-        continue;
-      }
-      
-      // check answer text
-      const checkAnswerText =
-        question.mode === EQuestionTypes.TEXT.toString() ? question?.answerText && question.answerText?.trim() !== "" : true;
-      if(!checkAnswerText) {
-        question.questionStatus = EQuestionErrorTypes.INVALID_TEXT_ANSWER
-        check=false;
+        question.questionStatus = EQuestionErrorTypes.INVALID_CORRECT_INDEX;
+        check = false;
         continue;
       }
 
-      if (!checkAnswerOptions || !checkAnswerText || !checkAnswerIndexes || !checkTitle || !checkCorrectIndex) {
+      // check answer text
+      const checkAnswerText =
+        question.mode === EQuestionTypes.TEXT.toString()
+          ? question?.answerText && question.answerText?.trim() !== ""
+          : true;
+      if (!checkAnswerText) {
+        question.questionStatus = EQuestionErrorTypes.INVALID_TEXT_ANSWER;
+        check = false;
+        continue;
+      }
+
+      if (
+        !checkAnswerOptions ||
+        !checkAnswerText ||
+        !checkAnswerIndexes ||
+        !checkTitle ||
+        !checkCorrectIndex
+      ) {
         listErrorQuestion.push(question?.id ?? "");
         check = false;
       } else {
@@ -129,28 +141,47 @@ const CreateGamePage = () => {
 
   const handleSaveGame = useCallback(async () => {
     if (!gameData.name || gameData.name.trim() === "") {
-      toast.error("Vui lòng nhập tên game!");
+      toast.error(
+        // "Vui lòng nhập tên game!"
+        "Please enter the game name!"
+      );
       return;
     }
     const check = checkQuestionData();
     if (!check) {
-      toast.error("Hãy kiểm tra lại thông tin câu hỏi!");
+      toast.error(
+        // "Hãy kiểm tra lại thông tin câu hỏi!"
+        "Please check the question information again!"
+      );
       return;
     }
     try {
       setIsLoading(true);
       const createGameResponse = await gameServices.createGame(gameData);
-      if (!(createGameResponse.statusCode === 200 || createGameResponse.statusCode === 201)) {
-        toast.error("Lỗi khi lưu game!");
+      if (
+        !(
+          createGameResponse.statusCode === 200 ||
+          createGameResponse.statusCode === 201
+        )
+      ) {
+        toast.error(
+          "Lỗi khi lưu game!"
+          // "Error saving game!"
+        );
         return;
       }
       const gameId = createGameResponse.data.id;
       const listQuestions: IAddQuestionToGameDTO[] = [];
       for (const question of gameState.listQuestions) {
         if (question.imageFile) {
-          const uploadImageResponse = await uploadService.uploadAnImage(question.imageFile);
+          const uploadImageResponse = await uploadService.uploadAnImage(
+            question.imageFile
+          );
           if (uploadImageResponse.statusCode !== 200) {
-            toast.error("Lỗi khi tải ảnh lên!");
+            toast.error(
+              // "Lỗi khi tải lên hình ảnh câu hỏi!",
+              "Error uploading question image!"
+            );
             return;
           }
 
@@ -174,22 +205,45 @@ const CreateGamePage = () => {
           });
         }
       }
-      const addQuestionsResponse = await questionServices.addQuestion(gameId, listQuestions);
-      if (!(addQuestionsResponse.statusCode === 200 || addQuestionsResponse.statusCode === 201)) {
-        toast.error("Lỗi khi lưu câu hỏi!");
+      const addQuestionsResponse = await questionServices.addQuestion(
+        gameId,
+        listQuestions
+      );
+      if (
+        !(
+          addQuestionsResponse.statusCode === 200 ||
+          addQuestionsResponse.statusCode === 201
+        )
+      ) {
+        toast.error(
+          // "Lỗi khi lưu câu hỏi!",
+          "Error saving questions!"
+        );
         return;
       }
-      toast.success("Lưu game thành công!");
+      toast.success(
+        // "Lưu game thành công!"
+        "Game saved successfully!"
+      );
       navigate(ROUTES.LIST_GAME);
       setGameData(initialGameData);
       gameDispatch(GameActions.changeListQuestion([]));
     } catch (error) {
       console.log("error", error);
-      toast.error("Lỗi khi lưu game!");
+      toast.error(
+        // "Lỗi khi lưu game!"
+        "Error saving game!"
+      );
     } finally {
       setIsLoading(false);
     }
-  }, [checkQuestionData, gameData, gameDispatch, gameState.listQuestions, navigate]);
+  }, [
+    checkQuestionData,
+    gameData,
+    gameDispatch,
+    gameState.listQuestions,
+    navigate,
+  ]);
 
   useEffect(() => {
     if (gameState.listQuestions?.length === 0) {
@@ -198,36 +252,50 @@ const CreateGamePage = () => {
   }, [gameState.listQuestions, handleAddQuestion]);
 
   return (
-    <div className='max-w-[1200px] w-[100%] h-full p-2'>
-      <div className='header h-[80px] flex justify-between items-center'>
+    <div className="max-w-[1200px] w-[100%] h-full p-2">
+      <div className="header h-[80px] flex justify-between items-center">
         <ButtonBack />
         {gameState.listQuestions?.length > 0 && (
-          <div className='flex gap-2'>
-            <Button isLoading={isLoading} onClick={handleSaveGame} className='text-center  bg-[#6B00E7] font-coiny'>
-              Lưu lại
+          <div className="flex gap-2">
+            <Button
+              isLoading={isLoading}
+              onClick={handleSaveGame}
+              className="text-center  bg-[#6B00E7] font-coiny"
+            >
+              {/* Lưu lại */}
+              Save
             </Button>
           </div>
         )}
       </div>
       <div
         style={{ animationDelay: "unset" }}
-        className='fadeIn h-[calc(100%-100px)] mt-[20px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
+        className="fadeIn h-[calc(100%-100px)] mt-[20px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent"
       >
-        <div className='font-coiny min-h-[50px] rounded-xl border-2 border-transparent gap-2 p-5 px-2 bg-[#466CF7A1] cursor-pointer border-b border-[#fff] transition-all duration-500 ease-in-out relative'>
-          <div className='flex items-center gap-2 justify-center w-full flex-col'>
-            <span className='border-b border-white pb-2'>Thông tin trò chơi</span>
-            <span className='text-sm'>Hãy điền đầy đủ thông tin trò chơi của bạn để mọi người biết đến dễ dàng hơn!</span>
+        <div className="font-coiny min-h-[50px] rounded-xl border-2 border-transparent gap-2 p-5 px-2 bg-[#466CF7A1] cursor-pointer border-b border-[#fff] transition-all duration-500 ease-in-out relative">
+          <div className="flex items-center gap-2 justify-center w-full flex-col">
+            <span className="border-b border-white pb-2">
+              {/* Thông tin trò chơi */}
+              Game Information
+            </span>
+            <span className="text-sm">
+              {/* Hãy điền đầy đủ thông tin trò chơi của bạn để mọi người biết đến
+              dễ dàng hơn! */}
+              Please fill in your game information so that others can easily
+              find it!
+            </span>
           </div>
-          <div className='flex flex-col justify-center items-center gap-3 mt-5'>
+          <div className="flex flex-col justify-center items-center gap-3 mt-5">
             <Input
               value={gameData.name}
               onChange={(e) => handleChangeGameData("name", e.target.value)}
-              className='text-center placeholder-gray-400 w-full max-w-[500px]'
-              placeholder='Tên game'
+              className="text-center placeholder-gray-400 w-full max-w-[500px]"
+              // placeholder="Tên game"
+              placeholder="Game Name"
             />
           </div>
         </div>
-        <div className='flex flex-col gap-3 mt-5'>
+        <div className="flex flex-col gap-3 mt-5">
           {gameState.listQuestions.map((question, index) => (
             <QuestionItem
               isShowDeleteButton={gameState.listQuestions.length > 1}
@@ -237,10 +305,10 @@ const CreateGamePage = () => {
             />
           ))}
         </div>
-        <div className='flex justify-center items-center gap-2 my-5'>
+        <div className="flex justify-center items-center gap-2 my-5">
           <button
             onClick={handleAddQuestion}
-            className='bg-none outline-none text-3xl  bg-[#6B00E7] hover:border-transparent font-coiny w-[60px] h-[60px] rounded-full p-0 flex items-center justify-center focus:outline-none hover:scale-[1.03] active:scale-[0.97] filter brightness-100 hover:brightness-110 transition-all duration-300 ease-in-out shadow-xl'
+            className="bg-none outline-none text-3xl  bg-[#6B00E7] hover:border-transparent font-coiny w-[60px] h-[60px] rounded-full p-0 flex items-center justify-center focus:outline-none hover:scale-[1.03] active:scale-[0.97] filter brightness-100 hover:brightness-110 transition-all duration-300 ease-in-out shadow-xl"
           >
             +
           </button>
