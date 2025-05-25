@@ -18,10 +18,10 @@ const ModalConfirm = ({
   onClose,
   onConfirm,
   modalData,
-  confirmText = "Xác nhận",
-  cancelText = "Huỷ bỏ",
+  confirmText = "Confirm",
+  cancelText = "Cancel",
   isLoading = false,
-  title = "Bạn có chắc chắn muốn thực hiện hành động này không?",
+  title="Are you sure you want to perform this action?"
 }: ModalConfirmProps) => {
 
   const handleConfirm = () => {

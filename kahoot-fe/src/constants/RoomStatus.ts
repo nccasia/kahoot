@@ -8,12 +8,18 @@ export enum ERoomStatus {
 }
 
 export const RoomStatus = {
-  [ERoomStatus.Scheduled]: "Đã lên lịch",
-  [ERoomStatus.Waiting]: "Đang chờ",
-  [ERoomStatus.InProgress]: "Đang diễn ra",
-  [ERoomStatus.Paused]: "Tạm dừng",
-  [ERoomStatus.Finished]: "Đã kết thúc",
-  [ERoomStatus.Cancelled]: "Đã hủy",
+  // [ERoomStatus.Scheduled]: "Đã lên lịch",
+  // [ERoomStatus.Waiting]: "Đang chờ",
+  // [ERoomStatus.InProgress]: "Đang diễn ra",
+  // [ERoomStatus.Paused]: "Tạm dừng",
+  // [ERoomStatus.Finished]: "Đã kết thúc",
+  // [ERoomStatus.Cancelled]: "Đã hủy",
+  [ERoomStatus.Scheduled]: "Scheduled",
+  [ERoomStatus.Waiting]: "Waiting",
+  [ERoomStatus.InProgress]: "In Progress",
+  [ERoomStatus.Paused]: "Paused",
+  [ERoomStatus.Finished]: "Finished",
+  [ERoomStatus.Cancelled]: "Cancelled",
 };
 export const RoomStatusColor = {
   [ERoomStatus.Scheduled]: "text-[#FFB800]",
