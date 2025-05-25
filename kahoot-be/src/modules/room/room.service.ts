@@ -98,7 +98,7 @@ export class RoomService {
       const channels = createRoomDto.channels;
       const isNotifyEnabled = createRoomDto.isNotifyEnabled;
       if (isNotifyEnabled && channels && channels.length > 0) {
-        await this.mezonClientService.sendEventChanneles(
+        await this.mezonClientService.sendEventChannels(
           roomCode,
           channels,
           clanId,
@@ -175,7 +175,7 @@ export class RoomService {
       const channels = room.channels;
       const isNotifyEnabled = room.isNotifyEnabled;
       if (isNotifyEnabled && channels && channels.length > 0) {
-        await this.mezonClientService.sendEventChanneles(
+        await this.mezonClientService.sendEventChannels(
           room.code,
           channels,
           clanId,

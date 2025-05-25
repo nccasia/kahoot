@@ -1,7 +1,4 @@
-import {
-  ChannelTypeMapper,
-  MezonChannel,
-} from '@modules/room/types/channel.type';
+import { MezonChannel } from '@modules/room/types/channel.type';
 import { Injectable, Logger } from '@nestjs/common';
 import { MezonClient } from 'mezon-sdk';
 import * as QRCode from 'qrcode';
@@ -13,17 +10,12 @@ export class MezonClientService {
 
   constructor() {
     this.client = new MezonClient(process.env.MEZON_APP_SECRET);
-    this.client
-      .authenticate()
-      .then(() => {
-        console.log('Mezon client authenticated successfully');
-      })
-      .catch((error) => {
-        console.error('Error authenticating Mezon client:', error);
-      });
+    this.client.login().then(() => {
+      console.log('Mezon client authenticated successfully');
+    });
   }
 
-  async sendEventChanneles(
+  async sendEventChannels(
     roomCode: string,
     channels: MezonChannel[],
     clanId?: string,
@@ -39,28 +31,26 @@ export class MezonClientService {
 
     channels.forEach(async (channel) => {
       try {
-        // Check if the channel is a private channel
         // Regex to match ${room} in textMessage with the roomCode
         const message = textMessage?.replace(/\${room}/g, roomCode);
-        await this.client.sendMessage(
-          channel.clanId,
+        const mezonChannel = await this.client.channels.fetch(
           channel.channelId,
-          ChannelTypeMapper[channel.type],
-          !channel.isPrivateChannel,
-          {
-            t: message ?? 'Tham gia trò chơi Đố Bạn cùng NCC',
+        );
+        if (mezonChannel) {
+          await mezonChannel.send({
+            t: message ?? 'Join the Quiz game now!',
             embed: [
               {
-                title: 'Tham gia trò chơi Đố Bạn tại đây',
+                title: 'Tap or click here to play the Quiz game',
                 url: playLink,
-                description: `Nhập mã: ${roomCode} hoặc quét mã QR bằng ứng dụng Mezon để tham gia trên thiết bị di động`,
+                description: `Enter the pin code: ${roomCode} or scan QR code to join Quiz game on mobile devices`,
                 image: {
                   url: qrCodeURL,
                 },
               },
             ],
-          },
-        );
+          });
+        }
       } catch (error) {
         this.logger.warn(
           `Error sending message to channel: ${channel.channelName}`,
