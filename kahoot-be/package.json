@@ -104,5 +104,12 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "better-sqlite3",
+      "protobufjs"
+    ]
   }
 }
