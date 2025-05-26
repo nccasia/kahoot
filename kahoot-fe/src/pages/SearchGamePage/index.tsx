@@ -44,13 +44,13 @@ const SearchGamePage = () => {
                 className="text-animation animate-waviy"
                 style={{ animationDelay: `${0 * 0.1}s` }}
               >
-                Đ
+                Q
               </span>
               <span
                 className="text-animation animate-waviy"
                 style={{ animationDelay: `${1 * 0.1}s` }}
               >
-                Ố
+                U
               </span>
             </div>
             <div className="flex gap-1 sm:gap-1 md:gap-2">
@@ -58,19 +58,19 @@ const SearchGamePage = () => {
                 className="text-animation animate-waviy"
                 style={{ animationDelay: `${2 * 0.1}s` }}
               >
-                B
+                I
               </span>
               <span
                 className="text-animation animate-waviy"
                 style={{ animationDelay: `${3 * 0.1}s` }}
               >
-                ạ
+                Z
               </span>
               <span
                 className="text-animation animate-waviy"
                 style={{ animationDelay: `${4 * 0.1}s` }}
               >
-                N
+                Z
               </span>
             </div>
           </h1>

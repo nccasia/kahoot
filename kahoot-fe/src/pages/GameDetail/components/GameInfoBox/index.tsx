@@ -234,7 +234,7 @@ const GameInfoBox = ({ gameInfo, totalQuestion, owner }: GameInfoBoxProps) => {
             <ModalGameTimer
               isOpen={openModalGameTimer}
               onClose={() => setOpenModalGameTimer(false)}
-              title="Tạo phòng chơi"
+              title="Create Game Timer"
               onConfirm={handleCreateGameTimer}
             ></ModalGameTimer>
           )}
