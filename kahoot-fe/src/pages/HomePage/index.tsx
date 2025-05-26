@@ -60,7 +60,7 @@ const HomePage = () => {
         </div>
         <div className="max-w-[250px] pl-2 fixed top-10 md:top-5 right-5 w-full bg-[#3b3d3978] cursor-pointer rounded-full flex items-center gap-2 shadow-xl filter brightness-100 hover:brightness-110 transition-all active:brightness-100">
           <span className="font-coiny flex-1 line-clamp-1">
-            {authState.currentUser?.userName ?? "ten.nguoichoi"}{" "}
+            {authState.currentUser?.userName ?? "Guest"}{" "}
           </span>
           <div className="w-[50px] h-[50px] rounded-full border-2 border-white">
             <div
