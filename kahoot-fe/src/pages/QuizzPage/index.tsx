@@ -5,9 +5,10 @@ import SocketEvents from "@/constants/SocketEvents";
 import { ISendAnswerDTO } from "@/interfaces/questionTypes";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import { useSocket } from "@/providers/SocketProvider";
+import { ROUTES } from "@/routes/routePath";
 import RoomActions from "@/stores/roomStore/roomAction";
 import { useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import EndGame from "./components/EndGame";
 import InfoBox from "./components/InfoBox";
@@ -18,6 +19,7 @@ const QuizzPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const { roomState, roomDispatch } = useContext(RoomContext);
   const socket = useSocket();
+  const navigate = useNavigate();
 
   const handleSendAnswer = (questionId: string) => {
     if (!socket || !roomId || !questionId) return;
@@ -80,6 +82,12 @@ const QuizzPage = () => {
     roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
   };
 
+  const handleOutGame = () => {
+    if (!socket) return;
+    socket.emit(SocketEvents.EMIT.ClientEmitLeaveRoom, roomId);
+    navigate(ROUTES.SEARCH_ROOM);
+  };
+
   return (
     <div className="relative max-w-[1200px] w-full h-full p-2">
       {/* Scrollable main layout */}
@@ -118,19 +126,21 @@ const QuizzPage = () => {
           title={
             <span>
               {/* Trò chơi chuẩn bị bắt đầu <br /> sẵn sàng chiến đấu nào! */}
-              The game is about to start <br /> get ready to fight!
+              The game is about to start <br /> Get ready to fight!
             </span>
           }
         />
       )}
-      {roomState.isReconecting && (
+      {roomState.isReconnecting && (
         <LoadingOverlay
           title={
             <span>
               {/* Đang kết nối lại với trò chơi <br /> vui lòng đợi trong giây lát! */}
-              Reconnecting to the game <br /> please wait a moment!
+              Reconnecting to the game <br /> Please wait a moment!
             </span>
           }
+          onCancel={handleOutGame}
+          showCancelButton={true}
         />
       )}
       {roomState.isEndAnQuestion &&
@@ -143,7 +153,7 @@ const QuizzPage = () => {
         title={
           <span>
             {/* Bạn có chắc chắn <br /> muốn kết thúc game ngay không? */}
-            Are you sure <br /> you want to end the game now?
+            Are you sure?<br /> You want to end the game now?
           </span>
         }
         onConfirm={handleConfirmFinishGame}

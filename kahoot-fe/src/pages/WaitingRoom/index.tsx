@@ -19,11 +19,9 @@ const WaitingRoom = () => {
   const { roomState, roomDispatch } = useContext(RoomContext);
   const { appState } = useContext(AppContext);
   const [copyRoomCodeText, setCopyRoomCodeText] = useState<string>(
-    // "Sao chép mã phòng"
-    "Copy room code"
+    "Copy code"
   );
-  const [copyLinkText, setCopyLinhText] = useState<string>(
-    // "Sao chép liên kết"
+  const [copyLinkText, setCopyLinkText] = useState<string>(
     "Copy link"
   );
   const [openModalShowQR, setOpenModalShowQR] = useState<boolean>(false);
@@ -58,8 +56,7 @@ const WaitingRoom = () => {
             appState?.currentChannel?.clanId
           }/channels/${appState.currentChannel?.channelId}?${params.toString()}`
         );
-        setCopyLinhText(
-          // "Đã sao chép liên kết"
+        setCopyLinkText(
           "Link copied successfully"
         );
         break;
@@ -67,8 +64,7 @@ const WaitingRoom = () => {
       case CopyTypes.Code:
         await navigator.clipboard.writeText(roomState.currentRoom?.code ?? "");
         setCopyRoomCodeText(
-          // "Đã sao chép mã phòng"
-          "Room code copied successfully"
+          "Code copied successfully"
         );
         break;
       default:
@@ -171,7 +167,7 @@ const WaitingRoom = () => {
           <ModalShowQR
             isOpen={openModalShowQR}
             copyLinkText={copyLinkText}
-            setCopyLinkText={setCopyLinhText}
+            setCopyLinkText={setCopyLinkText}
             onCancel={() => setOpenModalShowQR(false)}
             handleCopy={handleCopy}
             urlData={{
@@ -191,7 +187,6 @@ const WaitingRoom = () => {
             ))
           ) : (
             <div className="font-coiny text-2xl">
-              {/* Chưa có người chơi nào tham gia */}
               No players have joined yet
             </div>
           )}

@@ -13,19 +13,22 @@ const PlayGame = () => {
   useEffect(() => {
     const roomCode = searchParams.get("code") || searchParams.get("roomId");
     if (!socket) {
-      // navigate(ROUTES.HOME);
+      navigate(ROUTES.HOME);
       return;
     }
+    
     if (!roomCode) {
       navigate(ROUTES.SEARCH_ROOM);
       return;
     }
     const timeoutId = setTimeout(() => {
       socket.emit(SocketEvents.EMIT.ClientEmitJoinRoom, { roomCode: roomCode });
-    }, 5000);
+    }, 3000);
+
     return () => {
       clearTimeout(timeoutId);
     };
+
   }, [socket, searchParams, navigate]);
   return (
     <div className="relative max-w-[1200px] w-full h-full p-2">
@@ -33,7 +36,7 @@ const PlayGame = () => {
         title={
           <span>
             {/* Đang tham gia trò chơi <br /> vui lòng đợi trong giây lát! */}
-            Joining the game <br /> please wait a moment!
+            Joining the game <br /> Please wait a moment!
           </span>
         }
       />

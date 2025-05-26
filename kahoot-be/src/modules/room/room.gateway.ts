@@ -2,17 +2,17 @@ import { UserWs } from '@base/decorators/user-ws.decorator';
 import { WsJwtGuard } from '@base/guards/ws-auth.guard';
 import { WSAuthMiddleware } from '@base/middlewares/ws-auth.middleware';
 import {
-    NAME_SPACE_JOIN_GAME,
-    RECONNECT_WAIT_TIME,
-    WAIT_TIME_PER_QUESTION,
+  NAME_SPACE_JOIN_GAME,
+  RECONNECT_WAIT_TIME,
+  WAIT_TIME_PER_QUESTION,
 } from '@constants';
 import { GameQuestionDto } from '@modules/question/dto/game-question.dto';
 import { RawGameQuestionDto } from '@modules/question/dto/raw-game-question.dto';
 import { Question } from '@modules/question/entities/question.entity';
 import {
-    MultipleChoiceAnswerOptionsDto,
-    QuestionMode,
-    SingleChoiceAnswerOptionsDto,
+  MultipleChoiceAnswerOptionsDto,
+  QuestionMode,
+  SingleChoiceAnswerOptionsDto,
 } from '@modules/question/types';
 import { MezonClientService } from '@modules/shared/mezon/mezon-client.service';
 import { User } from '@modules/user/entities/user.entity';
@@ -20,15 +20,15 @@ import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-    ConnectedSocket,
-    MessageBody,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-    OnGatewayInit,
-    SubscribeMessage,
-    WebSocketGateway,
-    WebSocketServer,
-    WsException,
+  ConnectedSocket,
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { plainToInstance } from 'class-transformer';
 import dayjs from 'dayjs';
@@ -47,12 +47,12 @@ import { RoomUser } from './entities/room-user.entity';
 import { Room } from './entities/room.entity';
 import { RoomCacheService } from './room-cache.service';
 import {
-    ClientConnectionEvent,
-    RoomClientEvent,
-    RoomServerEvent,
-    RoomStatus,
-    StatusModifyCache,
-    UserSocket,
+  ClientConnectionEvent,
+  RoomClientEvent,
+  RoomServerEvent,
+  RoomStatus,
+  StatusModifyCache,
+  UserSocket,
 } from './types/room.type';
 
 @WebSocketGateway({
@@ -705,7 +705,7 @@ export class RoomGateway
       question.time,
     );
     /**
-     * Emit question withthout correct answer to room
+     * Emit question without correct answer to room
      */
     const finishedQuestions =
       await this.roomCacheService.countFinishedQuestion(roomId);

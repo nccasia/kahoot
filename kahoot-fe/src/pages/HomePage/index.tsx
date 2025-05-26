@@ -36,7 +36,7 @@ const HomePage = () => {
           className="font-diablo text-[70px] sm:text-[100px] md:text-[150px] select-none text-white"
           style={{ textShadow: "0px 15px #616BDC" }}
         >
-          ĐỐ BạN
+          Quizz
         </h2>
         <div className="flex flex-col gap-3 min-w-[200px] sm:min-w-[250px] md:min-w-[300px]">
           <Button
@@ -92,13 +92,13 @@ const HomePage = () => {
                   className="text-animation animate-waviy"
                   style={{ animationDelay: `${0 * 0.1}s` }}
                 >
-                  Đ
+                  Q
                 </span>
                 <span
                   className="text-animation animate-waviy"
                   style={{ animationDelay: `${1 * 0.1}s` }}
                 >
-                  Ố
+                  U
                 </span>
               </div>
               <div className="flex gap-1 sm:gap-1 md:gap-2">
@@ -106,19 +106,19 @@ const HomePage = () => {
                   className="text-animation animate-waviy"
                   style={{ animationDelay: `${2 * 0.1}s` }}
                 >
-                  B
+                  I
                 </span>
                 <span
                   className="text-animation animate-waviy"
                   style={{ animationDelay: `${3 * 0.1}s` }}
                 >
-                  ạ
+                  Z
                 </span>
                 <span
                   className="text-animation animate-waviy"
                   style={{ animationDelay: `${4 * 0.1}s` }}
                 >
-                  N
+                  Z
                 </span>
               </div>
             </h1>
