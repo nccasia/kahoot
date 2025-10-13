@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Base64 } from 'js-base64';
 import * as queryString from 'query-string';
+import * as md5 from 'md5';
 import { Hasher } from 'src/utils';
 import { Repository } from 'typeorm';
 import { HashData, MezonAuthDto } from './dto/mezon-auth.dto';
@@ -34,7 +35,9 @@ export class AuthService {
     const hashParamsString = rawHashData.split('&hash=')[0];
 
     const botToken = this.configService.getOrThrow('MEZON_APP_SECRET');
-    const secretKey = Hasher.HMAC_SHA256(botToken, 'WebAppData');
+
+    const hashedBotToken = md5(botToken);
+    const secretKey = Hasher.HMAC_SHA256(hashedBotToken, 'WebAppData');
     const hashedData = Hasher.HEX(
       Hasher.HMAC_SHA256(secretKey, hashParamsString),
     );
