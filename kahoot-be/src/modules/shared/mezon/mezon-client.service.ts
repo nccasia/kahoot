@@ -9,7 +9,17 @@ export class MezonClientService {
   private logger = new Logger(MezonClientService.name);
 
   constructor() {
-    this.client = new MezonClient(process.env.MEZON_APP_SECRET);
+    const clientId = process.env.MEZON_APP_ID;
+    const clientSecret = process.env.MEZON_APP_SECRET;
+    if (!clientId || !clientSecret) {
+      throw new Error('MEZON_APP_ID and MEZON_APP_SECRET must be set');
+    }
+    
+    this.client = new MezonClient({
+      botId: clientId,
+      token: clientSecret,
+    });
+
     this.client.login().then(() => {
       console.log('Mezon client authenticated successfully');
     });
