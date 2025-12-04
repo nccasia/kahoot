@@ -16,14 +16,16 @@ export interface IGetTokenResponse {
   userId: string;
   email: string;
   userName: string;
+  mezonUserId?: string;
+  avatar?: string;
 }
 
 export interface ICurrentUser {
   userId: string;
-  mezonUserId: string;
-  email: string;
+  mezonUserId?: string;
+  email?: string;
   userName: string;
-  avatar: string;
+  avatar?: string;
   accessToken: string;
 }
 

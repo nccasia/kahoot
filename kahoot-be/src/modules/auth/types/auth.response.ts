@@ -14,6 +14,12 @@ export class ResponseToken {
   @ApiProperty()
   @Expose()
   userName: string;
+  @ApiProperty()
+  @Expose()
+  mezonUserId?: string;
+  @ApiProperty()
+  @Expose()
+  avatar?: string;
 }
 
 export class ResponseRegister {

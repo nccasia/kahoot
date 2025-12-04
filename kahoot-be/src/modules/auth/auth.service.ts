@@ -7,12 +7,13 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Base64 } from 'js-base64';
-import * as queryString from 'query-string';
-import * as md5 from 'md5';
+import queryString from 'query-string';
+import md5 from 'md5';
 import { Hasher } from 'src/utils';
 import { Repository } from 'typeorm';
 import { HashData, MezonAuthDto } from './dto/mezon-auth.dto';
 import { ResponseToken } from './types';
+import { isJSON } from 'class-validator';
 
 @Injectable()
 export class AuthService {
@@ -31,9 +32,14 @@ export class AuthService {
     });
 
     const { hash, ...hashParams } = mezonEventData as HashData;
+    if (!hash || !isJSON(hashParams?.user)) {
+      throw new UnauthorizedException({
+        message: 'You are not in mezon mini-app, please check and try again',
+      });
+    }
+
     const mezonUser = JSON.parse(hashParams?.user) as MezonHashUser;
     const hashParamsString = rawHashData.split('&hash=')[0];
-
     const botToken = this.configService.getOrThrow('MEZON_APP_SECRET');
 
     const hashedBotToken = md5(botToken);
