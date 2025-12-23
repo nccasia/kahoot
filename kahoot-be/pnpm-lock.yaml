@@ -90,8 +90,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       mezon-sdk:
-        specifier: ^2.8.29
-        version: 2.8.29(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3))
+        specifier: ^2.8.31
+        version: 2.8.31(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3))
       node-schedule:
         specifier: ^2.1.1
         version: 2.1.1
@@ -3369,8 +3369,8 @@ packages:
     resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
     engines: {node: '>= 0.6'}
 
-  mezon-sdk@2.8.29:
-    resolution: {integrity: sha512-88D4BJW/p2z5xPi51kL3eo282gyvl8K832U6bORxJkKo+X4y30ypq0y415OTgLEAw/m7bimDVv/hOHdcv+VbnA==}
+  mezon-sdk@2.8.31:
+    resolution: {integrity: sha512-F3N67Q7IGjK0bAxH419ZnJakik8eg7pXTTT2TQZhqExFbChPwVvwWxz7JwYQYvb1ZoAnpohBWavsS1cn5ODGzg==}
 
   micromatch@3.1.10:
     resolution: {integrity: sha512-MWikgl9n9M3w+bpsY3He8L+w9eF9338xRl8IAO5viDizwSzziFEyUzo2xrrloB64ADbTf8uA8vRqqttDTOmccg==}
@@ -9198,7 +9198,7 @@ snapshots:
 
   methods@1.1.2: {}
 
-  mezon-sdk@2.8.29(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3)):
+  mezon-sdk@2.8.31(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3)):
     dependencies:
       '@types/ws': 8.18.1
       base64-arraybuffer: 1.0.2
