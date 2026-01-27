@@ -3,6 +3,7 @@ import { Expose } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
@@ -33,7 +34,7 @@ export class MezonUserDto {
 export class MezonHashUser {
   @Expose()
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   id: string;
   @Expose()
   @IsNotEmpty()
