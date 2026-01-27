@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 export class MezonUserDto {
   @ApiProperty()
@@ -37,6 +43,10 @@ export class MezonHashUser {
   @IsNotEmpty()
   @IsString()
   username: string;
+  @Expose()
+  @IsOptional()
+  @IsEmail()
+  email?: string;
   @Expose()
   display_name?: string;
   @Expose()

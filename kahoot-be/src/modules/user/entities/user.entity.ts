@@ -17,6 +17,7 @@ export class User extends AbstractEntity {
   @IsString()
   @Column({ unique: true })
   mezonUserId: string;
+
   @ApiProperty()
   @IsNotEmpty()
   @IsString()

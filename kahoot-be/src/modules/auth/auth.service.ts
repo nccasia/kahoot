@@ -55,16 +55,13 @@ export class AuthService {
     }
 
     let storedUser = await this.usersRepository.findOne({
-      where: {
-        mezonUserId: mezonUser.id,
-        userName: mezonUser.username,
-      },
+      where: [{ mezonUserId: mezonUser.id }, { userName: mezonUser?.username }],
     });
     if (!storedUser) {
       storedUser = this.usersRepository.create({
         mezonUserId: mezonUser.id,
         userName: mezonUser.username,
-        email: mezonUser?.mezon_id,
+        email: mezonUser?.email,
         avatar: mezonUser?.avatar_url,
       });
       await this.usersRepository.save(storedUser);
