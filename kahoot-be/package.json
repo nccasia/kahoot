@@ -52,7 +52,7 @@
     "js-base64": "^3.7.7",
     "lodash": "^4.17.21",
     "md5": "^2.3.0",
-    "mezon-sdk": "^2.8.38",
+    "mezon-sdk": "^2.8.42",
     "node-schedule": "^2.1.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
