@@ -90,8 +90,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       mezon-sdk:
-        specifier: ^2.8.42
-        version: 2.8.42(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3))
+        specifier: ^2.8.53
+        version: 2.8.53(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3))
       node-schedule:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2185,6 +2185,10 @@ packages:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
 
+  eventsource@2.0.2:
+    resolution: {integrity: sha512-IzUmBGPR3+oUG9dUeXynyNmf91/3zUSJg1lCktzKw47OXuhco54U3r9B7O4XX+Rb1Itm9OZ2b0RkTs10bICOxA==}
+    engines: {node: '>=12.0.0'}
+
   exec-sh@0.3.6:
     resolution: {integrity: sha512-nQn+hI3yp+oD0huYhKwvYI32+JFeq+XkNcD1GAo3Y/MjxsfVGmrrzrnzjWiNY6f+pUCP440fThsFh5gZrRAU/w==}
 
@@ -3360,8 +3364,8 @@ packages:
     resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
     engines: {node: '>= 0.6'}
 
-  mezon-sdk@2.8.42:
-    resolution: {integrity: sha512-RV9K7Tuil84zMFh3ZemEBgkfbzOXsKoI3grkKlEiYYz+31Gvuvc1sunXTPS26tht00C3uQM9sPl2mnaS25JPIg==}
+  mezon-sdk@2.8.53:
+    resolution: {integrity: sha512-GAKnJaTNvTgx/avEENlSgOMnIZF+Lwcb6xOqw+3z50BKyOyjF44j6JNokTLeSnOfWkx2zaYnp6G8LXGYca4LRQ==}
 
   micromatch@3.1.10:
     resolution: {integrity: sha512-MWikgl9n9M3w+bpsY3He8L+w9eF9338xRl8IAO5viDizwSzziFEyUzo2xrrloB64ADbTf8uA8vRqqttDTOmccg==}
@@ -3808,6 +3812,7 @@ packages:
   prebuild-install@7.1.3:
     resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
     engines: {node: '>=10'}
+    deprecated: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
     hasBin: true
 
   prelude-ls@1.2.1:
@@ -4758,6 +4763,7 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
@@ -7433,6 +7439,8 @@ snapshots:
 
   events@3.3.0: {}
 
+  eventsource@2.0.2: {}
+
   exec-sh@0.3.6: {}
 
   execa@1.0.0:
@@ -9169,11 +9177,12 @@ snapshots:
 
   methods@1.1.2: {}
 
-  mezon-sdk@2.8.42(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3)):
+  mezon-sdk@2.8.53(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3)):
     dependencies:
       '@types/ws': 8.18.1
       base64-arraybuffer: 1.0.2
       better-sqlite3: 11.10.0
+      eventsource: 2.0.2
       jest-cucumber: 3.0.2(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3))
       js-base64: 3.7.8
       mmn-client-js: 1.0.16
