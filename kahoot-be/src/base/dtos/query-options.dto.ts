@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import { IsObject, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer';
 import { IsSortQuery } from '../pipes/is-sort-query';
 
 type OperatorQuery = 'eq' | 'neq' | 'gte' | 'gt' | 'lte' | 'lte';
@@ -18,6 +18,12 @@ export class QueryOptionsDto {
   limit: number;
 
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return JSON.parse(value);
+    }
+    return value;
+  })
   @IsSortQuery()
   sort: Record<string, 'desc' | 'asc'>;
 

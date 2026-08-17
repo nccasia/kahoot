@@ -5,9 +5,10 @@ import SocketEvents from "@/constants/SocketEvents";
 import { ISendAnswerDTO } from "@/interfaces/questionTypes";
 import { RoomContext } from "@/providers/ContextProvider/RoomProvider";
 import { useSocket } from "@/providers/SocketProvider";
+import { ROUTES } from "@/routes/routePath";
 import RoomActions from "@/stores/roomStore/roomAction";
 import { useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import EndGame from "./components/EndGame";
 import InfoBox from "./components/InfoBox";
@@ -18,23 +19,40 @@ const QuizzPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const { roomState, roomDispatch } = useContext(RoomContext);
   const socket = useSocket();
+  const navigate = useNavigate();
 
   const handleSendAnswer = (questionId: string) => {
     if (!socket || !roomId || !questionId) return;
 
-    const { isSubmitAnswer, isOwner, isEndGame, isWaitingEndGame, textAnswer, currentQuestion, multipleChoiceSelectedAnswers } = roomState;
+    const {
+      isSubmitAnswer,
+      isOwner,
+      isEndGame,
+      isWaitingEndGame,
+      textAnswer,
+      currentQuestion,
+      multipleChoiceSelectedAnswers,
+    } = roomState;
 
     if (isSubmitAnswer || isOwner || isEndGame || isWaitingEndGame) return;
 
     if (
       (!textAnswer?.trim() && currentQuestion?.mode === EQuestionTypes.TEXT) ||
-      (currentQuestion?.mode !== EQuestionTypes.TEXT && !multipleChoiceSelectedAnswers?.length)
+      (currentQuestion?.mode !== EQuestionTypes.TEXT &&
+        !multipleChoiceSelectedAnswers?.length)
     ) {
-      toast.warning("Bạn chưa nhập hoặc chọn đáp án cho câu hỏi này!");
+      toast.warning(
+        // "Bạn chưa nhập hoặc chọn đáp án cho câu hỏi này!"
+        "You have not entered or selected an answer for this question!"
+      );
       return;
     }
 
-    roomDispatch(RoomActions.changeSelectedAnswers(multipleChoiceSelectedAnswers as number[]));
+    roomDispatch(
+      RoomActions.changeSelectedAnswers(
+        multipleChoiceSelectedAnswers as number[]
+      )
+    );
 
     const emitData: ISendAnswerDTO = {
       roomId,
@@ -49,7 +67,10 @@ const QuizzPage = () => {
 
   const handleConfirmFinishGame = () => {
     if (!socket || !roomState.isOwner) {
-      toast.warning("Chỉ chủ phòng mới có thể kết thúc trò chơi");
+      toast.warning(
+        // "Chỉ chủ phòng mới có thể kết thúc trò chơi"
+        "Only the room owner can end the game!"
+      );
       return;
     }
 
@@ -61,12 +82,18 @@ const QuizzPage = () => {
     roomDispatch(RoomActions.changeOpenModalConfirmEndGame(false));
   };
 
+  const handleOutGame = () => {
+    if (!socket) return;
+    socket.emit(SocketEvents.EMIT.ClientEmitLeaveRoom, roomId);
+    navigate(ROUTES.SEARCH_ROOM);
+  };
+
   return (
     <div className="relative max-w-[1200px] w-full h-full p-2">
       {/* Scrollable main layout */}
       <div
         className={`
-          fadeIn h-[calc(100%-40px)] mt-5 bg-[#ba85ff8f] shadow-xl rounded-[40px] overflow-y-auto
+          fadeIn h-[calc(100%-10px)] md:h-[calc(100%-40px)] mt-1 bg-[#ba85ff8f] shadow-xl rounded-[20px] md:rounded-[40px] overflow-y-auto
           [&::-webkit-scrollbar]:w-[3px]
           [&::-webkit-scrollbar-thumb]:bg-transparent
           [&::-webkit-scrollbar-thumb]:rounded-lg
@@ -98,30 +125,35 @@ const QuizzPage = () => {
         <LoadingOverlay
           title={
             <span>
-              Trò chơi chuẩn bị bắt đầu <br /> sẵn sàng chiến đấu nào!
+              {/* Trò chơi chuẩn bị bắt đầu <br /> sẵn sàng chiến đấu nào! */}
+              The game is about to start <br /> Get ready to fight!
             </span>
           }
         />
       )}
-      {roomState.isReconecting && (
+      {roomState.isReconnecting && (
         <LoadingOverlay
           title={
             <span>
-              Đang kết nối lại với trò chơi <br /> vui lòng đợi trong giây lát!
+              {/* Đang kết nối lại với trò chơi <br /> vui lòng đợi trong giây lát! */}
+              Reconnecting to the game <br /> Please wait a moment!
             </span>
           }
+          onCancel={handleOutGame}
+          showCancelButton={true}
         />
       )}
-      {roomState.isEndAnQuestion && roomState.isOwner && !roomState.isEndGame && (
-        <ShowResult />
-      )}
+      {roomState.isEndAnQuestion &&
+        roomState.isOwner &&
+        !roomState.isEndGame && <ShowResult />}
       {roomState.isEndGame && <EndGame />}
       <ModalConfirm
         isOpen={roomState.openMdoalConfirmEndGame}
         onClose={handleCloseModalConfirmEndGame}
         title={
           <span>
-            Bạn có chắc chắn <br /> muốn kết thúc game ngay không?
+            {/* Bạn có chắc chắn <br /> muốn kết thúc game ngay không? */}
+            Are you sure?<br /> You want to end the game now?
           </span>
         }
         onConfirm={handleConfirmFinishGame}

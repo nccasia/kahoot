@@ -1,3 +1,4 @@
+import { IChannelInfo } from "./appTypes";
 import { ICurrentUser } from "./authTypes";
 import { IQuestionGame } from "./questionTypes";
 
@@ -8,10 +9,21 @@ export interface IRoom {
   status: string;
   isOwner: boolean;
   scheduledAt?: Date
+  isNotifyEnabled?: boolean;
   clanId?: string;
-  channelIds?: string[];
+  channelId?: string;
+  textMessage?: string;
+  channels?: IChannelInfo[];
   createdAt: string;
   updatedAt: string;
+}
+export interface ICreateScheduleRoom {
+  scheduledAt: Date;
+  clanId?: string;
+  channelId?: string;
+  textMessage?: string;
+  isNotifyEnabled?: boolean;
+  channels?: IChannelInfo[];
 }
 
 export interface IJoinRoomResponse {

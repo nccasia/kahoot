@@ -7,11 +7,13 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Base64 } from 'js-base64';
-import * as queryString from 'query-string';
+import queryString from 'query-string';
+import md5 from 'md5';
 import { Hasher } from 'src/utils';
 import { Repository } from 'typeorm';
 import { HashData, MezonAuthDto } from './dto/mezon-auth.dto';
 import { ResponseToken } from './types';
+import { isJSON } from 'class-validator';
 
 @Injectable()
 export class AuthService {
@@ -30,11 +32,18 @@ export class AuthService {
     });
 
     const { hash, ...hashParams } = mezonEventData as HashData;
+    if (!hash || !isJSON(hashParams?.user)) {
+      throw new UnauthorizedException({
+        message: 'You are not in mezon mini-app, please check and try again',
+      });
+    }
+
     const mezonUser = JSON.parse(hashParams?.user) as MezonHashUser;
     const hashParamsString = rawHashData.split('&hash=')[0];
-
     const botToken = this.configService.getOrThrow('MEZON_APP_SECRET');
-    const secretKey = Hasher.HMAC_SHA256(botToken, 'WebAppData');
+
+    const hashedBotToken = md5(botToken);
+    const secretKey = Hasher.HMAC_SHA256(hashedBotToken, 'WebAppData');
     const hashedData = Hasher.HEX(
       Hasher.HMAC_SHA256(secretKey, hashParamsString),
     );
@@ -46,17 +55,17 @@ export class AuthService {
     }
 
     let storedUser = await this.usersRepository.findOne({
-      where: {
-        mezonUserId: mezonUser.id,
-        userName: mezonUser.username,
-      },
+      where: [
+        { mezonUserId: String(mezonUser.id) },
+        { userName: mezonUser?.username },
+      ],
     });
     if (!storedUser) {
       storedUser = this.usersRepository.create({
-        mezonUserId: mezonUser.id,
+        mezonUserId: String(mezonUser.id),
         userName: mezonUser.username,
-        email: mezonUser.mezon_id,
-        avatar: mezonUser.avatar_url,
+        email: mezonUser?.email,
+        avatar: mezonUser?.avatar_url,
       });
       await this.usersRepository.save(storedUser);
     }

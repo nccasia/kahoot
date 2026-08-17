@@ -16,9 +16,6 @@ const InfoBox = () => {
     if (!roomState.currentQuestion?.id) return;
     const endTime = new Date(roomState.currentQuestion.endTime);
     const currentTime = new Date();
-
-    console.log("endTime", endTime);
-    console.log("currentTime", currentTime);
     const timeRemaining = endTime.getTime() - currentTime.getTime();
 
     // Chuyển đổi sang giây
@@ -57,7 +54,7 @@ const InfoBox = () => {
   }, [roomState.currentQuestion?.id]);
 
   return (
-    <div className='p-4'>
+    <div className="p-2 md:p-4">
       <UserBox
         isOwner={roomState.isOwner}
         onFinishGame={handleFinishGame}
@@ -65,11 +62,11 @@ const InfoBox = () => {
         score={roomState.userPoint?.totalPoint ?? 0}
         user={authState.currentUser}
       />
-      <div className='mt-4 min-h-[200px] bg-[#919a9070] w-full rounded-xl flex flex-col items-center  p-2 select-none cursor-pointer'>
-        <div className='min-h-[100px] flex items-center justify-center w-full'>
+      <div className="mt-4 min-h-[200px] bg-[#919a9070] w-full rounded-xl flex flex-col items-center  p-2 select-none cursor-pointer">
+        <div className="min-h-[100px] flex items-center justify-center w-full">
           {roomState.isEndAnQuestion ? (
             <div
-              className='h-full flex justify-center items-center text-white font-coiny text-5xl animate-pulse'
+              className="h-full flex justify-center items-center text-white font-coiny text-5xl animate-pulse"
               style={{ animationDuration: ".5s" }}
             >
               <span>+{roomState.userPoint?.currentQuestionPoint ?? 0}</span>
@@ -79,29 +76,43 @@ const InfoBox = () => {
           )}
         </div>
         {roomState.isOwner ? (
-          <div className='w-full flex justify-between items-center font-coiny'>
-            <div className='flex items-center justify-center gap-1 flex-col w-[150px] text-white'>
-              <img className='w-[100px] h-[100px]' src='/icons/icon-mouse.png' />
-              <span className='text-lg'>Đang chơi</span>
-              <span className='text-xl'>{roomState.listMemberOfRoom?.length}</span>
+          <div className="w-full flex justify-between items-center font-coiny">
+            <div className="flex items-center justify-center gap-1 flex-col w-[150px] text-white">
+              <img
+                className="w-[100px] h-[100px]"
+                src="/icons/icon-mouse.png"
+              />
+              <span className="text-lg">
+                {/* Đang chơi */}
+                Playing
+              </span>
+              <span className="text-xl">
+                {roomState.listMemberOfRoom?.length}
+              </span>
             </div>
-            <div className='flex items-center justify-center gap-1 flex-col w-[150px] text-white'>
-              <img className='w-[100px] h-[100px]' src='/icons/icon-cat-1.png' />
-              <span className='text-lg'>Đã trả lời</span>
-              <span className='text-xl'>{roomState.submitedUser}</span>
+            <div className="flex items-center justify-center gap-1 flex-col w-[150px] text-white">
+              <img
+                className="w-[100px] h-[100px]"
+                src="/icons/icon-cat-1.png"
+              />
+              <span className="text-lg">
+                {/* Đã trả lời */}
+                Submitted
+              </span>
+              <span className="text-xl">{roomState.submitedUser}</span>
             </div>
           </div>
         ) : (
-          <div className='font-coiny text-white'>
+          <div className="font-coiny text-white">
             {roomState.isEndAnQuestion ? (
               <>
                 {roomState.isCorrect ? (
-                  <div className='text-lg'>
+                  <div className="text-lg">
                     <h5>{congratulationText}</h5>
                     <h5>{correctText}</h5>
                   </div>
                 ) : (
-                  <div className='text-lg'>
+                  <div className="text-lg">
                     <h5>{errorText}</h5>
                     <h5>{wrongText}</h5>
                   </div>
@@ -110,11 +121,11 @@ const InfoBox = () => {
             ) : (
               <>
                 {roomState.isSubmitAnswer ? (
-                  <div className='text-lg'>
+                  <div className="text-lg">
                     <h5>{waitingText}</h5>
                   </div>
                 ) : (
-                  <div className='text-lg'>
+                  <div className="text-lg">
                     <h5>{startText}</h5>
                   </div>
                 )}

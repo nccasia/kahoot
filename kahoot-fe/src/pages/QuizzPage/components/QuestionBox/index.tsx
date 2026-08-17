@@ -21,23 +21,47 @@ const answerColor = ["#6f9366c4", "#ef5184c4", "#d451efc4", "#a78910b8"];
 
 const submitLabel = {
   [EQuestionTypes.SINGLE_CHOICE]: (
-    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
-      <span>Bạn hãy chọn</span>
-      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>một đáp án</span>
-      <span> cho câu hỏi này!</span>
+    <div className="relative flex flex-wrap items-center justify-center gap-3 text-lg">
+      <span>
+        {/* Bạn hãy chọn */}
+        You can choose
+      </span>
+      <span className="text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm">
+        {/* một đáp án */}
+        one answer
+      </span>
+      <span>
+        {/* cho câu hỏi này! */}
+        for this question!
+      </span>
     </div>
   ),
   [EQuestionTypes.MULTIPLE_CHOICE]: (
-    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
-      <span>Bạn có thể chọn</span>
-      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>nhiều đáp án</span>
-      <span> cho câu hỏi này!</span>
+    <div className="relative flex flex-wrap items-center justify-center gap-3 text-lg">
+      <span>
+        {/* Bạn có thể chọn */}
+        You can choose
+      </span>
+      <span className="text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm">
+        {/* nhiều đáp án */}
+        multiple answers
+      </span>
+      <span>
+        {/* cho câu hỏi này! */}
+        for this question!
+      </span>
     </div>
   ),
   [EQuestionTypes.TEXT]: (
-    <div className='relative flex flex-wrap items-center justify-center gap-3 text-lg'>
-      <span className='text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm -rotate-3'>Nhập đáp án</span>
-      <span> Và nhấn submit để trả lời!</span>
+    <div className="relative flex flex-wrap items-center justify-center gap-3 text-lg">
+      <span className="text-[#a50909] bg-slate-300 px-2 py-1 rounded-sm">
+        {/* Nhập đáp án */}
+        Enter your answer
+      </span>
+      <span>
+        {/* Và nhấn submit để trả lời! */}
+        and press submit to answer!
+      </span>
     </div>
   ),
 };
@@ -51,7 +75,6 @@ const QuestionBox = ({
   correctAnswerText,
   isShowAnswer = false,
 }: QuestionBoxProps) => {
-
   const { roomDispatch, roomState } = useContext(RoomContext);
   const handleClickAnswer = (index: number) => {
     if (question?.mode === EQuestionTypes.MULTIPLE_CHOICE) {
@@ -67,15 +90,19 @@ const QuestionBox = ({
   };
 
   return (
-    <div className='p-4 flex flex-col gap-4 w-full h-full font-coiny'>
-      {question?.order && <div className='p-2 font-coiny text-center text-white'>QUESTION {question?.order}</div>}
+    <div className="p-2 md:p-4 flex flex-col gap-4 w-full h-full font-coiny">
+      {question?.order && (
+        <div className="p-2 font-coiny text-center text-white">
+          QUESTION {question?.order}
+        </div>
+      )}
       {question?.title && (
-        <div className=' flex-1 flex-col flex items-center justify-center text-xl bg-[#5d017e] text-white w-full rounded-xl p-2 select-none '>
-          <div className='flex flex-col gap-2 items-center justify-center w-full'>
+        <div className=" flex-1 flex-col flex items-center justify-center text-xl bg-[#5d017e] text-white w-full rounded-xl p-2 select-none ">
+          <div className="flex flex-col gap-2 items-center justify-center w-full">
             <p>{question?.title}</p>
           </div>
           {question?.image && (
-            <div className='w-full max-h-[250px] overflow-hidden rounded-xl flex justify-center items-center'>
+            <div className="w-full max-h-[250px] overflow-hidden rounded-xl flex justify-center items-center">
               <ImagePreview
                 src={question.image}
                 classNameDefault="
@@ -88,35 +115,42 @@ const QuestionBox = ({
               />
             </div>
           )}
-
         </div>
       )}
       {!isOwner && (
-        <div className='flex items-center justify-between w-full'>
-          <span>{question?.mode && submitLabel[question?.mode as EQuestionTypes]}</span>
-          <Button onClick={() => onSendAnswer(question?.id ?? "")} className='bg-[#6B00E7] rounded-md min-w-[50px]'>
+        <div className="flex flex-col sm:flex-row items-center justify-between w-full">
+          <span>
+            {question?.mode && submitLabel[question?.mode as EQuestionTypes]}
+          </span>
+          <Button
+            onClick={() => onSendAnswer(question?.id ?? "")}
+            className="bg-[#6B00E7] rounded-md min-w-[50px] mt-3"
+          >
             Submit
           </Button>
         </div>
       )}
       {question?.mode === EQuestionTypes.TEXT ? (
-        <div className='flex justify-center flex-col items-center gap-4 w-full min-h-[40%] bg-[#4c7e01ad] rounded-lg '>
+        <div className="flex mb-10 justify-center flex-col items-center gap-4 w-full min-h-[40%] bg-[#4c7e01ad] rounded-lg ">
           <Input
             disabled={isSubmitAnswer || isOwner}
             onChange={handleChangeAnswerText}
             value={roomState?.textAnswer}
-            placeholder='Nhập đáp án của bạn'
-            className='h-[50px] max-w-[300px] w-full text-center'
+            placeholder="Nhập đáp án của bạn"
+            className="h-[50px] max-w-[300px] w-full text-center"
           />
           {isSubmitAnswer && isShowAnswer && (
-            <div className='flex justify-center items-center gap-2 text-white text-lg'>
-              <span>Đáp án đúng:</span>
+            <div className="flex justify-center items-center gap-2 text-white text-lg">
+              <span>
+                {/* Đáp án đúng: */}
+                Correct answer:
+              </span>
               <span>{correctAnswerText}</span>
             </div>
           )}
         </div>
       ) : (
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 w-full min-h-[50%]'>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full min-h-[50%]">
           {question?.answerOptions?.options?.map((option, index) => (
             <Button
               onClick={() => handleClickAnswer(index)}
@@ -125,26 +159,33 @@ const QuestionBox = ({
                 animationDuration: ".5s",
                 backgroundColor: answerColor[index],
               }}
-              size='large'
+              size="large"
               disabled={isSubmitAnswer || isOwner}
               className={`relative flex items-center justify-center rounded-xl min-h-[130px] max-h-[200px] p-2 transition-all filter  text-white text-xl 
-               ${!isSubmitAnswer && !isOwner
-                  ? "hover:brightness-110 active:brightness-100 select-none cursor-pointer"
-                  : "hover:brightness-100 active:brightness-100 cursor-default"
-                } ${isSubmitAnswer
+               ${
+                 !isSubmitAnswer && !isOwner
+                   ? "hover:brightness-110 active:brightness-100 select-none cursor-pointer"
+                   : "hover:brightness-100 active:brightness-100 cursor-default"
+               } ${
+                isSubmitAnswer
                   ? selectedAnswers?.includes(index)
                     ? "brightness-50 hover:brightness-50 active:brightness-50"
                     : ""
                   : ""
-                } ${correctAnswers?.includes(index) && "animate-pulse duration-200"}`}
+              } ${
+                correctAnswers?.includes(index) && "animate-pulse duration-200"
+              }`}
             >
               {!isOwner && (
                 <div
-                  className={`w-5 h-5 border-white border-2 flex items-center justify-center absolute top-2 left-2 ${question.mode === EQuestionTypes.SINGLE_CHOICE ? "rounded-full" : "rounded-md"
-                    }`}
+                  className={`w-5 h-5 border-white border-2 flex items-center justify-center absolute top-2 left-2 ${
+                    question.mode === EQuestionTypes.SINGLE_CHOICE
+                      ? "rounded-full"
+                      : "rounded-md"
+                  }`}
                 >
                   {roomState.multipleChoiceSelectedAnswers?.includes(index) && (
-                    <span className='w-2 h-2 bg-white rounded-full block blur-[1px]'></span>
+                    <span className="w-2 h-2 bg-white rounded-full block blur-[1px]"></span>
                   )}
                 </div>
               )}

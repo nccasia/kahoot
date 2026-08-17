@@ -5,16 +5,34 @@ export enum EQuestionTypes {
 }
 
 export const questionTypeOptions = [
+  // {
+  //   label: "Câu hỏi một lựa chọn",
+  //   value: EQuestionTypes.SINGLE_CHOICE,
+  // },
+  // {
+  //   label: "Câu hỏi nhiều lựa chọn",
+  //   value: EQuestionTypes.MULTIPLE_CHOICE,
+  // },
+  // {
+  //   label: "Câu hỏi nhập văn bản",
+  //   value: EQuestionTypes.TEXT,
+  // },
   {
-    label: "Câu hỏi một lựa chọn",
+    label: "Single Choice",
     value: EQuestionTypes.SINGLE_CHOICE,
   },
   {
-    label: "Câu hỏi nhiều lựa chọn",
+    label: "Multiple Choice",
     value: EQuestionTypes.MULTIPLE_CHOICE,
   },
   {
-    label: "Câu hỏi nhập văn bản",
+    label: "Text Input",
     value: EQuestionTypes.TEXT,
   },
 ];
+
+export const questionImportTypes = {
+  [EQuestionTypes.SINGLE_CHOICE]: "SINGLE",
+  [EQuestionTypes.MULTIPLE_CHOICE]: "MULTIPLE",
+  [EQuestionTypes.TEXT]: "TEXT",
+};

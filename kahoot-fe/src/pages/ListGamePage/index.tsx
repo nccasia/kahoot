@@ -30,7 +30,9 @@ const ListGamePage = () => {
   useEffect(() => {
     let listGameToShow = gameState.listGames;
     if (text) {
-      listGameToShow = gameState.listGames?.filter((game) => game.name.toLowerCase().includes(text.toLowerCase()));
+      listGameToShow = gameState.listGames?.filter((game) =>
+        game.name.toLowerCase().includes(text.toLowerCase())
+      );
     }
     gameDispatch(GameActions.changeFilterGames(listGameToShow));
   }, [gameDispatch, gameState.listGames, text]);
@@ -41,7 +43,10 @@ const ListGamePage = () => {
         const response = await gameServices.getListGame(1, 999, "");
         if (!(response.statusCode === 200 || response.statusCode === 201)) {
           console.log("error", response);
-          toast.error("Lỗi khi lấy danh sách game!");
+          toast.error(
+            // "Lỗi khi lấy danh sách game!"
+            "Error fetching game list!"
+          );
           return;
         }
         const listGame = response.data as IGame[];
@@ -53,36 +58,52 @@ const ListGamePage = () => {
     getListGame();
   }, [gameDispatch]);
   return (
-    <div className='max-w-[1200px] w-[100%] h-full p-2'>
-      <div className='header h-[80px] flex justify-between items-center'>
-        <div className='w-[100px] md:w-[150px]'>
+    <div className="max-w-[1200px] w-[100%] h-full p-2">
+      <div className="header h-[80px] flex justify-between items-center">
+        <div className="w-[100px] md:w-[150px]">
           <ButtonBack />
         </div>
         <Input
           value={searchText}
           onChange={(e) => handleChangeSearchText(e.target.value)}
-          placeholder='Tìm kiếm...'
-          className='text-center w-[150px] md:w-[200px] placeholder-white'
+          // placeholder='Tìm kiếm...'
+          placeholder="Search..."
+          className="text-center w-[150px] md:w-[200px] placeholder-white"
         />
-        <Button onClick={handleGoToCreateGame} className='text-center bg-[#6B00E7] font-coiny min-w-[80px] md:min-w-[150px]'>
-          Tạo game
+        <Button
+          onClick={handleGoToCreateGame}
+          className="hidden sm:block text-center bg-[#6B00E7] font-coiny min-w-[80px] md:min-w-[150px]"
+        >
+          {/* Tạo game */}
+          Create Game
+        </Button>
+        <Button
+          onClick={handleGoToCreateGame}
+          className="block sm:hidden text-center bg-[#6B00E7] font-coiny min-w-[50px] px-3"
+        >
+          <img className="w-[20px] h-[20px]" src="/icons/PlusIcon.png" />
         </Button>
       </div>
       <div
         style={{ animationDelay: "unset" }}
-        className='fadeIn h-[calc(100%-100px)] mt-[20px] bg-[#6B00E7CC] border-[0.6rem] border-[#1C0C8E] rounded-[40px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent'
+        className="fadeIn h-[calc(100%-100px)] mt-[20px] bg-[#6B00E7CC] border-[0.3rem] md:border-[0.6rem] border-[#1C0C8E] rounded-[20px] md:rounded-[40px] overflow-y-auto [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-transparent"
       >
         {gameState?.filterGames?.length > 0 ? (
-          <div className='grid grid-cols-1 lg:grid-cols-2  gap-4 p-4'>
+          <div className="grid grid-cols-1 lg:grid-cols-2  gap-2 md:gap-4 p-2 md:p-4">
             {gameState.filterGames?.map((item, index) => (
               <RoomItem game={item} key={index} />
             ))}
           </div>
         ) : (
-          <div className='flex justify-center items-center h-[400px] flex-col gap-5 text-white font-coiny text-2xl'>
-            <span>Bạn chưa tạo game nào trước đó!</span>
-            <Button onClick={handleGoToCreateGame} className='text-center bg-[#6BB3E0] font-coiny min-w-[100px] md:min-w-[150px]'>
-              Tạo game
+          <div className="flex justify-center items-center h-[400px] flex-col gap-5 text-white font-coiny text-2xl">
+            {/* <span>Bạn chưa tạo game nào trước đó!</span> */}
+            <span>You haven't created any games yet!</span>
+            <Button
+              onClick={handleGoToCreateGame}
+              className="text-center bg-[#6BB3E0] font-coiny min-w-[100px] md:min-w-[150px]"
+            >
+              {/* Tạo game */}
+              Create Game
             </Button>
           </div>
         )}

@@ -1,3 +1,4 @@
+import { QueryOptions } from "@/constants/QueryOption";
 import { AppActionType } from "@/interfaces/appTypes";
 import { IGame } from "@/interfaces/gameTypes";
 import { IQuestion } from "@/interfaces/questionTypes";
@@ -202,6 +203,28 @@ const GameReducer = (state = initGameState, action: AppActionType<GAME_TYPE>): G
       return {
         ...state,
         listRooms: action.payload,
+      };
+    }
+    case GAME_TYPE.ADD_ROOM: {
+      const listRooms = state.listRooms;
+      if (listRooms.length == QueryOptions.MAX_HISTORY_SIZE) {
+        listRooms.pop();
+      }
+      return {
+        ...state,
+        listRooms: [action.payload, ...listRooms],
+      };
+    }
+    case GAME_TYPE.UPDATE_SCHEDULED_ROOM: {
+      const listRooms = state.listRooms.map((item: IRoom) => {
+        if (item.id === action.payload.id) {
+          return action.payload;
+        }
+        return item;
+      });
+      return {
+        ...state,
+        listRooms: listRooms,
       };
     }
     default:
