@@ -90,8 +90,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       mezon-sdk:
-        specifier: ^2.8.53
-        version: 2.8.53(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3))
+        specifier: ^2.8.55
+        version: 2.8.55(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3))
       node-schedule:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1818,6 +1818,7 @@ packages:
 
   crypto-js@4.2.0:
     resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
+    deprecated: Active development of CryptoJS has been discontinued. This library is no longer maintained.
 
   cssom@0.3.8:
     resolution: {integrity: sha512-b0tGHbfegbhPJpxpiBPU2sCkigAqtM9O121le6bbOlgyV+NyGyCmVfJ6QW9eRjz8CpNfWEOYBIMIGRYkLwsIYg==}
@@ -3364,8 +3365,8 @@ packages:
     resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
     engines: {node: '>= 0.6'}
 
-  mezon-sdk@2.8.53:
-    resolution: {integrity: sha512-GAKnJaTNvTgx/avEENlSgOMnIZF+Lwcb6xOqw+3z50BKyOyjF44j6JNokTLeSnOfWkx2zaYnp6G8LXGYca4LRQ==}
+  mezon-sdk@2.8.55:
+    resolution: {integrity: sha512-wg4L6TJXqHvhUWqSXy+lpOdnNPVjt9LRJ+xkxry+dVNA9SYwJI1V38dYacQOVUL3v5BncnUBGITyUZEdJMUnSQ==}
 
   micromatch@3.1.10:
     resolution: {integrity: sha512-MWikgl9n9M3w+bpsY3He8L+w9eF9338xRl8IAO5viDizwSzziFEyUzo2xrrloB64ADbTf8uA8vRqqttDTOmccg==}
@@ -9177,7 +9178,7 @@ snapshots:
 
   methods@1.1.2: {}
 
-  mezon-sdk@2.8.53(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3)):
+  mezon-sdk@2.8.55(ts-node@10.9.2(@types/node@20.17.13)(typescript@5.7.3)):
     dependencies:
       '@types/ws': 8.18.1
       base64-arraybuffer: 1.0.2
